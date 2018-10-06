@@ -45,7 +45,7 @@ export default class Chat extends Component {
                         </Message>
                     </MessageGroup>
 
-                        <Message authorName="Jon Smith" date="21:37">
+                        <Message key="22" isOwn={true} authorName="Jon Smith" date="21:37">
                             <MessageText>No problem!</MessageText>
                         </Message>
 

@@ -1,13 +1,13 @@
 import { RhelenaPresentationModel } from 'rhelena';
 
 export default class ChatListItemModel extends RhelenaPresentationModel {
-    constructor(chat) {
+    constructor(chatInfo) {
         super();
 
-        this.costumer = chat.costumer
+        this.costumer = chatInfo.costumer
         console.log('this.costumer', this.costumer);
         
-        this.messages = chat.messages
+        this.lastMessage = chatInfo.lastMessage
         this.status = "offline"
         this.active = false
     }

@@ -20,21 +20,21 @@ export default class ChatList extends Component {
         return (
             <div>
                 <UIChatList>
-                    <ChatListItem chatData={{
+                    <ChatListItem chatInfo={{
                         costumer: {
                             name: "Leonard"
                         },
-                        messages: [{
+                        lastMessage: {
 
-                        }]
+                        }
                     }} />
-                    <ChatListItem chatData={{
+                    <ChatListItem chatInfo={{
                         costumer: {
                             name: "Rose"
                         },
-                        messages: [{
+                        lastMessage: {
 
-                        }]
+                        }
                     }} />
                 </UIChatList>
             </div>

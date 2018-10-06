@@ -24,6 +24,11 @@ import './ChatStation.css';
           paddingLeft: "1rem"
         }
       }
+    },
+    MessageList: {
+      css: {
+        background: "transparent"
+      }
     }
   }
 
@@ -33,6 +38,7 @@ export default class ChatStation extends Component {
   render() {
     return (
       <ThemeProvider theme={textComposeTheme}>
+
         <div className="mainArea">
 
             <div className="chatListPane">

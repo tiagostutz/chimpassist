@@ -17,7 +17,7 @@ import './ChatListItem.css'
 export default class ChatListItem extends Component {
 
     componentWillMount() {
-        attachModelToView(new ChatListItemModel(this.props.chatData), this)
+        attachModelToView(new ChatListItemModel(this.props.chatInfo), this)
     }
 
     render() {
@@ -27,7 +27,7 @@ export default class ChatListItem extends Component {
                 <Column fill>
                     <Row justify>
                     <Title ellipsis>{this.state.costumer.name}</Title>
-                    {this.state.messages && <Subtitle nowrap>{this.state.messages[this.state.messages.length-1].timestamp}</Subtitle> }
+                    {this.state.lastMessage && <Subtitle nowrap>{this.state.lastMessage.timestamp}</Subtitle> }
                     </Row>
                     <Subtitle ellipsis>
                     {'Hello, how can I help you? We have a lot to talk about'}

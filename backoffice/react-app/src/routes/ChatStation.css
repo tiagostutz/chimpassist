@@ -1,0 +1,23 @@
+.mainArea{
+  height: 100%;
+  display: flex;
+  background-image: url("/images/chat-background-3.jpg");
+  background-size: 30%;
+}
+
+.chatListPane{
+  height: 100%;
+  flex: .3;
+  border-right: 1px solid #E9E9E9;
+  background: white;
+  box-shadow: 1px 1px 8px 2px black
+}
+
+.inputMessagePane {
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(0,0,0,.8);
+}

@@ -26,15 +26,20 @@ export default class Chat extends Component {
         return (            
             <div className="chatView">
                 <MessageList  active containScrollInSubtree>
+
+                    <Message key="22" isOwn={true} date="21:37">
+                        <MessageText>No problem!</MessageText>
+                    </Message>
+                    
                     <MessageGroup
                         avatar="https://livechat.s3.amazonaws.com/default/avatars/male_8.jpg"
                         onlyFirstWithMeta
                         >
-                        <Message authorName="Jon Smith" date="21:37">
+                        <Message date="21:37">
                             <MessageText>No problem!</MessageText>
                         </Message>
                         <Message
-                            authorName="Jon Smith"
+                        
                             imageUrl="https://static.staging.livechatinc.com/1520/P10B78E30V/dfd1830ebb68b4eefe6432d7ac2be2be/Cat-BusinessSidekick_Wallpapers.png"
                             date="21:39"
                         >
@@ -45,39 +50,41 @@ export default class Chat extends Component {
                         </Message>
                     </MessageGroup>
 
-                        <Message key="22" isOwn={true} authorName="Jon Smith" date="21:37">
+                        <Message date="21:37" className="messageBubble">
                             <MessageText>No problem!</MessageText>
                         </Message>
 
-                        <Message authorName="Jon Smith" date="21:37">
+                        <Message date="21:37" isOwn={true}>
                             <MessageText>No problem!</MessageText>
                         </Message>
 
-                        <Message authorName="Jon Smith" date="21:37">
+                        <Message date="21:37">
                             <MessageText>No problem!</MessageText>
                         </Message>
 
-                        <Message authorName="Jon Smith" date="21:37">
+                    <MessageGroup
+                        avatar="https://livechat.s3.amazonaws.com/default/avatars/male_8.jpg"
+                        onlyFirstWithMeta>
+                        <Message date="21:37" isOwn={true}>
+                            <MessageText>No problem!</MessageText>
+                        </Message>
+                        <Message date="21:37" isOwn={true}>
+                            <MessageText>Waiting here! Waiting here! Waiting here! Waiting here! <br /> Waiting here!</MessageText>
+                        </Message>
+
+                        <Message date="21:37" isOwn={true}>
+                            <MessageText>No problem!</MessageText>
+                        </Message>
+                    </MessageGroup>
+                        <Message date="21:37">
                             <MessageText>No problem!</MessageText>
                         </Message>
 
-                        <Message authorName="Jon Smith" date="21:37">
+                        <Message date="21:37">
                             <MessageText>No problem!</MessageText>
                         </Message>
 
-                        <Message authorName="Jon Smith" date="21:37">
-                            <MessageText>No problem!</MessageText>
-                        </Message>
-
-                        <Message authorName="Jon Smith" date="21:37">
-                            <MessageText>No problem!</MessageText>
-                        </Message>
-
-                        <Message authorName="Jon Smith" date="21:37">
-                            <MessageText>No problem!</MessageText>
-                        </Message>
-
-                        <Message authorName="Jon Smith" date="21:37">
+                        <Message date="21:37">
                             <MessageText>No problem!</MessageText>
                         </Message>
 

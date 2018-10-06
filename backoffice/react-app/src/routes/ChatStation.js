@@ -28,7 +28,7 @@ import './ChatStation.css';
     MessageList: {
       css: {
         background: "transparent"
-      }
+      },
     }
   }
 

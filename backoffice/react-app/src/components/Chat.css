@@ -4,8 +4,36 @@
     flex-direction: column;
     justify-content: space-between;
 }
-.chatView .css-fbz44z {
-    border: 2px solid white;
-    background: #FAFAFA;
+
+/* Livechat-ui-kit override*/
+.chatView .css-fbz44z,
+.chatView .css-1hu4na2 {
+    border: 2px solid var(--primary-color);
+    background: var(--secondary-color);
     box-shadow: 1px 2px 2px -2px #999;
+}
+
+.chatView .chatHeader {
+    padding: 1rem;
+    background: var(--secondary-color);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: left;
+    border-bottom: 1px solid var(--tertiary-color);
+}
+.chatView .chatHeader img{
+    height: 40px;
+    border-radius: 30px;
+    margin-right: 1rem;
+}
+.chatView .chatHeader .headerTitle {
+    display: flex;
+    flex-direction: column;
+}
+.chatView .chatHeader .headerTitle h1{
+    display: inline;
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
 }

@@ -5,7 +5,6 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
         super();
 
         this.costumer = chatInfo.costumer
-        console.log('this.costumer', this.costumer);
         
         this.lastMessage = chatInfo.lastMessage
         this.status = "offline"

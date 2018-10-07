@@ -1,0 +1,20 @@
+.costumerList {
+    padding: .55rem;
+}
+.costumerList h1 {
+    font-size: .85rem;
+    text-transform: uppercase;
+    color: var(--online-color);
+}
+.costumerList .onlineCostumers {
+    margin-bottom: 3rem;
+}
+.costumerList .otherCostumers h1{
+    color: var(--tertiary-color)
+}
+
+/* Livechat-ui-kit override */
+.costumerList .css-l9p4i4 {
+    background: var(--primary-contrast-color);
+    color: var(--primary-color)
+}

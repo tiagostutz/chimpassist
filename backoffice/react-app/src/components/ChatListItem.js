@@ -24,7 +24,7 @@ export default class ChatListItem extends Component {
         return (
             <UIChatListItem active={this.state.active}>
                 <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
-                <Column fill>
+                <Column>
                     <Row justify>
                     <Title ellipsis>{this.state.costumer.name}</Title>
                     {this.state.lastMessage && <Subtitle nowrap>{this.state.lastMessage.timestamp}</Subtitle> }

@@ -1,3 +1,12 @@
+:root {
+  --primary-color: white; 
+  --secondary-color: #FAFAFA;
+  --tertiary-color: #CFCFCF;
+  --secondary-dark: #333;
+  --online-color: #a8ceab;
+  --primary-contrast-color: #3d7ce4;
+}
+
 body {
   margin: 0;
   padding: 0;

@@ -7,38 +7,72 @@ import {
     ChatList as UIChatList
   } from '@livechat/ui-kit'
 
-  import './ChatList.css'
+    
+import { withI18n } from "react-i18next";
+  
+import '../i18n.js'
+import './ChatList.css'
   
 
-export default class ChatList extends Component {
+class ChatList extends Component {
 
     componentWillMount() {
         attachModelToView(new ChatListModel(), this)
     }
 
     render() {
+        const { t } = this.props
+
         return (
-            <div>
-                <UIChatList>
-                    <ChatListItem chatInfo={{
-                        costumer: {
-                            name: "Leonard"
-                        },
-                        lastMessage: {
+            <div className="costumerList">
 
-                        }
-                    }} />
-                    <ChatListItem chatInfo={{
-                        costumer: {
-                            name: "Rose"
-                        },
-                        lastMessage: {
+                <div className="onlineCostumers">
+                    <h1>{t("Online costumers")}</h1>
+                    <UIChatList>
+                        <ChatListItem chatInfo={{
+                            costumer: {
+                                name: "Leonard"
+                            },
+                            lastMessage: {
 
-                        }
-                    }} />
-                </UIChatList>
+                            }
+                        }} />
+                        <ChatListItem chatInfo={{
+                            costumer: {
+                                name: "Rose"
+                            },
+                            lastMessage: {
+
+                            }
+                        }} />
+                    </UIChatList>
+                </div>
+
+                <div className="otherCostumers">
+                    <h1>{t("Other costumers")}</h1>
+                    <UIChatList>
+                        <ChatListItem chatInfo={{
+                            costumer: {
+                                name: "Leonard"
+                            },
+                            lastMessage: {
+
+                            }
+                        }} />
+                        <ChatListItem chatInfo={{
+                            costumer: {
+                                name: "Rose"
+                            },
+                            lastMessage: {
+
+                            }
+                        }} />
+                    </UIChatList>
+                </div>
             </div>
   
         )
     }
 }
+
+export default withI18n()(ChatList)

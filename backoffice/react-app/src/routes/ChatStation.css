@@ -10,7 +10,8 @@
   flex: .3;
   border-right: 1px solid #E9E9E9;
   background: white;
-  box-shadow: 1px 1px 8px 2px black
+  box-shadow: 1px 1px 8px -3px #777;
+  z-index: 99;
 }
 
 .inputMessagePane {
@@ -19,5 +20,5 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  background: rgba(230, 241, 241, 0.93)
+  background: rgba(237, 245, 245, 0.95)
 }

@@ -1,0 +1,14 @@
+.wrapper {
+    display: flex;
+    height: 100%;
+}
+.sideMenu {
+    padding: .5rem;
+    background: var(--secondary-color)
+}
+.sideMenu img{
+    max-width: 60px;
+}
+.chatArea {
+    flex: 1;
+}

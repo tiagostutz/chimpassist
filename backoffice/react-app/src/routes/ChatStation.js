@@ -11,6 +11,11 @@ import './ChatStation.css';
   // @livechat/ui-kit theme
   //
   const textComposeTheme = {
+    ChatListItem: {
+      css: {
+        padding: "1rem"
+      }
+    },
     TextComposer: {
       css: {
         backgroundColor: "#EEE",

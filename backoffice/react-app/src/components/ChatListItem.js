@@ -22,7 +22,7 @@ export default class ChatListItem extends Component {
 
     render() {
         return (
-            <UIChatListItem active={this.state.active}>
+            <UIChatListItem active={this.state.active} onClick={() => this.viewModel.onSelect()}>
                 <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
                 <Column>
                     <Row justify>

@@ -31,6 +31,7 @@ class ChatList extends Component {
                     <UIChatList>
                         <ChatListItem chatInfo={{
                             costumer: {
+                                id: "1",
                                 name: "Leonard"
                             },
                             lastMessage: {
@@ -39,6 +40,7 @@ class ChatList extends Component {
                         }} />
                         <ChatListItem chatInfo={{
                             costumer: {
+                                id: "2",
                                 name: "Rose"
                             },
                             lastMessage: {

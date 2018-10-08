@@ -29,46 +29,18 @@ class ChatList extends Component {
                 <div className="onlineCostumers">
                     <h1>{t("Online costumers")}</h1>
                     <UIChatList>
-                        <ChatListItem chatInfo={{
-                            costumer: {
-                                id: "1",
-                                name: "Leonard"
-                            },
-                            lastMessage: {
-
-                            }
-                        }} />
-                        <ChatListItem chatInfo={{
-                            costumer: {
-                                id: "2",
-                                name: "Rose"
-                            },
-                            lastMessage: {
-
-                            }
-                        }} />
+                        { this.state.onlineCostumers.map((c,idx) => {
+                            return <ChatListItem costumer={c} key={idx} />
+                        })}
                     </UIChatList>
                 </div>
 
-                <div className="otherCostumers">
-                    <h1>{t("Other costumers")}</h1>
+                <div className="offlineCostumers">
+                    <h1>{t("Offline costumers")}</h1>
                     <UIChatList>
-                        <ChatListItem chatInfo={{
-                            costumer: {
-                                name: "Leonard"
-                            },
-                            lastMessage: {
-
-                            }
-                        }} />
-                        <ChatListItem chatInfo={{
-                            costumer: {
-                                name: "Rose"
-                            },
-                            lastMessage: {
-
-                            }
-                        }} />
+                        { this.state.offlineCostumers.map((c,idx) => {
+                            return <ChatListItem costumer={c} key={idx} />
+                        })}
                     </UIChatList>
                 </div>
             </div>

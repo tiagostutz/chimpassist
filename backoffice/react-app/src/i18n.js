@@ -7,16 +7,14 @@ i18n
     resources: {
       en: {
         translation: {
-          "Last seen at": "last seen at",
-          "Online costumers": "On-line costumers",
-          "Other costumers": "Other costumers",
+          "Online costumers": "Online costumers",
+          "Offline costumers": "Offline costumers",
         }
       },
       ptBR: {
         translation: {
-          "Last seen at": "visto por último às",
           "Online costumers": "Clientes on-line",
-          "Other costumers": "Outros Clientes"
+          "Offline costumers": "Outros Clientes"
         }
       }
     },

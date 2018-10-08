@@ -8,6 +8,7 @@
 .chatListPane{
   height: 100%;
   flex: .3;
+  width: 30%;
   border-right: 1px solid #E9E9E9;
   background: white;
   box-shadow: 1px 1px 8px -3px #777;

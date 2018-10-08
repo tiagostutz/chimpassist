@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { attachModelToView } from 'rhelena'
 import ChatListItemModel from './ChatListItem.model'
-
+import moment from 'moment'
 
 import { 
     ChatListItem as UIChatListItem,
@@ -17,20 +17,24 @@ import './ChatListItem.css'
 export default class ChatListItem extends Component {
 
     componentWillMount() {
-        attachModelToView(new ChatListItemModel(this.props.chatInfo), this)
+        attachModelToView(new ChatListItemModel(this.props.costumer), this)
     }
 
     render() {
+        let msgTimestamp = ""
+        if (this.state.costumer.lastMessages[0]) {
+            msgTimestamp = moment(this.state.costumer.lastMessages[0].timestamp).calendar()
+        }
         return (
             <UIChatListItem active={this.state.active} onClick={() => this.viewModel.onSelect()}>
                 <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
                 <Column>
-                    <Row justify>
-                    <Title ellipsis>{this.state.costumer.name}</Title>
-                    {this.state.lastMessage && <Subtitle nowrap>{this.state.lastMessage.timestamp}</Subtitle> }
+                    <Row justify className="itemListCostumerName">
+                        <Title ellipsis>{this.state.costumer.name}</Title>
+                        {this.state.costumer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
                     </Row>
                     <Subtitle ellipsis>
-                    {'Hello, how can I help you? We have a lot to talk about'}
+                    { this.state.costumer.lastMessages[0] ? this.state.costumer.lastMessages[0].text : ''}
                     </Subtitle>
                 </Column>
             </UIChatListItem>

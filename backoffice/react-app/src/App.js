@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import i18n from "i18next";
+import ChatStation from './routes/ChatStation'
 
 import './App.css';
 
-import ChatStation from './routes/ChatStation'
-
+import 'moment/locale/pt-br';
+i18n.changeLanguage("ptBR")
 class App extends Component {
 
   render() {
@@ -11,7 +13,7 @@ class App extends Component {
     return (
       <div className="wrapper">
         <div className="sideMenu">
-          <img src="/images/logo-demo.png" />
+          <img src="/images/logo-demo.png" alt="Logo"/>
         </div>
         <div className="chatArea">
           <ChatStation />  

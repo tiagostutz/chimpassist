@@ -3,6 +3,7 @@ import { attachModelToView } from 'rhelena'
 import ChatModel from './Chat.model'
 
 import { 
+    Avatar,
     Row,
     TextComposer,
     SendButton,
@@ -26,11 +27,13 @@ class Chat extends Component {
 
     render() {
         
-        const { t } = this.props;
+        if (!this.state.costumer) {
+            return <div className="chatView"></div>
+        }    
 
         let messages = []
         let groupMessage = null
-        this.state.chatMessages.forEach(m => {
+        this.state.costumer.lastMessages.forEach(m => {
             if (!groupMessage || groupMessage.userId !== m.user.id) {
                 groupMessage = {
                     userId: m.user.id,
@@ -41,16 +44,16 @@ class Chat extends Component {
             }
             groupMessage.messages.push(m)
         })
-        
-        return (            
+
+        return (                        
             <div className="chatView">
                 <div className="chatHeader">
                     <div>
-                        <img src="/images/avatar-demo.png" />
+                        <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
                     </div>
                     <div className="headerTitle">
                         <h1>{this.state.costumer.name}</h1>
-                        { t('Last seen at') } { this.state.costumer.lastSeen }
+                        <span>{ this.state.costumer.lastSeenAt.calendar() }</span>
                     </div>
                 </div>
                 <MessageList  active containScrollInSubtree>
@@ -85,6 +88,7 @@ class Chat extends Component {
                 </TextComposer>
 
             </div>
+            
 
         )
     }

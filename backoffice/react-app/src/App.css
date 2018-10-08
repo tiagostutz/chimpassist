@@ -4,7 +4,7 @@
 }
 .sideMenu {
     padding: .5rem;
-    background: var(--secondary-color)
+    background: var(--secondary-bright)
 }
 .sideMenu img{
     max-width: 60px;

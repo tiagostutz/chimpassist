@@ -8,19 +8,19 @@
 /* Livechat-ui-kit override*/
 .chatView .css-fbz44z,
 .chatView .css-1hu4na2 {
-    border: 2px solid var(--primary-color);
-    background: var(--secondary-color);
+    border: 2px solid var(--primary-bright);
+    background: var(--secondary-bright);
     box-shadow: 1px 2px 2px -2px #999;
 }
 
 .chatView .chatHeader {
     padding: 1rem;
-    background: var(--secondary-color);
+    background: var(--secondary-bright);
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: left;
-    border-bottom: 1px solid var(--tertiary-color);
+    border-bottom: 1px solid var(--tertiary-bright);
 }
 .chatView .chatHeader img{
     height: 40px;
@@ -30,10 +30,22 @@
 .chatView .chatHeader .headerTitle {
     display: flex;
     flex-direction: column;
+    margin-left: .5rem;
 }
 .chatView .chatHeader .headerTitle h1{
     display: inline;
     font-size: 1rem;
     margin: 0;
     padding: 0;
+}
+.chatView .chatHeader .headerTitle span{
+    color: var(--tertiary-dark);
+    text-transform: lowercase;
+}
+
+/* Livechat-ui-kit override */
+.chatView .chatHeader .css-em1vxk {
+    background: var(--primary-contrast-color);
+    color: var(--primary-bright);
+    border: 0px;
 }

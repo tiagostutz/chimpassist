@@ -9,12 +9,13 @@
 .costumerList .onlineCostumers {
     margin-bottom: 3rem;
 }
-.costumerList .otherCostumers h1{
-    color: var(--tertiary-color)
+.costumerList .offlineCostumers h1{
+    color: var(--tertiary-bright)
 }
 
 /* Livechat-ui-kit override */
 .costumerList .css-l9p4i4 {
     background: var(--primary-contrast-color);
-    color: var(--primary-color)
+    color: var(--primary-bright);
+    border: 0px;
 }

@@ -6,6 +6,10 @@ let topics = {
         message: {
             new: null
         }
+    },
+    costumers: {
+        online: null,
+        offline: null
     }
 }
 topics = charol(topics)

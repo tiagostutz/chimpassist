@@ -13,6 +13,9 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
         manuh.subscribe(topics.chatList.select._path, `ChatListItemModel_${this.costumer.id}`, msg => {
             this.active = (msg.costumer.id === this.costumer.id)
         })
+        manuh.subscribe(`${topics.costumers.chats._path}/${this.costumer.id}`, `ChatListItemModel_${this.costumer.id}`, msg => {
+            this.costumer = msg.costumer
+        })
     }
 
     onSelect() {        

@@ -34,14 +34,15 @@ class Chat extends Component {
         let messages = []
         let groupMessage = null
         this.state.costumer.lastMessages.forEach(m => {
-            if (!groupMessage || groupMessage.userId !== m.user.id) {
+            if (!groupMessage || groupMessage.userId !== m.from.id) {
                 groupMessage = {
-                    userId: m.user.id,
-                    avatar: m.user.avatarURL,
+                    userId: m.from.id,
+                    avatarURL: m.from.avatarURL,
                     messages: []
                 }
                 messages.push(groupMessage)
             }
+            if (m.dateTime)
             groupMessage.messages.push(m)
         })
 
@@ -51,7 +52,7 @@ class Chat extends Component {
                     <div>
                         <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
                     </div>
-                    <div className="headerTitle">
+                    <div className={"headerTitle " + (this.state.costumer.isOnline ? "costumerOnline" : "costumerOffline")}>
                         <h1>{this.state.costumer.name}</h1>
                         <span>{ this.state.costumer.lastSeenAt.calendar() }</span>
                     </div>
@@ -65,9 +66,9 @@ class Chat extends Component {
                                 {
                                     g.messages.map((m, ix) => {
                                         return (
-                                            <Message key={"gr_" + ix} date={m.dateTime} isOwn={m.user.id === this.state.loggedUser.id} authorName={m.user.name}>
+                                            <Message key={"gr_" + ix} date={m.dateTime} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
                                                 <MessageText>
-                                                    {m.text}
+                                                    {m.content}
                                                 </MessageText>
                                             </Message>
                                         )
@@ -80,7 +81,7 @@ class Chat extends Component {
 
                 </MessageList>
                 
-                <TextComposer>
+                <TextComposer onSend={(data) => this.viewModel.sendMessage(data)}>
                     <Row align="center">
                         <TextInput placeholder="Digite sua mensagem..." />
                         <SendButton fit />

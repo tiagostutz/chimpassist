@@ -34,7 +34,7 @@ export default class ChatListItem extends Component {
                         {this.state.costumer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
                     </Row>
                     <Subtitle ellipsis>
-                    { this.state.costumer.lastMessages[0] ? this.state.costumer.lastMessages[0].text : ''}
+                    { this.state.costumer.lastMessages[0] ? this.state.costumer.lastMessages[this.state.costumer.lastMessages.length-1].content : ''}
                     </Subtitle>
                 </Column>
             </UIChatListItem>

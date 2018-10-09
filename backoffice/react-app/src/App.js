@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import i18n from "i18next";
 import ChatStation from './routes/ChatStation'
 
 import './App.css';
 
-import 'moment/locale/pt-br';
-i18n.changeLanguage("ptBR")
+// import i18n from "i18next";
+// import 'moment/locale/pt-br';
+// i18n.changeLanguage("ptBR")
 class App extends Component {
 
   render() {

@@ -42,6 +42,12 @@
     color: var(--tertiary-dark);
     text-transform: lowercase;
 }
+.chatView .chatHeader .costumerOnline {
+    color: var(--primary-contrast-color);
+}
+.chatView .chatHeader .costumerOffline {
+    color: var(--tertiary-dark);
+}
 
 /* Livechat-ui-kit override */
 .chatView .chatHeader .css-em1vxk {

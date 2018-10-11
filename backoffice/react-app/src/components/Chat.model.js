@@ -9,6 +9,7 @@ export default class ChatModel extends RhelenaPresentationModel {
 
         this.loggedUser = globalState.loggedUser
         this.costumer = null
+        this.showCostumerDetails = false
 
         manuh.subscribe(topics.chatList.select._path, "ChatModel", msg => {
 
@@ -25,12 +26,16 @@ export default class ChatModel extends RhelenaPresentationModel {
 
     sendMessage(data) {
         this.costumer.lastMessages.push({
-            from: this.costumer,
-            to: globalState.loggedUser,
+            from: globalState.loggedUser,
+            to: this.costumer,
             dateTime: moment(new Date()).fromNow(),
             timestamp: new Date(),
             content: data
         })
         manuh.publish(`${topics.costumers.chats._path}/${this.costumer.id}`, { costumer: this.costumer })
+    }
+
+    toggleCostumerDetails() {
+        this.showCostumerDetails = !this.showCostumerDetails
     }
 }

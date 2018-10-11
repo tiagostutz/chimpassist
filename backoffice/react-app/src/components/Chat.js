@@ -31,6 +31,7 @@ class Chat extends Component {
             return <div className="chatView"></div>
         }    
 
+        const { t } = this.props
         let messages = []
         let groupMessage = null
         this.state.costumer.lastMessages.forEach(m => {
@@ -48,49 +49,66 @@ class Chat extends Component {
 
         return (                        
             <div className="chatView">
-                <div className="chatHeader">
+                <header className="chatHeader">
+                    <div className="headerLeft">
+                        <div>
+                            <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
+                        </div>
+                        <div className={"headerTitle " + (this.state.costumer.isOnline ? "costumerOnline" : "costumerOffline")}>
+                            <h1>{this.state.costumer.name}</h1>
+                            <span>{ this.state.costumer.lastSeenAt.calendar() }</span>
+                        </div>
+                    </div>
                     <div>
-                        <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
+                        <div className="moreInfo" onClick={() => this.viewModel.toggleCostumerDetails()}>
+                            <img src="/images/show-more.png" className={this.state.showCostumerDetails ? "active" : ""} alt="Info" />
+                        </div>
                     </div>
-                    <div className={"headerTitle " + (this.state.costumer.isOnline ? "costumerOnline" : "costumerOffline")}>
-                        <h1>{this.state.costumer.name}</h1>
-                        <span>{ this.state.costumer.lastSeenAt.calendar() }</span>
-                    </div>
-                </div>
-                <MessageList  active containScrollInSubtree>
+                </header>
+                <div className="chatBody">  
+                    <div className="messageArea">
+                        <MessageList  active containScrollInSubtree>
 
-                    { 
-                        messages.map((g,idx) => {
-                            return (
-                                <MessageGroup key={idx} onlyFirstWithMeta>
-                                {
-                                    g.messages.map((m, ix) => {
-                                        return (
-                                            <Message key={"gr_" + ix} date={m.dateTime} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
-                                                <MessageText>
-                                                    {m.content}
-                                                </MessageText>
-                                            </Message>
+                            { 
+                                messages.map((g,idx) => {
+                                    return (
+                                        <MessageGroup key={idx} onlyFirstWithMeta>
+                                        {
+                                            g.messages.map((m, ix) => {
+                                                return (
+                                                    <Message key={"gr_" + ix} date={m.dateTime} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
+                                                        <MessageText>
+                                                            {m.content}
+                                                        </MessageText>
+                                                    </Message>
+                                                )
+                                            })
+                                        }
+                                        </MessageGroup>
                                         )
                                     })
-                                }
-                                </MessageGroup>
-                                )
-                            })
-                    }
+                            }
 
-                </MessageList>
-                
-                <TextComposer onSend={(data) => this.viewModel.sendMessage(data)}>
-                    <Row align="center">
-                        <TextInput placeholder="Digite sua mensagem..." />
-                        <SendButton fit />
-                    </Row>
-                </TextComposer>
+                        </MessageList>
+                        
+                        <TextComposer onSend={(data) => this.viewModel.sendMessage(data)}>
+                            <Row align="center">
+                                <TextInput placeholder="Digite sua mensagem..." />
+                                <SendButton fit />
+                            </Row>
+                        </TextComposer>
+                    </div>              
+                    <div className={`costumerDetails ${this.state.showCostumerDetails ? "showCostumerDetails" : ""}`}>
+                        <header>
+                            <h1>{ t("About") }</h1>
+                        </header>
+                        <div className="body">
 
+                        </div>
+                    </div>
+                </div>
             </div>
             
-
         )
     }
 }

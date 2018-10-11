@@ -18,7 +18,7 @@
     background: var(--secondary-bright);
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: left;
     border-bottom: 1px solid var(--tertiary-bright);
 }
@@ -42,12 +42,67 @@
     color: var(--tertiary-dark);
     text-transform: lowercase;
 }
+.chatView .chatHeader .headerLeft {
+    display: flex;
+}
+.chatView .chatHeader .moreInfo {
+    cursor: pointer;
+}
+.chatView .chatHeader .moreInfo img{
+    filter: grayscale(100%)
+}
+.chatView .chatHeader .moreInfo img.active{
+    filter: grayscale(0%)
+}
 .chatView .chatHeader .costumerOnline {
     color: var(--primary-contrast-color);
 }
 .chatView .chatHeader .costumerOffline {
     color: var(--tertiary-dark);
 }
+
+.chatView .chatBody {
+    display: flex;
+    flex-direction: row;   
+    flex: 1;
+}
+.chatView .messageArea {
+    display: flex;
+    flex-direction: column;    
+    flex: 1;
+}
+.chatView .costumerDetails {
+    display: flex;
+    position: absolute;
+    right: -10%;
+    flex-direction: column;
+    flex: .5;
+    opacity: 0;
+    background: var(--secondary-bright);
+    box-shadow: 0px 0px 6px -3px var(--primary-dark);
+    transition: right 0.2s ease-out;
+}
+
+.chatView .costumerDetails.showCostumerDetails {
+    position: relative;
+    opacity: 1;
+    transition: opacity .2s linear;
+    right: 0%;
+}
+
+.chatView .costumerDetails header {
+    padding: 1rem;
+    background: #F0F0F0;
+}
+.chatView .costumerDetails header h1{
+    font-size: 1.2rem;
+    margin: 0px;
+}
+.chatView .costumerDetails .body {
+    border-left: 2px solid var(--primary-bright);
+    flex: 1;
+}
+
 
 /* Livechat-ui-kit override */
 .chatView .chatHeader .css-em1vxk {

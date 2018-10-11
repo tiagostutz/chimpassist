@@ -9,12 +9,14 @@ i18n
         translation: {
           "Online costumers": "Online costumers",
           "Offline costumers": "Offline costumers",
+          "About": "About"
         }
       },
       ptBR: {
         translation: {
           "Online costumers": "Clientes on-line",
-          "Offline costumers": "Outros Clientes"
+          "Offline costumers": "Clientes off-line",
+          "About": "Sobre"
         }
       }
     },

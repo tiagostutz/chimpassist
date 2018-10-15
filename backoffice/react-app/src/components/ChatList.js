@@ -30,7 +30,7 @@ class ChatList extends Component {
                     <h1>{t("Online costumers")}</h1>
                     <UIChatList>
                         { this.state.onlineCostumers.map((c,idx) => {
-                            return <ChatListItem costumer={c} key={idx} />
+                            return <ChatListItem costumerId={c.id} key={idx} />
                         })}
                     </UIChatList>
                 </div>
@@ -39,7 +39,7 @@ class ChatList extends Component {
                     <h1>{t("Offline costumers")}</h1>
                     <UIChatList>
                         { this.state.offlineCostumers.map((c,idx) => {
-                            return <ChatListItem costumer={c} key={idx} />
+                            return <ChatListItem costumerId={c.id} key={idx} />
                         })}
                     </UIChatList>
                 </div>
@@ -47,6 +47,7 @@ class ChatList extends Component {
   
         )
     }
+
 }
 
 export default withI18n()(ChatList)

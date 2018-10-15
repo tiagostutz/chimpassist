@@ -17,10 +17,11 @@ import './ChatListItem.css'
 export default class ChatListItem extends Component {
 
     componentWillMount() {
-        attachModelToView(new ChatListItemModel(this.props.costumer), this)
+        attachModelToView(new ChatListItemModel(this.props.costumerId), this)
     }
 
     render() {
+        
         let msgTimestamp = ""
         if (this.state.costumer.lastMessages[0]) {
             msgTimestamp = moment(this.state.costumer.lastMessages[0].timestamp).calendar()

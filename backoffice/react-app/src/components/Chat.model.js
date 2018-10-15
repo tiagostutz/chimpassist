@@ -6,22 +6,34 @@ import topics from '../topics'
 export default class ChatModel extends RhelenaPresentationModel {
     constructor() {
         super();
-
         this.loggedUser = globalState.loggedUser
         this.costumer = null
         this.showCostumerDetails = false
-
-        manuh.subscribe(topics.chatList.select._path, "ChatModel", msg => {
+        
+        manuh.subscribe(topics.chatStation.costumerList.selected._path, "ChatModel", msg => {      
+            if (!this.isStateKept("chatModels", msg.costumerId)) {
+                this.keepState("chatModels", msg.costumerId);
+                this.initializeAttributes()
+            }else{
+                this.loadState("chatModels", msg.costumerId);                   
+            }
 
             if (this.costumer && this.costumer.id) { //remove subscription from the past "chat data" before assigning new one
-                manuh.unsubscribe(`${topics.costumers.chats._path}/${this.costumer.id}`, "ChatModel")
+                manuh.unsubscribe(`${topics.costumerRadar.messages.channel._path}/${this.costumer.id}`, "ChatModel")
             }
-            this.costumer = msg.costumer
-            manuh.subscribe(`${topics.costumers.chats._path}/${this.costumer.id}`, "ChatModel", msg => {                
+
+            this.costumer = globalState.costumers.filter(c => c.id === msg.costumerId)[0]        
+            
+            manuh.subscribe(`${topics.costumerRadar.messages.channel._path}/${this.costumer.id}`, "ChatModel", msg => {                
                 this.costumer = msg.costumer //refresh =/
             })
         })
 
+    }
+    initializeAttributes() {
+        this.loggedUser = globalState.loggedUser
+        this.costumer = null
+        this.showCostumerDetails = false
     }
 
     sendMessage(data) {
@@ -32,7 +44,8 @@ export default class ChatModel extends RhelenaPresentationModel {
             timestamp: new Date(),
             content: data
         })
-        manuh.publish(`${topics.costumers.chats._path}/${this.costumer.id}`, { costumer: this.costumer })
+        //update costumer to all those listening to changes on it
+        manuh.publish(`${topics.costumerRadar.messages.channel._path}/${this.costumer.id}`, { costumer: this.costumer })
     }
 
     toggleCostumerDetails() {

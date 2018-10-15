@@ -1,13 +1,22 @@
 import charol from 'charol'
 
 let topics = {
-    chatList: {
-        select: null
+    chatStation: {
+        costumerList: {
+            selected: null
+        }
     },
-    costumers: {
-        online: null,
-        offline: null,
-        chats: null
+    costumerRadar: {
+        messages: {
+            channel: null
+        },
+        status: {
+            online: null,
+            offline: null,
+        },
+        updates: {
+            global: null        
+        }
     }
 }
 topics = charol(topics)

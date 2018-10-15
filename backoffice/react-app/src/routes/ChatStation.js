@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { attachModelToView } from 'rhelena'
 
 import ChatList from '../components/ChatList'
 import Chat from '../components/Chat'
@@ -6,6 +7,7 @@ import Chat from '../components/Chat'
 import { ThemeProvider } from '@livechat/ui-kit'
 
 import './ChatStation.css';
+import ChatStationModel from './ChatStation.model';
 
   //
   // @livechat/ui-kit theme
@@ -39,6 +41,9 @@ import './ChatStation.css';
 
 export default class ChatStation extends Component {
 
+  componentWillMount() {
+    attachModelToView(new ChatStationModel(), this)
+  }
 
   render() {
     return (
@@ -59,5 +64,6 @@ export default class ChatStation extends Component {
       </ThemeProvider>
     );
   }
+  
 }
 

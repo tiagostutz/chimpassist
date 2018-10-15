@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { attachModelToView } from 'rhelena'
 import ChatModel from './Chat.model'
+import CostumerDetails from './CostumerDetails'
 
 import { 
     Avatar,
@@ -103,7 +104,7 @@ class Chat extends Component {
                             <h1>{ t("About") }</h1>
                         </header>
                         <div className="body">
-
+                            <CostumerDetails details={this.state.costumer.details} />
                         </div>
                     </div>
                 </div>

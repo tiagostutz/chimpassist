@@ -11,6 +11,13 @@ export default class ChatModel extends RhelenaPresentationModel {
         this.showCostumerDetails = false
         
         manuh.subscribe(topics.chatStation.costumerList.selected._path, "ChatModel", msg => {      
+
+            // check whether this ViewModel was used for this costumerId. If not, initialize and persist the data for this costumer
+            // this is done so you don't have to instantiate the Chat Component for each selected costumer, you just load a different model for the same view 
+            // you must keep the state because the interaction state for each costumer must be tracked and kept individually. For example, if you open the 
+            // details pane for Costumer A but don't open for Costumer B, when you click to chat with Costumer A the details pane must be opened and
+            // when you click to chat with Costumer B it must be closed
+            // So we have 1 view instance attached to 1 model instance but with many states interchanged
             if (!this.isStateKept("chatModels", msg.costumerId)) {
                 this.keepState("chatModels", msg.costumerId);
                 this.initializeAttributes()

@@ -1,4 +1,4 @@
-# blablachimp
+# Chimp Assist
 
 <p align="center">
   <img height="250" src="https://res.cloudinary.com/stutzsolucoes/image/upload/c_crop,h_308/v1539906576/noun_Cabin_Monkey_774328_yxidcr.png">

@@ -39,12 +39,11 @@ export default {
             // Manuh Bridge MQTT config
             let hostArr = process.env.REACT_APP_MQTT_BROKER_HOST.split("://")
             let proto = "ws"
-            let port = 80
+            let port = null
             let host = hostArr[1]
             let context = "mqtt"
             if (hostArr[0].indexOf("https") != -1) {
                 proto = "https"
-                port = 443
             }
 
             //port and host
@@ -84,11 +83,9 @@ export default {
                 }                          
                 _self.serviceBootstrapStatus = 2 //bootstrap completed
                 fine("connection succeed. Details:",connack)
-                return readyCB(_self.mqttClient, _self.manuhBridge)
             })
-        }else if(this.serviceBootstrapStatus == 2) {
-            return readyCB(_self.mqttClient, _self.manuhBridge);
         }
+        return readyCB(_self.mqttClient, _self.manuhBridge)
     },
     resolveChat: function(costumerId, agentId) {
         
@@ -101,10 +98,9 @@ export default {
     subscribeToChannel: function(chatChannel, onMessageReceived) {
         this.init((_, manuhBridge) => {
             const topicToSubscribe = `${this.baseTopic}/chats/${chatChannel}`
-            manuhBridge.subscribeRemote2LocalTopics([ topicToSubscribe ]);
+            manuhBridge.subscribeRemote2LocalTopics([ `${this.baseTopic}/chats/#` ]);
             
             manuh.subscribe(topicToSubscribe, "chatService", function(msg, _){
-                console.log('IN msg', msg);  
                 onMessageReceived(msg)              
             })
         })

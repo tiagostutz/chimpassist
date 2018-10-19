@@ -9,14 +9,16 @@ i18n
         translation: {
           "Online costumers": "Online costumers",
           "Offline costumers": "Offline costumers",
-          "About": "About"
+          "About": "About",
+          "Error connecting to MQTT interaction bus": "Error connecting to MQTT interaction bus"
         }
       },
       ptBR: {
         translation: {
           "Online costumers": "Clientes on-line",
           "Offline costumers": "Clientes off-line",
-          "About": "Sobre"
+          "About": "Sobre",
+          "Error connecting to MQTT interaction bus": "Erro ao conectar-se ao barramento de interação MQTT"
         }
       }
     },

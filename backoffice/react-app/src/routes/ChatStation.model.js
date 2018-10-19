@@ -2,6 +2,7 @@ import { RhelenaPresentationModel, globalState } from 'rhelena';
 import manuh from 'manuh'
 import moment from 'moment'
 
+import chatServices from '../services/chatServices'
 import topics from '../topics'
 
 export default class ChatStationModel extends RhelenaPresentationModel {

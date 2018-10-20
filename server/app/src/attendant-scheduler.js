@@ -43,9 +43,7 @@ module.exports = {
                 mqttProvider.subscribe(topics.server.attendants.request, (sessionInfoRequest) => {
                     logger.debug("Attendant request received. Details: ", sessionInfoRequest)
             
-                    const attendantsRegistry = _self.db.get(topics.server.attendants._path)
-                    const onlineAttendatsList = Object.keys(attendantsRegistry).map(att => attendantsRegistry[att]).filter(att => att.status === status.attendant.connection.online)            
-                    let attendantsLoadOrdered = onlineAttendatsList.sort((a,b)  => a.activeSessions.length < b.activeSessions.length)                
+                    let attendantsLoadOrdered = _self.getOrderedOnlineAttendants()                
 
                     sessionInfoRequest.sessionTemplate.attendantTypes.forEach(type => {
                         // filter attendats of the current type and that are not currently in this session
@@ -84,4 +82,14 @@ module.exports = {
         }
 
     },
+
+    getOrderedOnlineAttendants: function() {
+        const attendantsRegistry = _self.db.get(topics.server.attendants._path)
+        if (Object.keys(attendantsRegistry) === 0) {
+            return []
+        }
+
+        const onlineAttendatsList = Object.keys(attendantsRegistry).map(att => attendantsRegistry[att]).filter(att => att.status === status.attendant.connection.online)
+        return onlineAttendatsList.sort((a,b)  => a.activeSessions.length < b.activeSessions.length)
+    }
 }

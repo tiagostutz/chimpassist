@@ -55,19 +55,20 @@ module.exports = {
 
                         if (msg.instruction === sessionInstructions.close.unavailableAttendants) {
                             logger.warn("No attendants available for this session. Aborting.")
-                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, { status: status.session.aborted }, false, _self.sessionKeepAliveTime)
+                            msg.sessionInfo.status = status.session.aborted
+                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
 
                             //notify the customer that the session cannot be started due to lack of available attendant
-                            mqttProvider.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { update: msg.instruction })
+                            mqttProvider.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { update: msg.instruction, sessionInfo: msg.sessionInfo })
 
                         // ATTENDANT ASSIGNED
                         }else if (msg.instruction === sessionInstructions.attendant.assigned) {
-                            logger.debug("Attendant assignment successfully. Details:", msg.attendantInfo)
-                            let session = _self.db.get("/" + msg.sessionInfo.sessionTopic)
-                            session.assignedAttendants.push(msg.attendantInfo)
-                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, { assignedAttendants: session.assignedAttendants }, false, _self.sessionKeepAliveTime)
+                            logger.debug("Attendant assignment successfully. Details:", msg.attendantInfo)                            
+                            let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
+                            sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
+                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)
 
-                            evalSessionReady(msg.sessionInfo.sessionTopic)
+                            _self.evalSessionSetupReady(sessionInfoAssignment)
                         }
                     })
 
@@ -121,7 +122,7 @@ module.exports = {
             throw "Error accessing session database"
         }
     },
-    evalSessionReady: function(sessionTopic) {
+    evalSessionSetupReady: function(sessionTopic) {
 
     }
 }

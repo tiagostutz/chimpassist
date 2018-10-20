@@ -5,7 +5,7 @@ const sessionCoordinator = require('../src/session-coordinator')
 const topics = require('../src/lib/topics')
 const status = require('../src/lib/status')
 
-describe('simple scenario', () => {
+describe('Session Coordinator simple scenarios', () => {
     
     it("should return empty array on getOnlineSessions.", (done) => {
 

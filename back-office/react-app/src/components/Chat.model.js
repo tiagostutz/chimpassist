@@ -2,6 +2,7 @@ import { RhelenaPresentationModel, globalState } from 'rhelena';
 import moment from 'moment'
 import manuh from 'manuh'
 import topics from '../topics'
+import chatServices from '../services/chatServices'
 
 export default class ChatModel extends RhelenaPresentationModel {
     constructor() {
@@ -10,7 +11,7 @@ export default class ChatModel extends RhelenaPresentationModel {
         this.costumer = null
         this.showCostumerDetails = false
         
-        manuh.subscribe(topics.chatStation.costumerList.selected._path, "ChatModel", msg => {      
+        manuh.subscribe(topics.chatStation.costumerList.selected, "ChatModel", msg => {      
 
             // check whether this ViewModel was used for this costumerId. If not, initialize and persist the data for this costumer
             // this is done so you don't have to instantiate the Chat Component for each selected costumer, you just load a different model for the same view 
@@ -26,12 +27,12 @@ export default class ChatModel extends RhelenaPresentationModel {
             }
 
             if (this.costumer && this.costumer.id) { //remove subscription from the past "chat data" before assigning new one
-                manuh.unsubscribe(`${topics.costumerRadar.messages.channel._path}/${this.costumer.id}`, "ChatModel")
+                manuh.unsubscribe(`${topics.costumerRadar.messages.channel}/${this.costumer.id}`, "ChatModel")
             }
 
             this.costumer = globalState.costumers.filter(c => c.id === msg.costumerId)[0]        
             
-            manuh.subscribe(`${topics.costumerRadar.messages.channel._path}/${this.costumer.id}`, "ChatModel", msg => {                
+            manuh.subscribe(`${topics.costumerRadar.messages.channel}/${this.costumer.id}`, "ChatModel", msg => {                
                 this.costumer = msg.costumer //refresh =/
             })
         })
@@ -52,7 +53,7 @@ export default class ChatModel extends RhelenaPresentationModel {
             content: data
         })
         //update costumer to all those listening to changes on it
-        manuh.publish(`${topics.costumerRadar.messages.channel._path}/${this.costumer.id}`, { costumer: this.costumer })
+        manuh.publish(`${topics.costumerRadar.messages.channel}/${this.costumer.id}`, { costumer: this.costumer })
     }
 
     toggleCostumerDetails() {

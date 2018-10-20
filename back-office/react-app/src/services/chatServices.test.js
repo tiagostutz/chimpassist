@@ -1,6 +1,6 @@
 import chatServices from './chatServices'
 
-test('initial state', done => {    
+test('chatService initial state', done => {    
     let messageCount = 0
     chatServices.subscribeToChannel("test-1", (msg) => {
         messageCount++
@@ -17,9 +17,9 @@ test('initial state', done => {
     const intervalHandler = setInterval(() => {
         if(chatServices.isReady()) {
             clearInterval(intervalHandler);
-            chatServices.sendMessage("test-1", "hello-test-1")
+            chatServices.publishMessage("test-1", "hello-test-1")
             setTimeout(() => {
-                chatServices.sendMessage("test-1", "hello-test-2")
+                chatServices.publishMessage("test-1", "hello-test-2")
             }, 1000)
         }
     }, 200)

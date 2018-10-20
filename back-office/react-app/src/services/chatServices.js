@@ -78,7 +78,7 @@ export default {
             this.mqttClient.on('connect', function (connack) {                        
                 
                 if (!connack) {
-                    console.error(t("Error connecting to interaction bus"), err);
+                    console.error(t("Error connecting to interaction bus"));
                     return;
                 }                          
                 _self.serviceBootstrapStatus = 2 //bootstrap completed
@@ -90,7 +90,7 @@ export default {
     resolveChat: function(costumerId, agentId) {
         
     },
-    sendMessage: function(chatChannel, msg) {
+    publishMessage: function(chatChannel, msg) {
         this.init((mqttClient, _) => {
             mqttClient.publish(`${this.baseTopic}/chats/${chatChannel}`, msg)
         });        
@@ -98,11 +98,12 @@ export default {
     subscribeToChannel: function(chatChannel, onMessageReceived) {
         this.init((_, manuhBridge) => {
             const topicToSubscribe = `${this.baseTopic}/chats/${chatChannel}`
-            manuhBridge.subscribeRemote2LocalTopics([ `${this.baseTopic}/chats/#` ]);
+            manuhBridge.subscribeRemote2LocalTopics([ topicToSubscribe ]);
             
             manuh.subscribe(topicToSubscribe, "chatService", function(msg, _){
                 onMessageReceived(msg)              
             })
+
         })
 
     },

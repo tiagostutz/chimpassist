@@ -28,7 +28,7 @@ test('initial state', () => {
     expect(model.offlineCostumers.length).toEqual(2)
 })
 setTimeout(() => {
-    manuh.publish(topics.costumers.offline._path, { costumer: model.onlineCostumers[0] })
+    manuh.publish(topics.costumers.offline, { costumer: model.onlineCostumers[0] })
 }, 10)
 test('Online to Offline Costumer', done => {
     //this setTimeout is used because `manuh` invokes the publish asynchronously
@@ -45,13 +45,13 @@ test('Online to Offline Costumer', done => {
 
 
 setTimeout(() => {
-    manuh.publish(topics.costumers.online._path, { costumer: model.offlineCostumers[0] })
+    manuh.publish(topics.costumers.online, { costumer: model.offlineCostumers[0] })
 }, 100)
 setTimeout(() => {
-    manuh.publish(topics.costumers.online._path, { costumer: model.offlineCostumers[0] })
+    manuh.publish(topics.costumers.online, { costumer: model.offlineCostumers[0] })
 }, 110)
 setTimeout(() => {
-    manuh.publish(topics.costumers.online._path, { costumer: model.offlineCostumers[0] })
+    manuh.publish(topics.costumers.online, { costumer: model.offlineCostumers[0] })
 }, 120)
 test('Offline to Online Costumer', done => {
     setTimeout(() => {

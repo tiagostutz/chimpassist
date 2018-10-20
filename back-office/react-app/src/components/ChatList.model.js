@@ -11,7 +11,7 @@ export default class ChatListModel extends RhelenaPresentationModel {
         this.onlineCostumers = globalState.costumers.filter(c => c.isOnline)
         this.offlineCostumers = globalState.costumers.filter(c => !c.isOnline)
 
-        manuh.subscribe(topics.costumerRadar.updates.global._path, "ChatListModel", _ => {            
+        manuh.subscribe(topics.costumerRadar.updates.global, "ChatListModel", _ => {            
             this.onlineCostumers = globalState.costumers.filter(c => c.isOnline)
             this.offlineCostumers = globalState.costumers.filter(c => !c.isOnline)
         })

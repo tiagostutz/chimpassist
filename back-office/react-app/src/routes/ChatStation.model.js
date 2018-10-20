@@ -33,24 +33,24 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             isOnline: false,
         }]
         
-        manuh.subscribe(topics.costumerRadar.status.online._path, "ChatStation", msg => {
+        manuh.subscribe(topics.costumerRadar.status.online, "ChatStation", msg => {
             let onlineCostumerArr = globalState.costumers.filter(c => c.id === msg.id)
             if (onlineCostumerArr.length === 0) { //new user
                 globalState.costumers.push(msg.costumer)
             }else{
                 onlineCostumerArr[0].isOnline = true
             }
-            manuh.publish(topics.costumerRadar.updates.global._path, msg.costumer)
+            manuh.publish(topics.costumerRadar.updates.global, msg.costumer)
         })
 
-        manuh.subscribe(topics.costumerRadar.status.offline._path, "ChatStation", msg => {
+        manuh.subscribe(topics.costumerRadar.status.offline, "ChatStation", msg => {
             let onlineCostumerArr = globalState.costumers.filter(c => c.id === msg.id)
             if (onlineCostumerArr.length === 0) { //new user
                 globalState.costumers.push(msg.costumer)
             }else{
                 onlineCostumerArr[0].isOnline = false
             }
-            manuh.publish(topics.costumerRadar.updates.global._path, msg.costumer)
+            manuh.publish(topics.costumerRadar.updates.global, msg.costumer)
         })
         // -- end of costumers setup
     

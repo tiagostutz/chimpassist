@@ -4,7 +4,7 @@
   "description": "chimp assist server components",
   "main": "server.js",
   "scripts": {
-    "test": "mocha"
+    "test": "LOGGER_LEVEL=error MQTT_BROKER_HOST=mqtt://localhost:1884 mocha --recursive"
   },
   "repository": {
     "type": "git",

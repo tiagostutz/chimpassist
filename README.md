@@ -10,6 +10,10 @@ Backoffice and Frontoffice chat platform made with React for a typical costumer 
 
 ## Server
 
+### Enviroment Variables
+
+ATTENDANT_KEEP_ALIVE_TIME
+
 ### Channel Coordinator
 
 To start a chat the client requests the **channel coordinator** to allocate a property identification for the chat session. To do so, the client publishes a message to the topic `server/channels/request` with the following payload:
@@ -23,4 +27,3 @@ To start a chat the client requests the **channel coordinator** to allocate a pr
 
 ```
 
-And re

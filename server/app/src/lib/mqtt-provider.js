@@ -32,31 +32,37 @@ module.exports = {
 
             // Manuh Bridge MQTT config
             let hostArr = mqttBrokerHost.split("://")
-            let proto = "ws"
+            let proto = "mqtt"
             let port = null
             let host = hostArr[1]
-            let context = "mqtt"
+            let context = ""
             if (hostArr[0].indexOf("https") != -1) {
                 proto = "https"
+            }else if (hostArr[0].indexOf("http") != -1) {
+                proto = "http"
             }
 
             //port and host
             if (hostArr[1].indexOf(":") != -1) {
-                host = hostArr[0]
                 let temp = hostArr[1].split(":")
-                if (temp.indexOf("/") != -1) {
+                host = temp[0]
+                if (temp[1].indexOf("/") != -1) {
                     port = temp[1].split("/")[0]
                 }else{
                     port = temp[1]
                 }
             }
-
             //context and host
             if (hostArr[1].indexOf("/") != -1) {
                 let temp = hostArr[1].split("/")
+                if (temp[0].indexOf(":") != -1) {
+                    host = temp[0].split(":")[0]
+                }else{
+                    host = temp[0]
+                }
                 context = temp[1]
-                host = temp[0]
             }
+
             const manuhMQTTBridgeConfig = {
                 protocol: proto,
                 host: host,
@@ -75,11 +81,14 @@ module.exports = {
                     console.error(t("Error connecting to interaction bus"));
                     return;
                 }      
+                
                 if (_self.bootstrapStatus < 2) { //avoid calling every time the connection succeeds
                     _self.bootstrapStatus = 2 //bootstrap completed
+                    logger.debug("connection succeed. Details:",connack)
                     readyCB(_self.mqttClient, _self.manuhBridge)
+                }else{
+                    logger.debug("connected again. Details:",connack)
                 }                    
-                return logger.debug("connection succeed. Details:",connack)
             })
         }else{
             return readyCB(_self.mqttClient, _self.manuhBridge)
@@ -89,16 +98,20 @@ module.exports = {
         if (!this.isReady()) {
             throw "mqttProvider not yet initiated. Call `init` method with correspondent parameters"
         }
-        this.mqttClient.publish(topic, JSON.stringify(msg))
+        const topicToPublish = this.baseTopic + "/" + topic
+        if (typeof(msg) !== "object") {
+            throw "Could not publish non-objects to the chat mqtt provider"
+        }
+        this.mqttClient.publish(topicToPublish, JSON.stringify(msg))
     },
     subscribe: function(topic, onMessageReceived) {
         if (!this.isReady()) {
             throw "mqttProvider not yet initiated. Call `init` method with correspondent parameters"
         }
 
-        this.manuhBridge.subscribeRemote2LocalTopics([ topic ]);
-        
-        manuh.subscribe(topic, "mqtt-provider", function(msg, _){
+        const topicToSubscribe = this.baseTopic + "/" + topic
+        this.manuhBridge.subscribeRemote2LocalTopics([ topicToSubscribe ]);        
+        manuh.subscribe(topicToSubscribe, "mqtt-provider", function(msg, _){
             if (typeof(msg) === "string") {
                 msg = JSON.parse(msg)
             }

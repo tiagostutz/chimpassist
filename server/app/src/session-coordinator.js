@@ -56,7 +56,6 @@ module.exports = {
                     // listen for session control informations/instructions
                     logger.debug("Subscribing to session control topic: ", `${sessionInfo.sessionTopic}/control`)
                     mqttClient.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => {
-
                         if (msg.instruction === instructions.attendant.unavailableAttendants) {
                             logger.info("No attendants available for this session. Aborting.")
                             msg.sessionInfo.status = status.session.aborted
@@ -72,7 +71,12 @@ module.exports = {
                             sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
                             _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)
 
-                            _self.evalSessionSetupReady(sessionInfoAssignment)
+                            if (_self.isSessionSetupReady(sessionInfoAssignment)) {
+                                sessionInfoAssignment.status = status.session.ready
+                                this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
+
+                                mqttClient.publish(`${sessionInfo.sessionTopic}/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                            }
                         }
                     })
 
@@ -136,8 +140,7 @@ module.exports = {
         }
     },
 
-    evalSessionSetupReady: function(sessionInfo) {
-        sessionInfo.status = status.session.ready
-        this.db.insert("/" + sessionInfo.sessionTopic, sessionInfo, true, this.sessionKeepAliveTime)
+    isSessionSetupReady: function(sessionInfo) {
+        return true
     }
 }

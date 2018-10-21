@@ -14,9 +14,9 @@ Backoffice and Frontoffice chat platform made with React for a typical costumer 
 
 ATTENDANT_KEEP_ALIVE_TIME
 
-### Channel Coordinator
+### Session Coordinator
 
-To start a chat the client requests the **channel coordinator** to allocate a property identification for the chat session. To do so, the client publishes a message to the topic `server/channels/request` with the following payload:
+To start a chat the client requests the **session coordinator** to allocate a property identification for the chat session. To do so, the client publishes a message to the topic `server/channels/request` with the following payload:
 
 ```JSON
 
@@ -27,13 +27,27 @@ To start a chat the client requests the **channel coordinator** to allocate a pr
 
 ```
 
-## Topics Pub/Sub flow
+## Chat setup
 
-### Client subscription
+### Starting a chat
 
-Those are the topics that the client must subscribe to be able to join, request and handle chats and messages:
+To start a chat, the client will:
 
-- `server/sessions/request`: Publish the chat request to this topic with the following JSON paylod:
+1) Make a `POST` request to the backend at <API_URL>/session (like http://localhost:3000/session) to receive a generated **sessionId**
+2) With the received `sessionId` the client will **publish** a message to the topic `server/sessions/request` with the following payload:
+
+```json
+{
+    "sessionTopic": <session_topic>,
+    "sessionId": <sessionId>,
+    "customerId": <customerId>,
+    "requestID": <requestId>,
+}
+```
+
+Those are the topics that the client must publish and subscribe to be able to join, request and handle chats and messages:
+
+- `server/sessions/request`: **Publish** the chat request to this topic with the following JSON paylod:
 
 ```javascript
 {
@@ -41,3 +55,5 @@ Those are the topics that the client must subscribe to be able to join, request 
   requestID: <requestID>
 }
 ```
+
+- `server/sessions/request`: **Publish** the chat request to this topic with the following JSON paylod:

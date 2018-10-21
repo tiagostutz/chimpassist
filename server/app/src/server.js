@@ -18,6 +18,12 @@ sessionCoordinator.start(() => {
             res.json({ sessionId: sessionCoordinator.generateSessionID()})
         })
 
+        app.get('/config/attendant', (req, res) => {
+            res.json({
+                keepAliveTTL: attendantScheduler.attendantKeepAliveTime
+            })
+        })
+        
         app.listen(port, () => console.log(`Chimp Assist API running on ${port}!`))
     })
 })

@@ -26,25 +26,33 @@ const baseTopic = process.env.REACT_APP_MQTT_BASE_TOPIC
 let chatServices = {
     _ready: false,
     mqttClient: null,
-    startService: async (attendantId, onChatReady, onChatAborted) => {
+    startChat: async (customerId, onChatReady, onChatAborted) => {
 
         if (this.mqttClient==null) {
             throw new Error("Cannot start chat because there were problems with the MQTT client config")
         }
 
-        this.mqttClient.subscribe(`${topics.client.attendants.assign}/${attendantId}`, (msg) => {
-            console.log('ASSIGNED!!');            
+        const sessionIdFetch = await fetch(`${config.backendEndpoint}/session`, { method: "POST" })
+        let sessionId = await sessionIdFetch.json()
+        const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
+        
+        this.mqttClient.subscribe(`${sessionTopic}/client/control`, (msg) => {
+
+            if (msg.instruction === instructions.session.ready) {
+                onChatReady(msg.sessionInfo)
+                
+            }else if (msg.instruction === instructions.session.aborted.unavailableAttendants) {
+                onChatAborted(msg.sessionInfo)
+            }
+
         })
         
-        const post = await fetch(`${config.backendEndpoint}/config/attendant`)
-        const config = await post.json()
-
-        // configure keep alive
-        setInterval(() => {
-            this.mqttClient.publish(topics.server.attendants.online, {
-                "id": attendantId
-            })
-        }, config.keepAliveTTL/2)
+        this.mqttClient.publish(topics.server.sessions.request, {
+            "sessionTopic": sessionTopic,
+            "sessionId": sessionId,
+            "customerId": customerId,
+            "requestID": uuidv1(),
+        })
     }
 }
 

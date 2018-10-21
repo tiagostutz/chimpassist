@@ -37,7 +37,7 @@ describe("Attendant Scheduler simple scenarios", () => {
                     activeSessions: []
                 }    
                 assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock })
+                mqttClient.publish(topics.server.attendants.online, attendantMock )
 
                 setTimeout(() => {
                     assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
@@ -72,9 +72,9 @@ describe("Attendant Scheduler simple scenarios", () => {
                 }    
                 assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
 
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock1 })
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock2 })
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock3 })
+                mqttClient.publish(topics.server.attendants.online, attendantMock1 )
+                mqttClient.publish(topics.server.attendants.online, attendantMock2 )
+                mqttClient.publish(topics.server.attendants.online, attendantMock3 )
 
                 setTimeout(() => {
                     assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 3)
@@ -100,7 +100,7 @@ describe("Attendant Scheduler simple scenarios", () => {
                     activeSessions: []
                 }    
                 assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock })
+                mqttClient.publish(topics.server.attendants.online, attendantMock )
 
                 setTimeout(() => {
                     assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
@@ -134,12 +134,12 @@ describe("Attendant Scheduler simple scenarios", () => {
                 }    
                 assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
 
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock1 })
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock2 })
+                mqttClient.publish(topics.server.attendants.online, attendantMock1 )
+                mqttClient.publish(topics.server.attendants.online, attendantMock2 )
 
                 setTimeout(() => {
                     assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 2)
-                    mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock2 })
+                    mqttClient.publish(topics.server.attendants.online, attendantMock2 )
 
                     setTimeout(() => { //check if the assistant expired
                         assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
@@ -166,7 +166,7 @@ describe("Attendant Scheduler simple scenarios", () => {
                     type: attendatTypes.support.firstLevel
                 }    
                 assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
-                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock })
+                mqttClient.publish(topics.server.attendants.online, attendantMock )
 
                 setTimeout(() => {
                     assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)

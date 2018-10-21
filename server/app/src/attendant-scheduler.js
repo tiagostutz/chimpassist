@@ -33,18 +33,17 @@ module.exports = {
                 logger.info("Attendant database initialized. Details: databaseFile:", databaseCatalog.attendantDatabase)
             
                 // listen for online attendants heartbit
-                mqttClient.subscribe(topics.server.attendants.online, (msg) => {           
+                mqttClient.subscribe(topics.server.attendants.online, (attendantInfo) => {           
                     const attendantsRegistry = _self.db.get(_self.dbPrefix)
                     
                     //check whether the attendat is already registered and updates its status or register it for the first time
-                    if (attendantsRegistry[msg.attendantInfo.id] && attendantsRegistry[msg.attendantInfo.id].status === status.attendant.connection.offline) {
-                        _self.db.insert(`${_self.dbPrefix}/${msg.attendantInfo.id}`, { status: status.attendant.connection.online }, false, _self.attendantKeepAliveTime) //update the status
+                    if (attendantsRegistry[attendantInfo.id] && attendantsRegistry[attendantInfo.id].status === status.attendant.connection.offline) {
+                        _self.db.insert(`${_self.dbPrefix}/${attendantInfo.id}`, { status: status.attendant.connection.online }, false, _self.attendantKeepAliveTime) //update the status
                     }else{
                         // register the attendant for the first time
-                        msg.attendantInfo.status = status.attendant.connection.online
-                        msg.activeSessions = []                        
+                        attendantInfo.status = status.attendant.connection.online
                         
-                        _self.db.insert(`${_self.dbPrefix}/${msg.attendantInfo.id}`, msg.attendantInfo, true, _self.attendantKeepAliveTime)
+                        _self.db.insert(`${_self.dbPrefix}/${attendantInfo.id}`, attendantInfo, true, _self.attendantKeepAliveTime)
                     }
                 }, _self.instanceID)
                 logger.debug("Online attendants listener initialized. Details: ",topics.server.attendants.online)

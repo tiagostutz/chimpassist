@@ -1,6 +1,6 @@
 const mqtt = require('mqtt') 
 const manuh = require('manuh')
-const ManuhBridge = require('manuh-bridge-mqtt').ManuhBridge
+const ManuhBridge = require('./manuh-bridge/manuh-bridge').ManuhBridge
 const logger  = require('console-server')
 
 
@@ -26,7 +26,7 @@ module.exports = {
                                         "\nMQTT_PASSWORD="+mqttPassword,
                                         "\nMQTT_BASE_TOPIC="+mqttBaseTopic);            
                                         
-            this.baseTopic = mqttBaseTopic || "chimpassist/demo"
+            this.baseTopic = mqttBaseTopic || "chimpassist/demo"            
             logger.debug("baseTopic:", this.baseTopic)
             
 
@@ -70,28 +70,30 @@ module.exports = {
                 context: context
             }
             
-            this.manuhBridge = new ManuhBridge(manuh, manuhMQTTBridgeConfig);                        
             logger.debug('manuhMQTTBridgeConfig=',manuhMQTTBridgeConfig)
+            this.manuhBridge = new ManuhBridge(manuh, manuhMQTTBridgeConfig, () => {
 
-            this.mqttClient = mqtt.connect(mqttBrokerHost, mqttCredentials);
+                this.manuhBridge.subscribeRemote2LocalTopics([ this.baseTopic + "/#" ]); //connect to manuh        
+                this.mqttClient = mqtt.connect(mqttBrokerHost, mqttCredentials);
+                this.mqttClient.on('connect', function (connack) {                        
+                    
+                    if (!connack) {
+                        console.error(t("Error connecting to interaction bus"));
+                        return;
+                    }      
+                    
+                    if (_self.bootstrapStatus < 2) { //avoid calling every time the connection succeeds
+                        _self.bootstrapStatus = 2 //bootstrap completed
+                        logger.debug("connection succeed. Details:",connack)
+                        readyCB(_self)
+                    }else{
+                        logger.debug("connected again. Details:",connack)
+                    }                    
+                })
 
-            this.mqttClient.on('connect', function (connack) {                        
-                
-                if (!connack) {
-                    console.error(t("Error connecting to interaction bus"));
-                    return;
-                }      
-                
-                if (_self.bootstrapStatus < 2) { //avoid calling every time the connection succeeds
-                    _self.bootstrapStatus = 2 //bootstrap completed
-                    logger.debug("connection succeed. Details:",connack)
-                    readyCB(_self.mqttClient, _self.manuhBridge)
-                }else{
-                    logger.debug("connected again. Details:",connack)
-                }                    
-            })
+            });                        
         }else{
-            return readyCB(_self.mqttClient, _self.manuhBridge)
+            return readyCB(_self)
         }
     },
     publish: function(topic, msg) {
@@ -104,14 +106,13 @@ module.exports = {
         }
         this.mqttClient.publish(topicToPublish, JSON.stringify(msg))
     },
-    subscribe: function(topic, onMessageReceived) {
+    subscribe: function(topic, onMessageReceived, subscriptionId="mqtt-provider") {
         if (!this.isReady()) {
             throw "mqttProvider not yet initiated. Call `init` method with correspondent parameters"
         }
 
-        const topicToSubscribe = this.baseTopic + "/" + topic
-        this.manuhBridge.subscribeRemote2LocalTopics([ topicToSubscribe ]);        
-        manuh.subscribe(topicToSubscribe, "mqtt-provider", function(msg, _){
+        const topicToSubscribe = this.baseTopic + "/" + topic        
+        manuh.subscribe(topicToSubscribe, subscriptionId, function(msg, _){            
             if (typeof(msg) === "string") {
                 msg = JSON.parse(msg)
             }

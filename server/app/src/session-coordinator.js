@@ -14,17 +14,21 @@ const generateSessionID = () => {
     return uuidv1();
 }
 
-module.exports = {
-    status: 0,
-    db: null,
-    sessionKeepAliveTime: process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000,
-    start: function(ready) {
+const SessionCoordenatorClass = class SessionCoordenator {
+
+    constructor() {
+        this.status = 0
+        this.db = null
+        this.sessionKeepAliveTime = process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000
+    }
+
+    start(ready) {
 
         const _self = this
-        if (this.status === 0) {
+        if (_self.status === 0) {
             logger.info("Starting session-coordinator...")
             _self.status = 1
-            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, () => {    
+            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 logger.info("MQTT connection ready.")
             
                 _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
@@ -32,7 +36,7 @@ module.exports = {
                 logger.info("Session database initialized. Details: databaseFile:", databaseCatalog.sessionDatabase)
             
                 // listens for chat requests
-                mqttProvider.subscribe(topics.server.sessions.request, (msg) => {
+                mqttClient.subscribe(topics.server.sessions.request, (msg) => {
                     logger.debug("Chat session request received. Details: ", msg)
                     const sessionTopic = `${topics.server.sessions._path}/${msg.customerId}/${generateSessionID()}`
             
@@ -51,7 +55,7 @@ module.exports = {
                     
                     // listen for session control informations/instructions
                     logger.debug("Subscribing to session control topic: ", `${sessionInfo.sessionTopic}/control`)
-                    mqttProvider.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => {
+                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => {
 
                         if (msg.instruction === sessionInstructions.close.unavailableAttendants) {
                             logger.warn("No attendants available for this session. Aborting.")
@@ -59,7 +63,7 @@ module.exports = {
                             _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
 
                             //notify the customer that the session cannot be started due to lack of available attendant
-                            mqttProvider.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { update: msg.instruction, sessionInfo: msg.sessionInfo })
+                            mqttClient.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { update: msg.instruction, sessionInfo: msg.sessionInfo })
 
                         // ATTENDANT ASSIGNED
                         }else if (msg.instruction === sessionInstructions.attendant.assigned) {
@@ -74,7 +78,7 @@ module.exports = {
 
                     // notify that the chat session is ready and ask for the distributor to allocate the attendants
                     logger.debug("Notify the attendant scheduler that the session is ready to have attendants assigned. Details: ", sessionInfo)
-                    mqttProvider.publish(topics.server.attendants.request, sessionInfo)
+                    mqttClient.publish(topics.server.attendants.request, sessionInfo)
                 })
 
 
@@ -87,8 +91,9 @@ module.exports = {
             return ready()
         }
 
-    },
-    resolveChatTemplate: function() {
+    }
+    
+    resolveChatTemplate() {
         return {
             customersAllowed: 1,
             attendants: [{
@@ -96,8 +101,9 @@ module.exports = {
                 required: true
             }]            
         }
-    },
-    getOnlineSessions: function() {
+    }
+
+    getOnlineSessions() {
         try {       
             let onlineSessions = []
 
@@ -121,8 +127,11 @@ module.exports = {
             logger.error("Error accessing database. Details:", error)
             throw "Error accessing session database"
         }
-    },
-    evalSessionSetupReady: function(sessionTopic) {
+    }
+
+    evalSessionSetupReady(sessionTopic) {
 
     }
 }
+
+module.exports = SessionCoordenatorClass

@@ -1,6 +1,7 @@
 import mqttProvider from 'simple-mqtt-client'
 import debug from 'debug'
 import topics from '../topics'
+import config from '../config'
 // import { t } from 'i18next';
 // import '../i18n.js'
 
@@ -20,11 +21,24 @@ const baseTopic = process.env.REACT_APP_MQTT_BASE_TOPIC
 
 
 let chatServices = {
-    _ready: false
+    _ready: false,
+    mqttClient: null,
+    startChat: async (customerId) => {
+        if (mqttClient==null) {
+            throw "Cannot start chat because there were problems with the MQTT client config"
+        }
+
+        const post = await fetch(`${config.backendEndpoint}/session`, { method: "POST" })
+        let sessionId = await post.json()
+        const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
+        mqttClient.subscribe(sessionTopic)
+        mqttClient.publish(topics.server.sessions.request, )
+    }
 }
 
-mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, baseTopic, (_) => {    
+mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, baseTopic, (mqttClientParam) => {    
     chatServices._ready = true
+    chatServices.mqttClient = mqttClientParam
 });
 
 export default chatServices

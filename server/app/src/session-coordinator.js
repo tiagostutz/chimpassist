@@ -10,10 +10,6 @@ const attendatTypes = require('./lib/attendant-types')
 const instructions = require('./lib/instructions')
 
 
-const generateSessionID = () => {
-    return uuidv1();
-}
-
 module.exports = {
 
     status: 0,
@@ -38,11 +34,11 @@ module.exports = {
                 // listens for chat requests
                 mqttClient.subscribe(topics.server.sessions.request, (msg) => {
                     logger.debug("Chat session request received. Details: ", msg)
-                    const sessionTopic = `${topics.server.sessions._path}/${msg.customerId}/${generateSessionID()}`
             
                     // registers the creation of the session for the chat
                     const sessionInfo = { 
-                        "sessionTopic": sessionTopic,
+                        "sessionTopic": msg.sessionTopic,
+                        "sessionId": msg.sessionId,
                         "customerRequestID": msg.requestID,
                         "customerId": msg.customerId,
                         "createdAt": new Date().getTime(), 
@@ -50,7 +46,7 @@ module.exports = {
                         "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
                         "assignedAttendants": []
                     }
-                    _self.db.insert("/" + sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
+                    _self.db.insert("/" + msg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
                     
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
                     
@@ -76,7 +72,8 @@ module.exports = {
                                 sessionInfoAssignment.status = status.session.ready
                                 this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
 
-                                mqttClient.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                                // notify all the interested parts that the session is ready and they can start to chat around
+                                mqttClient.publish(`${sessionInfo.sessionTopic}/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
                             }
                         }
                     })
@@ -96,6 +93,10 @@ module.exports = {
             return ready()
         }
 
+    },
+
+    generateSessionID: function() {
+        return uuidv1();
     },
     
     resolveChatTemplate: function() {

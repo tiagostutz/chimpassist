@@ -1,4 +1,5 @@
 const assert = require('assert');
+const uuidv1 = require('uuid/v1');
 const mqttClient = require('../src/lib/mqtt-provider')
 
 const attendantScheduler = require('../src/attendant-scheduler')
@@ -38,9 +39,14 @@ describe('Session Coordinator simple scenarios', () => {
 
                 }, 100)
 
+                const customerId = "user123"
+                const sessionId = uuidv1()
+                const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
                 mqttClient.publish(topics.server.sessions.request, {
-                    "customerId": "user123",
-                    "requestID": "req321"
+                    "sessionTopic": sessionTopic,
+                    "sessionId": sessionId,
+                    "customerId": customerId,
+                    "requestID": "req321",
                 })
             })
         })
@@ -85,9 +91,14 @@ describe('Session Coordinator simple scenarios', () => {
 
                 }, 100)
 
+                const customerId = "user123"
+                const sessionId = uuidv1()
+                const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
                 mqttClient.publish(topics.server.sessions.request, {
-                    "customerId": "user123",
-                    "requestID": "req321"
+                    "sessionTopic": sessionTopic,
+                    "sessionId": sessionId,
+                    "customerId": customerId,
+                    "requestID": "req321",
                 })
             })
         })
@@ -137,9 +148,14 @@ describe('Session Coordinator simple scenarios', () => {
 
                 }, 100)
 
+                const customerId = "user123"
+                const sessionId = uuidv1()
+                const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
                 mqttClient.publish(topics.server.sessions.request, {
-                    "customerId": "user123",
-                    "requestID": "req321"
+                    "sessionTopic": sessionTopic,
+                    "sessionId": sessionId,
+                    "customerId": customerId,
+                    "requestID": "req321",
                 })
             })
         })
@@ -173,7 +189,7 @@ describe('Session Coordinator simple scenarios', () => {
                         activeSessions: []
                     }
 
-                    mqttClient.subscribe(`${topics.client.sessions._path}/${sessionInfo.customerId}/${sessionInfo.customerRequestID}`, (msg) => { //handle the last control message: "session ready"
+                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => { //handle the last control message: "session ready"
                         
                         if (msg.instruction === instructions.session.ready) {
                             assert.equal(sessionCoordinator.getOnlineSessions().length, 1);                     
@@ -188,9 +204,14 @@ describe('Session Coordinator simple scenarios', () => {
 
                 }, 100)
 
+                const customerId = "user123"
+                const sessionId = uuidv1()
+                const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
                 mqttClient.publish(topics.server.sessions.request, {
-                    "customerId": "user123",
-                    "requestID": "req321"
+                    "sessionTopic": sessionTopic,
+                    "sessionId": sessionId,
+                    "customerId": customerId,
+                    "requestID": "req321",
                 })
             })
         })

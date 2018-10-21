@@ -19,11 +19,11 @@ module.exports = {
     
     start: function(ready, timeout) {
 
-        logger.info("Starting attendant-distributor...")
         const _self = this
         _self.attendantKeepAliveTime = timeout || _self.attendantKeepAliveTime
-        logger.info("Attendant Keep Alive parameter: ", _self.attendantKeepAliveTime)
         if (_self.status === 0) {
+            logger.info("Starting attendant-distributor...")
+            logger.info("Attendant Keep Alive parameter: ", _self.attendantKeepAliveTime)
             _self.status = 1
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 logger.info("MQTT connection ready.")
@@ -32,7 +32,7 @@ module.exports = {
                 _self.db.insert(_self.dbPrefix, {})
                 logger.info("Attendant database initialized. Details: databaseFile:", databaseCatalog.attendantDatabase)
             
-                // listens for online attendants heartbit
+                // listen for online attendants heartbit
                 mqttClient.subscribe(topics.server.attendants.online, (msg) => {           
                     const attendantsRegistry = _self.db.get(_self.dbPrefix)
                     
@@ -49,21 +49,25 @@ module.exports = {
                 }, _self.instanceID)
                 logger.debug("Online attendants listener initialized. Details: ",topics.server.attendants.online)
 
-                // listens for session coordinator attendants request
+                // listen for session coordinator attendants request
                 mqttClient.subscribe(topics.server.attendants.request, (sessionInfoRequest) => {
                     logger.debug("Attendant request received. Details: ", sessionInfoRequest)
             
-                    let attendantsLoadOrdered = _self.getOrderedOnlineAttendants()                
-
+                    let attendantsLoadOrdered = _self.getOrderedOnlineAttendants()       
+                    
                     sessionInfoRequest.sessionTemplate.attendants.forEach(attendantTemplate => {
                         // filter attendats of the current type and that are not currently in this session
-                        const possibleAttendants = attendantsLoadOrdered.filter(a => a.type === attendantTemplate.type && a.activeSessions.indexOf(sessionInfoRequest.sessionTopic) == -1)
+                        const possibleAttendants = attendantsLoadOrdered.filter(a => a.type === attendantTemplate.type && !_self.isAttendantAssignedToSession(a, sessionInfoRequest))
                         if (possibleAttendants.length > 0) {
-                            // temporary update current active sessions to avoid assign request duplication
-                            possibleAttendants[0].activeSessions.push(sessionInfoRequest.sessionTopic)
 
+                            // clone the object to avoid updating the database object. The main goal here is to avoid that an attendent 
+                            // is twice or more times requested
+                            const possibleAttendantClone = JSON.parse(JSON.stringify(possibleAttendants[0]));
+                            // temporary update current active sessions to avoid assign request duplication
+                            possibleAttendantClone.activeSessions.push(sessionInfoRequest)
+                            
                             // send assign message to attendant to this session
-                            mqttClient.publish(`${topics.client.attendants.assign}/${possibleAttendants[0].id}`, sessionInfoRequest)
+                            mqttClient.publish(`${topics.client.attendants.assign}/${possibleAttendantClone.id}`, sessionInfoRequest)
                         }else{
                             logger.warn("No attendant available that fills the requirements: ", attendantTemplate)
                             if (attendantTemplate.required) {
@@ -78,12 +82,13 @@ module.exports = {
 
                 // listen for attendants assignment response
                 mqttClient.subscribe(topics.server.attendants.assign, (attendantAssignment) => {
-                    const attendantsRegistry = _self.db.get(topics.server.attendants._path)
+                    const attendantsRegistry = _self.db.get(_self.dbPrefix)
 
                     // update attendant active sessions
-                    attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.push(attendantAssignment.sessionInfoRequest.sessionTopic)
+                    attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.push(attendantAssignment.sessionInfo)
                     _self.db.insert(`${_self.dbPrefix}/${attendantsRegistry[attendantAssignment.attendantInfo.id]}`, attendantsRegistry[attendantAssignment.attendantInfo.id], false, _self.attendantKeepAliveTime)
-                    _mqttClient.publish(`${sessionInfoRequest.sessionTopic}/control`, { instruction: sessionInstructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
+                    mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/control`, { instruction: sessionInstructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
+
                 }, _self.instanceID)
                 logger.debug("Assignment confirm listener initialized. Details: ", topics.server.attendants.assign)
 
@@ -91,10 +96,15 @@ module.exports = {
                 ready()            
             })
         }else{
-            logger.warn("session Coordinator already started. Ignoring start request...")
+            logger.debug("Attendant Scheduler already started. Ignoring start request...")
             return ready()
         }
 
+    },
+
+    isAttendantAssignedToSession: function(attendant, sessionInfo) {
+        const activeSessionsTopics = attendant.activeSessions.map(s => s.sessionTopic)
+        return activeSessionsTopics.indexOf(sessionInfo.sessionTopic) !== -1
     },
 
     getOrderedOnlineAttendants: function() {

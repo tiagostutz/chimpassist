@@ -14,15 +14,13 @@ const generateSessionID = () => {
     return uuidv1();
 }
 
-const SessionCoordenatorClass = class SessionCoordenator {
+module.exports = {
 
-    constructor() {
-        this.status = 0
-        this.db = null
-        this.sessionKeepAliveTime = process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000
-    }
+    status: 0,
+    db: null,
+    sessionKeepAliveTime: process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000,
 
-    start(ready) {
+    start: function(ready) {
 
         const _self = this
         if (_self.status === 0) {
@@ -51,6 +49,7 @@ const SessionCoordenatorClass = class SessionCoordenator {
                         "assignedAttendants": []
                     }
                     _self.db.insert("/" + sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
+                    
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
                     
                     // listen for session control informations/instructions
@@ -91,9 +90,9 @@ const SessionCoordenatorClass = class SessionCoordenator {
             return ready()
         }
 
-    }
+    },
     
-    resolveChatTemplate() {
+    resolveChatTemplate: function() {
         return {
             customersAllowed: 1,
             attendants: [{
@@ -101,9 +100,42 @@ const SessionCoordenatorClass = class SessionCoordenator {
                 required: true
             }]            
         }
-    }
+    },
 
-    getOnlineSessions() {
+    getOnlineSessions: function() {
+        return this.getSessionByStatus(status.session.ready)
+    },
+
+    getPendingSessions: function() {
+        return this.getSessionByStatus(status.session.waitingAttendantsAssignment)
+    },
+
+    getSessionByStatus: function(statusParam) {
+         try {       
+            let filteredSessions = []
+            const sessionsData = this.db.get("/" + topics.server.sessions._path)                        
+            if (Object.keys(sessionsData).length > 0) {
+                
+                const customers = Object.keys(sessionsData).map(customerId => sessionsData[customerId])
+                customers.forEach(customer => {
+                    Object.keys(customer).filter(sessionId =>  {
+                        if (customer[sessionId].status === statusParam) {
+                            filteredSessions.push(customer[sessionId])
+                        }
+                    })
+                })
+            }
+
+            return filteredSessions;
+                
+            
+        } catch (error) {
+            logger.error("Error accessing database. Details:", error)
+            throw "Error accessing session database"
+        }
+    },
+
+    evalSessionSetupReady: function(sessionTopic) {
         try {       
             let onlineSessions = []
 
@@ -113,7 +145,7 @@ const SessionCoordenatorClass = class SessionCoordenator {
                 const customers = Object.keys(sessionsData).map(customerId => sessionsData[customerId])
                 customers.forEach(customer => {
                     Object.keys(customer).filter(sessionId =>  {
-                        if (customer[sessionId].status === status.session.ready) {
+                        if (customer[sessionId].status === status.session.waitingAttendantsAssignment) {
                             onlineSessions.push(session)
                         }
                     })
@@ -128,10 +160,4 @@ const SessionCoordenatorClass = class SessionCoordenator {
             throw "Error accessing session database"
         }
     }
-
-    evalSessionSetupReady(sessionTopic) {
-
-    }
 }
-
-module.exports = SessionCoordenatorClass

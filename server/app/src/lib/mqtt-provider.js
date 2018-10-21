@@ -119,6 +119,10 @@ module.exports = {
             onMessageReceived(msg)              
         })
     },
+    unsubscribe: function(topic, subscriptionId="mqtt-provider") {
+        const topicToUnsubscribe = this.baseTopic + "/" + topic
+        manuh.unsubscribe(topicToUnsubscribe, subscriptionId)
+    },
     isReady: function() {
         return this.bootstrapStatus == 2;
     },

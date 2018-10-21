@@ -3,6 +3,7 @@ const mqttProvider = require('../src/lib/mqtt-provider')
 const attendatScheduler = require('../src/attendant-scheduler')
 const status = require('../src/lib/status')
 const topics  = require('../src/lib/topics')
+const attendatTypes = require('../src/lib/attendant-types')
 
 describe("Attendant Scheduler simple scenarios", () => {
     it("Should return empty array of attendants on a recently initiated scheduler", (done) => {
@@ -117,8 +118,6 @@ describe("Attendant Scheduler simple scenarios", () => {
     }).timeout(2000)
 
 
-
-
     it("Should expire one assistant and refresh another after registering it by topic publish", (done) => {
         const keepAliveTTL = 200
         attendatScheduler.start(() => {            
@@ -156,4 +155,74 @@ describe("Attendant Scheduler simple scenarios", () => {
             })
         }, keepAliveTTL)
     }).timeout(2000)
+
+    it("Should have 1 assistant ON-LINE registered and assigned to a session", (done) => {
+        attendatScheduler.start(() => {            
+            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
+                const attendantMock = {
+                    id: 51,
+                    status: status.attendant.connection.online,
+                    activeSessions: [],
+                    type: attendatTypes.support.firstLevel
+                }    
+                assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock })
+
+                setTimeout(() => {
+                    assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
+
+                    const sessionInfo = {
+                        "sessionTopic": "sessions/test/session51",
+                        "customerRequestID": "test51u1",
+                        "customerId": "u1",
+                        "createdAt": new Date().getTime(), 
+                        "status": status.session.waitingAttendantsAssignment,
+                        "sessionTemplate": {
+                            customersAllowed: 1,
+                            attendants: [{
+                                type: attendatTypes.support.firstLevel,
+                                required: true
+                            }]            
+                        }, 
+                        "assignedAttendants": []
+                    }
+
+                    // listen for attendant request and check the server status before and after responding
+                    mqttClient.subscribe(`${topics.client.attendants.assign}/${attendantMock.id}`, (msg) => {
+                        let attendantAssigned = attendatScheduler.db.get(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                        
+                        // BEFORE responding
+                        let activeSessions = attendantAssigned.activeSessions.filter(s => s.sessionTopic === sessionInfo.sessionTopic)
+                        assert.equal(activeSessions.length, 0) // as the attendant has not yet responded, there are no active sessions for it                        
+                        
+                        // assignment response from client
+                        mqttClient.publish(topics.server.attendants.assign, { attendantInfo: attendantMock, sessionInfo: sessionInfo })
+
+                        setTimeout(() => {
+                            
+                            // AFTER responding
+                            attendantAssigned = attendatScheduler.db.get(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                            activeSessions = attendantAssigned.activeSessions.filter(s => s.sessionTopic === sessionInfo.sessionTopic)
+                            assert.equal(activeSessions.length, 1)
+                            assert.equal(activeSessions[0].sessionTopic, sessionInfo.sessionTopic)
+                            assert.equal(activeSessions[0].customerRequestID, sessionInfo.customerRequestID)
+                            assert.equal(activeSessions[0].customerId, sessionInfo.customerId)
+                            assert.equal(activeSessions[0].createdAt, sessionInfo.createdAt)
+                            
+                            attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                            done()
+                            
+                        }, 100)
+                        
+                    })
+
+                    mqttClient.publish(topics.server.attendants.request, sessionInfo)
+                    
+                }, 50)
+                
+            })
+        })
+    })
+
+    
 })

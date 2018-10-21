@@ -51,15 +51,14 @@ module.exports = {
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
                     
                     // listen for session control informations/instructions
-                    logger.debug("Subscribing to session control topic: ", `${sessionInfo.sessionTopic}/control`)
-                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => {
+                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/backend/control`, (msg) => {
                         if (msg.instruction === instructions.attendant.unavailableAttendants) {
                             logger.info("No attendants available for this session. Aborting.")
                             msg.sessionInfo.status = status.session.aborted
                             _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
 
                             //notify the customer that the session cannot be started due to lack of available attendant
-                            mqttClient.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { update: msg.instruction, sessionInfo: msg.sessionInfo })
+                            mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: msg.instruction, sessionInfo: msg.sessionInfo })
 
                         // ATTENDANT ASSIGNED
                         }else if (msg.instruction === instructions.attendant.assigned) {
@@ -73,7 +72,7 @@ module.exports = {
                                 this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
 
                                 // notify all the interested parts that the session is ready and they can start to chat around
-                                mqttClient.publish(`${sessionInfo.sessionTopic}/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                                mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
                             }
                         }
                     })

@@ -72,7 +72,7 @@ module.exports = {
                             logger.info("No attendant available that fills the requirements: ", attendantTemplate)
                             if (attendantTemplate.required) {
                                 logger.warn("Required attendant not found.")
-                                mqttClient.publish(`${sessionInfoRequest.sessionTopic}/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfoRequest })
+                                mqttClient.publish(`${sessionInfoRequest.sessionTopic}/backend/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfoRequest })
                             }
                         }
                     })
@@ -87,7 +87,7 @@ module.exports = {
                     // update attendant active sessions
                     attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.push(attendantAssignment.sessionInfo)
                     _self.db.insert(`${_self.dbPrefix}/${attendantsRegistry[attendantAssignment.attendantInfo.id]}`, attendantsRegistry[attendantAssignment.attendantInfo.id], false, _self.attendantKeepAliveTime)
-                    mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
+                    mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/backend/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
 
                 }, _self.instanceID)
                 logger.debug("Assignment confirm listener initialized. Details: ", topics.server.attendants.assign)

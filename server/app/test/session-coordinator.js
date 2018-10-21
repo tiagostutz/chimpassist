@@ -46,7 +46,7 @@ describe('Session Coordinator simple scenarios', () => {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customerId": customerId,
-                    "requestID": "req321",
+                    "requestID": uuidv1(),
                 })
             })
         })
@@ -73,7 +73,7 @@ describe('Session Coordinator simple scenarios', () => {
                     assert.equal(sessionCoordinator.getPendingSessions().length, 1); 
                     assert.equal(sessionInfo.status, status.session.waitingAttendantsAssignment)
                     
-                    mqttClient.publish(`${sessionInfo.sessionTopic}/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfo })
+                    mqttClient.publish(`${sessionInfo.sessionTopic}/backend/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfo })
 
                     setTimeout(() => { //assert aborted after the coordinator receives the abort control message
 
@@ -98,7 +98,7 @@ describe('Session Coordinator simple scenarios', () => {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customerId": customerId,
-                    "requestID": "req321",
+                    "requestID": uuidv1(),
                 })
             })
         })
@@ -130,7 +130,7 @@ describe('Session Coordinator simple scenarios', () => {
                         status: status.attendant.connection.online,
                         activeSessions: []
                     }
-                    mqttClient.publish(`${sessionInfo.sessionTopic}/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
+                    mqttClient.publish(`${sessionInfo.sessionTopic}/backend/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
 
                     setTimeout(() => { //assert ready after the coordinator receives the attendant assignment control message
 
@@ -155,7 +155,7 @@ describe('Session Coordinator simple scenarios', () => {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customerId": customerId,
-                    "requestID": "req321",
+                    "requestID": uuidv1(),
                 })
             })
         })
@@ -189,7 +189,7 @@ describe('Session Coordinator simple scenarios', () => {
                         activeSessions: []
                     }
 
-                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => { //handle the last control message: "session ready"
+                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/client/control`, (msg) => { //handle the last control message: "session ready"
                         
                         if (msg.instruction === instructions.session.ready) {
                             assert.equal(sessionCoordinator.getOnlineSessions().length, 1);                     
@@ -200,7 +200,7 @@ describe('Session Coordinator simple scenarios', () => {
                         }
                     }, "testeSubscription") 
                     
-                    mqttClient.publish(`${sessionInfo.sessionTopic}/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
+                    mqttClient.publish(`${sessionInfo.sessionTopic}/backend/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
 
                 }, 100)
 
@@ -211,7 +211,7 @@ describe('Session Coordinator simple scenarios', () => {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customerId": customerId,
-                    "requestID": "req321",
+                    "requestID": uuidv1(),
                 })
             })
         })

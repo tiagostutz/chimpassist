@@ -1,4 +1,5 @@
 import mqttProvider from 'simple-mqtt-client'
+import uuidv1 from 'uuid/v1'
 import debug from 'debug'
 import topics from '../topics'
 import config from '../config'
@@ -31,8 +32,17 @@ let chatServices = {
         const post = await fetch(`${config.backendEndpoint}/session`, { method: "POST" })
         let sessionId = await post.json()
         const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
-        mqttClient.subscribe(sessionTopic)
-        mqttClient.publish(topics.server.sessions.request, )
+        
+        mqttClient.subscribe(`${sessionTopic}/control`, (msg) => {
+            
+        })
+        
+        mqttClient.publish(topics.server.sessions.request, {
+            "sessionTopic": sessionTopic,
+            "sessionId": sessionId,
+            "customerId": customerId,
+            "requestID": uuidv1(),
+        })
     }
 }
 

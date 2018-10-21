@@ -7,7 +7,7 @@ const topics = require('./lib/topics')
 const databaseCatalog = require('./lib/database-catalog')
 const status = require('./lib/status')
 const attendatTypes = require('./lib/attendant-types')
-const sessionInstructions = require('./lib/session-instructions')
+const instructions = require('./lib/instructions')
 
 
 const generateSessionID = () => {
@@ -18,6 +18,7 @@ module.exports = {
 
     status: 0,
     db: null,
+    dbPrefix: "/" + topics.server.sessions._path,
     sessionKeepAliveTime: process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000,
 
     start: function(ready) {
@@ -30,7 +31,7 @@ module.exports = {
                 logger.info("MQTT connection ready.")
             
                 _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
-                _self.db.insert("/" + topics.server.sessions._path, {})
+                _self.db.insert(_self.dbPrefix, {})
                 logger.info("Session database initialized. Details: databaseFile:", databaseCatalog.sessionDatabase)
             
                 // listens for chat requests
@@ -56,8 +57,8 @@ module.exports = {
                     logger.debug("Subscribing to session control topic: ", `${sessionInfo.sessionTopic}/control`)
                     mqttClient.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => {
 
-                        if (msg.instruction === sessionInstructions.close.unavailableAttendants) {
-                            logger.warn("No attendants available for this session. Aborting.")
+                        if (msg.instruction === instructions.attendant.unavailableAttendants) {
+                            logger.info("No attendants available for this session. Aborting.")
                             msg.sessionInfo.status = status.session.aborted
                             _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
 
@@ -65,7 +66,7 @@ module.exports = {
                             mqttClient.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { update: msg.instruction, sessionInfo: msg.sessionInfo })
 
                         // ATTENDANT ASSIGNED
-                        }else if (msg.instruction === sessionInstructions.attendant.assigned) {
+                        }else if (msg.instruction === instructions.attendant.assigned) {
                             logger.debug("Attendant assignment successfully. Details:", msg.attendantInfo)                            
                             let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
                             sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
@@ -86,7 +87,7 @@ module.exports = {
             
             })
         }else{
-            logger.warn("Sessions Coordinator already started. Ignoring start request...")
+            logger.debug("Sessions Coordinator already started. Ignoring start request...")
             return ready()
         }
 
@@ -113,7 +114,7 @@ module.exports = {
     getSessionByStatus: function(statusParam) {
          try {       
             let filteredSessions = []
-            const sessionsData = this.db.get("/" + topics.server.sessions._path)                        
+            const sessionsData = this.db.get(this.dbPrefix)                        
             if (Object.keys(sessionsData).length > 0) {
                 
                 const customers = Object.keys(sessionsData).map(customerId => sessionsData[customerId])
@@ -135,29 +136,8 @@ module.exports = {
         }
     },
 
-    evalSessionSetupReady: function(sessionTopic) {
-        try {       
-            let onlineSessions = []
-
-            const sessionsData = this.db.get("/" + topics.server.sessions._path)            
-            if (Object.keys(sessionsData).length > 0) {
-                
-                const customers = Object.keys(sessionsData).map(customerId => sessionsData[customerId])
-                customers.forEach(customer => {
-                    Object.keys(customer).filter(sessionId =>  {
-                        if (customer[sessionId].status === status.session.waitingAttendantsAssignment) {
-                            onlineSessions.push(session)
-                        }
-                    })
-                })
-            }
-
-            return onlineSessions;
-                
-            
-        } catch (error) {
-            logger.error("Error accessing database. Details:", error)
-            throw "Error accessing session database"
-        }
+    evalSessionSetupReady: function(sessionInfo) {
+        sessionInfo.status = status.session.ready
+        this.db.insert("/" + sessionInfo.sessionTopic, sessionInfo, true, this.sessionKeepAliveTime)
     }
 }

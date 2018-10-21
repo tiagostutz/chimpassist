@@ -6,7 +6,7 @@ const mqttProvider = require('./lib/mqtt-provider')
 const topics = require('./lib/topics')
 const status = require('./lib/status')
 const databaseCatalog = require('./lib/database-catalog')
-const sessionInstructions = require('./lib/session-instructions')
+const instructions = require('./lib/instructions')
 
 
 module.exports = {
@@ -69,10 +69,10 @@ module.exports = {
                             // send assign message to attendant to this session
                             mqttClient.publish(`${topics.client.attendants.assign}/${possibleAttendantClone.id}`, sessionInfoRequest)
                         }else{
-                            logger.warn("No attendant available that fills the requirements: ", attendantTemplate)
+                            logger.info("No attendant available that fills the requirements: ", attendantTemplate)
                             if (attendantTemplate.required) {
                                 logger.warn("Required attendant not found.")
-                                mqttClient.publish(`${sessionInfoRequest.sessionTopic}/control`, { instruction: sessionInstructions.close.unavailableAttendants, sessionInfo: sessionInfoRequest })
+                                mqttClient.publish(`${sessionInfoRequest.sessionTopic}/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfoRequest })
                             }
                         }
                     })
@@ -87,7 +87,7 @@ module.exports = {
                     // update attendant active sessions
                     attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.push(attendantAssignment.sessionInfo)
                     _self.db.insert(`${_self.dbPrefix}/${attendantsRegistry[attendantAssignment.attendantInfo.id]}`, attendantsRegistry[attendantAssignment.attendantInfo.id], false, _self.attendantKeepAliveTime)
-                    mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/control`, { instruction: sessionInstructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
+                    mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
 
                 }, _self.instanceID)
                 logger.debug("Assignment confirm listener initialized. Details: ", topics.server.attendants.assign)

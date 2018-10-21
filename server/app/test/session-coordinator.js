@@ -173,7 +173,7 @@ describe('Session Coordinator simple scenarios', () => {
                         activeSessions: []
                     }
 
-                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/control`, (msg) => { //handle the last control message: "session ready"
+                    mqttClient.subscribe(`${topics.client.sessions._path}/${sessionInfo.customerId}/${sessionInfo.customerRequestID}`, (msg) => { //handle the last control message: "session ready"
                         
                         if (msg.instruction === instructions.session.ready) {
                             assert.equal(sessionCoordinator.getOnlineSessions().length, 1);                     

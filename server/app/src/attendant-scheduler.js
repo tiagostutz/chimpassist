@@ -23,7 +23,7 @@ module.exports = {
         _self.attendantKeepAliveTime = timeout || _self.attendantKeepAliveTime
         if (_self.status === 0) {
             logger.info("Starting attendant-distributor...")
-            logger.info("Attendant Keep Alive parameter: ", _self.attendantKeepAliveTime)
+            logger.info("Attendant Scheduler Keep Alive parameter: ", _self.attendantKeepAliveTime)
             _self.status = 1
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 logger.info("MQTT connection ready.")

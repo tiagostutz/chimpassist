@@ -27,3 +27,17 @@ To start a chat the client requests the **channel coordinator** to allocate a pr
 
 ```
 
+## Topics Pub/Sub flow
+
+### Client subscription
+
+Those are the topics that the client must subscribe to be able to join, request and handle chats and messages:
+
+- `server/sessions/request`: Publish the chat request to this topic with the following JSON paylod:
+
+```javascript
+{
+  customerId: <customerId>,
+  requestID: <requestID>
+}
+```

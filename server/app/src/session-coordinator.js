@@ -26,6 +26,7 @@ module.exports = {
         const _self = this
         if (_self.status === 0) {
             logger.info("Starting session-coordinator...")
+            logger.info("Session Coordinator Keep Alive parameter: ", _self.sessionKeepAliveTime)
             _self.status = 1
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 logger.info("MQTT connection ready.")
@@ -75,7 +76,7 @@ module.exports = {
                                 sessionInfoAssignment.status = status.session.ready
                                 this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
 
-                                mqttClient.publish(`${sessionInfo.sessionTopic}/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                                mqttClient.publish(`${topics.client.sessions._path}/${msg.sessionInfo.customerId}/${msg.sessionInfo.customerRequestID}`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
                             }
                         }
                     })

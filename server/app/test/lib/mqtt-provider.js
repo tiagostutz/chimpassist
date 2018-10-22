@@ -1,6 +1,6 @@
 const assert = require('assert');
+const mqttProvider = require('simple-mqtt-client')
 
-const mqttProvider = require('../../src/lib/mqtt-provider')
 
 describe('simple send/receive', () => {
     

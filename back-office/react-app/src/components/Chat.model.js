@@ -29,7 +29,7 @@ export default class ChatModel extends RhelenaPresentationModel {
                 manuh.unsubscribe(`${topics.costumerRadar.messages.channel}/${this.costumer.id}`, "ChatModel")
             }
 
-            this.costumer = globalState.costumers.filter(c => c.id === msg.costumerId)[0]        
+            this.costumer = globalState.customers.filter(c => c.id === msg.costumerId)[0]        
             
             manuh.subscribe(`${topics.costumerRadar.messages.channel}/${this.costumer.id}`, "ChatModel", msg => {                
                 this.costumer = msg.costumer //refresh =/

@@ -8,12 +8,12 @@ export default class ChatListModel extends RhelenaPresentationModel {
     constructor() {
         super();
 
-        this.onlineCostumers = globalState.costumers.filter(c => c.isOnline)
-        this.offlineCostumers = globalState.costumers.filter(c => !c.isOnline)
+        this.onlineCustomers = globalState.customers.filter(c => c.isOnline)
+        this.offlineCustomers = globalState.customers.filter(c => !c.isOnline)
 
         manuh.subscribe(topics.costumerRadar.updates.global, "ChatListModel", _ => {            
-            this.onlineCostumers = globalState.costumers.filter(c => c.isOnline)
-            this.offlineCostumers = globalState.costumers.filter(c => !c.isOnline)
+            this.onlineCustomers = globalState.customers.filter(c => c.isOnline)
+            this.offlineCustomers = globalState.customers.filter(c => !c.isOnline)
         })
         
     }

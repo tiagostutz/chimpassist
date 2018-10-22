@@ -14,8 +14,8 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             avatarURL: "https://st2.depositphotos.com/3369547/11899/v/950/depositphotos_118998210-stock-illustration-woman-glasses-female-avatar-person.jpg"
         }
 
-        //initialize costumers
-        globalState.costumers = [{
+        //initialize customers
+        globalState.customers = [{
             id: "1",
             name: "Leonard",
             avatarURL: "https://pickaface.net/gallery/avatar/20130919_112248_1385_mock.png",
@@ -33,25 +33,26 @@ export default class ChatStationModel extends RhelenaPresentationModel {
         }]
         
         manuh.subscribe(topics.costumerRadar.status.online, "ChatStation", msg => {
-            let onlineCostumerArr = globalState.costumers.filter(c => c.id === msg.id)
+            let onlineCostumerArr = globalState.customers.filter(c => c.id === msg.costumer.id)
             if (onlineCostumerArr.length === 0) { //new user
-                globalState.costumers.push(msg.costumer)
+                globalState.customers.push(msg.costumer)
             }else{
+                onlineCostumerArr[0].sessionTopic = msg.costumer.sessionTopic //update the MQTT sessionTopic
                 onlineCostumerArr[0].isOnline = true
             }
             manuh.publish(topics.costumerRadar.updates.global, msg.costumer)
         })
 
         manuh.subscribe(topics.costumerRadar.status.offline, "ChatStation", msg => {
-            let onlineCostumerArr = globalState.costumers.filter(c => c.id === msg.id)
+            let onlineCostumerArr = globalState.customers.filter(c => c.id === msg.costumer.id)
             if (onlineCostumerArr.length === 0) { //new user
-                globalState.costumers.push(msg.costumer)
+                globalState.customers.push(msg.costumer)
             }else{
                 onlineCostumerArr[0].isOnline = false
             }
             manuh.publish(topics.costumerRadar.updates.global, msg.costumer)
         })
-        // -- end of costumers setup
+        // -- end of customers setup
     
     }   
 }

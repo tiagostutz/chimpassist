@@ -1,12 +1,12 @@
 const logger = require('console-server')
 const uuidv1 = require('uuid/v1');
+const mqttProvider = require('simple-mqtt-client')
 
 const DatabaseProvider = require('./lib/database-provider');
-const mqttProvider = require('./lib/mqtt-provider')
 const topics = require('./lib/topics')
 const databaseCatalog = require('./lib/database-catalog')
 const status = require('./lib/status')
-const attendatTypes = require('./lib/attendant-types')
+const attendantTypes = require('./lib/attendant-types')
 const instructions = require('./lib/instructions')
 
 
@@ -19,12 +19,18 @@ module.exports = {
 
     start: function(ready) {
 
+        const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
         const _self = this
         if (_self.status === 0) {
             logger.info("Starting session-coordinator...")
             logger.info("Session Coordinator Keep Alive parameter: ", _self.sessionKeepAliveTime)
             _self.status = 1
-            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
+            logger.info(`MQTT Provider params: 
+                        MQTT_BROKER_HOST=${process.env.MQTT_BROKER_HOST} 
+                        MQTT_USERNAME=${process.env.MQTT_USERNAME} 
+                        MQTT_PASSWORD=${process.env.MQTT_PASSWORD}
+                        MQTT_BASE_TOPIC=${mqttBaseTopic}`)
+            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
                 logger.info("MQTT connection ready.")
             
                 _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
@@ -39,8 +45,10 @@ module.exports = {
                     const sessionInfo = { 
                         "sessionTopic": msg.sessionTopic,
                         "sessionId": msg.sessionId,
-                        "customerRequestID": msg.requestID,
-                        "customerId": msg.customerId,
+                        "customerRequestID": msg.customerRequestID,
+                        "customer": { 
+                            id: msg.customer.id
+                        },
                         "createdAt": new Date().getTime(), 
                         "status": status.session.waitingAttendantsAssignment,
                         "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
@@ -102,7 +110,7 @@ module.exports = {
         return {
             customersAllowed: 1,
             attendants: [{
-                type: attendatTypes.support.firstLevel,
+                type: attendantTypes.support.firstLevel,
                 required: true
             }]            
         }

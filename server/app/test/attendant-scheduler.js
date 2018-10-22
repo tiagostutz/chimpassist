@@ -1,48 +1,48 @@
 const assert = require('assert')
-const mqttProvider = require('../src/lib/mqtt-provider')
-const attendatScheduler = require('../src/attendant-scheduler')
+const mqttProvider = require('simple-mqtt-client')
+const attendantScheduler = require('../src/attendant-scheduler')
 const status = require('../src/lib/status')
 const topics  = require('../src/lib/topics')
-const attendatTypes = require('../src/lib/attendant-types')
+const attendantTypes = require('../src/lib/attendant-types')
 
 describe("Attendant Scheduler simple scenarios", () => {
     it("Should return empty array of attendants on a recently initiated scheduler", (done) => {
-        attendatScheduler.start(() => {
-            assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
+        attendantScheduler.start(() => {
+            assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
             done();
         })
     })
 
     it("Should return an array with 1 attendants ON-LINE", (done) => {
-        attendatScheduler.start(() => {            
+        attendantScheduler.start(() => {            
             const attendantMock = {
                 id: 123,
                 status: status.attendant.connection.online,
                 activeSessions: []
             }
-            attendatScheduler.db.insert(attendatScheduler.dbPrefix  + "/teste1", attendantMock)
-            assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
+            attendantScheduler.db.insert(attendantScheduler.dbPrefix  + "/teste1", attendantMock)
+            assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 1)
             
-            attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/teste1")
+            attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/teste1")
             done();
         }) 
     })
 
     it("Should have 1 assistant ON-LINE registered by topic publish", (done) => {
-        attendatScheduler.start(() => {            
+        attendantScheduler.start(() => {            
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 const attendantMock = {
                     id: 123,
                     status: status.attendant.connection.online,
                     activeSessions: []
                 }    
-                assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
-                mqttClient.publish(topics.server.attendants.online, attendantMock )
+                assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock } )
 
                 setTimeout(() => {
-                    assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
+                    assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 1)
                     
-                    attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                    attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
                     done()
                 }, 50)
                 
@@ -53,7 +53,7 @@ describe("Attendant Scheduler simple scenarios", () => {
 
 
     it("Should have 3 assistant ON-LINE registered by topic publish", (done) => {
-        attendatScheduler.start(() => {            
+        attendantScheduler.start(() => {            
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 const attendantMock1 = {
                     id: 1231,
@@ -70,18 +70,18 @@ describe("Attendant Scheduler simple scenarios", () => {
                     status: status.attendant.connection.online,
                     activeSessions: []
                 }    
-                assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
+                assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
 
-                mqttClient.publish(topics.server.attendants.online, attendantMock1 )
-                mqttClient.publish(topics.server.attendants.online, attendantMock2 )
-                mqttClient.publish(topics.server.attendants.online, attendantMock3 )
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock1 } )
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock2 } )
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock3 } )
 
                 setTimeout(() => {
-                    assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 3)
+                    assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 3)
                     
-                    attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock1.id)
-                    attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock2.id)
-                    attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock3.id)
+                    attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock1.id)
+                    attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock2.id)
+                    attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock3.id)
                     done()
                 }, 150)
                 
@@ -92,23 +92,23 @@ describe("Attendant Scheduler simple scenarios", () => {
 
     it("Should expire the assistant after registering it by topic publish", (done) => {
         const keepAliveTTL = 100
-        attendatScheduler.start(() => {            
+        attendantScheduler.start(() => {            
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 const attendantMock = {
                     id: 1234,
                     status: status.attendant.connection.online,
                     activeSessions: []
                 }    
-                assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
-                mqttClient.publish(topics.server.attendants.online, attendantMock )
+                assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock } )
 
                 setTimeout(() => {
-                    assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
+                    assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 1)
 
                     setTimeout(() => { //check if the assistant expired
-                        assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
+                        assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
                         
-                        attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                        attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
                         done()
                     }, keepAliveTTL+100)
                 }, 50)
@@ -120,7 +120,7 @@ describe("Attendant Scheduler simple scenarios", () => {
 
     it("Should expire one assistant and refresh another after registering it by topic publish", (done) => {
         const keepAliveTTL = 200
-        attendatScheduler.start(() => {            
+        attendantScheduler.start(() => {            
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 const attendantMock1 = {
                     id: 41,
@@ -132,21 +132,21 @@ describe("Attendant Scheduler simple scenarios", () => {
                     status: status.attendant.connection.online,
                     activeSessions: []
                 }    
-                assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
+                assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
 
-                mqttClient.publish(topics.server.attendants.online, attendantMock1 )
-                mqttClient.publish(topics.server.attendants.online, attendantMock2 )
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock1 })
+                mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock2 })
 
                 setTimeout(() => {
-                    assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 2)
-                    mqttClient.publish(topics.server.attendants.online, attendantMock2 )
+                    assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 2)
+                    mqttClient.publish(topics.server.attendants.online, { attendantInfo: attendantMock2 })
 
                     setTimeout(() => { //check if the assistant expired
-                        assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
-                        assert.equal(attendatScheduler.getOrderedOnlineAttendants()[0].id, 42)
+                        assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 1)
+                        assert.equal(attendantScheduler.getOrderedOnlineAttendants()[0].id, 42)
                         
-                        attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock1.id)
-                        attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock2.id)
+                        attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock1.id)
+                        attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock2.id)
                         done()
                     }, keepAliveTTL-10)
 
@@ -157,30 +157,32 @@ describe("Attendant Scheduler simple scenarios", () => {
     }).timeout(2000)
 
     it("Should have 1 assistant ON-LINE registered and assigned to a session", (done) => {
-        attendatScheduler.start(() => {            
+        attendantScheduler.start(() => {            
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 const attendantMock = {
                     id: 51,
                     status: status.attendant.connection.online,
                     activeSessions: [],
-                    type: attendatTypes.support.firstLevel
+                    type: attendantTypes.support.firstLevel
                 }    
-                assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 0)
-                mqttClient.publish(topics.server.attendants.online, attendantMock )
+                assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
+                mqttClient.publish(topics.server.attendants.online,{ attendantInfo:  attendantMock })
 
                 setTimeout(() => {
-                    assert.equal(attendatScheduler.getOrderedOnlineAttendants().length, 1)
+                    assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 1)
 
                     const sessionInfo = {
                         "sessionTopic": "sessions/test/session51",
                         "customerRequestID": "test51u1",
-                        "customerId": "u1",
+                        "customer": { 
+                            "id": "u1"
+                        },
                         "createdAt": new Date().getTime(), 
                         "status": status.session.waitingAttendantsAssignment,
                         "sessionTemplate": {
                             customersAllowed: 1,
                             attendants: [{
-                                type: attendatTypes.support.firstLevel,
+                                type: attendantTypes.support.firstLevel,
                                 required: true
                             }]            
                         }, 
@@ -189,7 +191,7 @@ describe("Attendant Scheduler simple scenarios", () => {
 
                     // listen for attendant request and check the server status before and after responding
                     mqttClient.subscribe(`${topics.client.attendants.assign}/${attendantMock.id}`, (msg) => {
-                        let attendantAssigned = attendatScheduler.db.get(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                        let attendantAssigned = attendantScheduler.db.get(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
                         
                         // BEFORE responding
                         let activeSessions = attendantAssigned.activeSessions.filter(s => s.sessionTopic === sessionInfo.sessionTopic)
@@ -201,15 +203,15 @@ describe("Attendant Scheduler simple scenarios", () => {
                         setTimeout(() => {
                             
                             // AFTER responding
-                            attendantAssigned = attendatScheduler.db.get(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                            attendantAssigned = attendantScheduler.db.get(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
                             activeSessions = attendantAssigned.activeSessions.filter(s => s.sessionTopic === sessionInfo.sessionTopic)
                             assert.equal(activeSessions.length, 1)
                             assert.equal(activeSessions[0].sessionTopic, sessionInfo.sessionTopic)
                             assert.equal(activeSessions[0].customerRequestID, sessionInfo.customerRequestID)
-                            assert.equal(activeSessions[0].customerId, sessionInfo.customerId)
+                            assert.equal(activeSessions[0].customer.id, sessionInfo.customer.id)
                             assert.equal(activeSessions[0].createdAt, sessionInfo.createdAt)
                             
-                            attendatScheduler.db.delete(attendatScheduler.dbPrefix  + "/" + attendantMock.id)
+                            attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
                             done()
                             
                         }, 100)

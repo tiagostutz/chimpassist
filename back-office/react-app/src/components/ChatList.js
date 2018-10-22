@@ -26,19 +26,19 @@ class ChatList extends Component {
         return (
             <div className="costumerList">
 
-                <div className="onlineCostumers">
-                    <h1>{t("Online costumers")}</h1>
+                <div className="onlineCustomers">
+                    <h1>{t("Online customers")}</h1>
                     <UIChatList>
-                        { this.state.onlineCostumers.map((c,idx) => {
+                        { this.state.onlineCustomers.map((c,idx) => {
                             return <ChatListItem costumerId={c.id} key={idx} />
                         })}
                     </UIChatList>
                 </div>
 
-                <div className="offlineCostumers">
-                    <h1>{t("Offline costumers")}</h1>
+                <div className="offlineCustomers">
+                    <h1>{t("Offline customers")}</h1>
                     <UIChatList>
-                        { this.state.offlineCostumers.map((c,idx) => {
+                        { this.state.offlineCustomers.map((c,idx) => {
                             return <ChatListItem costumerId={c.id} key={idx} />
                         })}
                     </UIChatList>

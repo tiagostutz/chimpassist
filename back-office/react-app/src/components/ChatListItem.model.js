@@ -7,7 +7,7 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
     constructor(costumerId) {
         super();
 
-        this.costumer = globalState.costumers.filter(c => c.id === costumerId)[0]        
+        this.costumer = globalState.customers.filter(c => c.id === costumerId)[0]        
         this.active = false
 
         manuh.subscribe(topics.chatStation.costumerList.selected, `ChatListItemModel_${this.costumer.id}`, msg => {

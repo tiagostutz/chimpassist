@@ -1,6 +1,6 @@
 const assert = require('assert');
 const uuidv1 = require('uuid/v1');
-const mqttClient = require('../src/lib/mqtt-provider')
+const mqttClient = require('simple-mqtt-client')
 
 const attendantScheduler = require('../src/attendant-scheduler')
 const sessionCoordinator = require('../src/session-coordinator')
@@ -25,7 +25,7 @@ describe('Session Coordinator simple scenarios', () => {
 
         sessionCoordinator.start(() => {
             
-            //clean subscriptions from attendatScheduler that can change the behavior of session state
+            //clean subscriptions from attendantScheduler that can change the behavior of session state
             mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
 
             mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
@@ -45,7 +45,7 @@ describe('Session Coordinator simple scenarios', () => {
                 mqttClient.publish(topics.server.sessions.request, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
-                    "customerId": customerId,
+                    "customer": {  "id": customerId },
                     "requestID": uuidv1(),
                 })
             })
@@ -58,7 +58,7 @@ describe('Session Coordinator simple scenarios', () => {
 
         sessionCoordinator.start(() => {
             
-            //clean subscriptions from attendatScheduler that can change the behavior of session state
+            //clean subscriptions from attendantScheduler that can change the behavior of session state
             mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
 
             mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
@@ -97,7 +97,7 @@ describe('Session Coordinator simple scenarios', () => {
                 mqttClient.publish(topics.server.sessions.request, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
-                    "customerId": customerId,
+                    "customer": { id: customerId },
                     "requestID": uuidv1(),
                 })
             })
@@ -110,7 +110,7 @@ describe('Session Coordinator simple scenarios', () => {
 
         sessionCoordinator.start(() => {
             
-            //clean subscriptions from attendatScheduler that can change the behavior of session state
+            //clean subscriptions from attendantScheduler that can change the behavior of session state
             mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
 
             mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
@@ -154,7 +154,7 @@ describe('Session Coordinator simple scenarios', () => {
                 mqttClient.publish(topics.server.sessions.request, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
-                    "customerId": customerId,
+                    "customer": { "id": customerId },
                     "requestID": uuidv1(),
                 })
             })
@@ -168,7 +168,7 @@ describe('Session Coordinator simple scenarios', () => {
 
         sessionCoordinator.start(() => {
             
-            //clean subscriptions from attendatScheduler that can change the behavior of session state
+            //clean subscriptions from attendantScheduler that can change the behavior of session state
             mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
 
             mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
@@ -210,7 +210,7 @@ describe('Session Coordinator simple scenarios', () => {
                 mqttClient.publish(topics.server.sessions.request, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
-                    "customerId": customerId,
+                    "customer": { "id": customerId },
                     "requestID": uuidv1(),
                 })
             })

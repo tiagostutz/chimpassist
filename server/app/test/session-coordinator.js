@@ -210,7 +210,21 @@ describe('Session Coordinator simple scenarios', () => {
                 mqttClient.publish(topics.server.sessions.request, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
-                    "customer": { "id": customerId },
+                    "customer": { 
+                        "id": customerId,
+                        "name": "Mary Lorem",
+                        "avatarURL":"http://cdn.mhpbooks.com/uploads/2014/03/test_ttp_big.jpg",
+                        "lastMessages": [{
+                            "content": "Alice asked, handing her hand and drank some poetry repeated thoughtfully",
+                            "dateTime": new Date().getTime(),
+                            "from": {
+                                "id": "user123",
+                                "name": "Mary Lorem"
+                            }
+                        }],
+                        "isOnline": true,
+                        "lastSeenAt": new Date().getTime()
+                    },
                     "requestID": uuidv1(),
                 })
             })

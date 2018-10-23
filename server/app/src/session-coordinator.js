@@ -42,18 +42,12 @@ module.exports = {
                     logger.debug("Chat session request received. Details: ", msg)
             
                     // registers the creation of the session for the chat
-                    const sessionInfo = { 
-                        "sessionTopic": msg.sessionTopic,
-                        "sessionId": msg.sessionId,
-                        "customerRequestID": msg.customerRequestID,
-                        "customer": { 
-                            id: msg.customer.id
-                        },
-                        "createdAt": new Date().getTime(), 
-                        "status": status.session.waitingAttendantsAssignment,
-                        "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
-                        "assignedAttendants": []
-                    }
+                    const sessionInfo = Object.assign(msg,{
+                                        "createdAt": new Date().getTime(), 
+                                        "status": status.session.waitingAttendantsAssignment,
+                                        "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
+                                        "assignedAttendants": []
+                                    })
                     _self.db.insert("/" + msg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
                     
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    

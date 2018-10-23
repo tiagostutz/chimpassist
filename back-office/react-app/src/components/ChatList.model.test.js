@@ -28,9 +28,9 @@ test('initial state', () => {
     expect(model.offlineCustomers.length).toEqual(2)
 })
 // setTimeout(() => {
-//     manuh.publish(topics.customers.offline, { costumer: model.onlineCustomers[0] })
+//     manuh.publish(topics.customers.offline, { customer: model.onlineCustomers[0] })
 // }, 10)
-// test('Online to Offline Costumer', done => {
+// test('Online to Offline Customer', done => {
 //     //this setTimeout is used because `manuh` invokes the publish asynchronously
 //     setTimeout(() => {
 //         try {            
@@ -45,15 +45,15 @@ test('initial state', () => {
 
 
 // setTimeout(() => {
-//     manuh.publish(topics.customers.online, { costumer: model.offlineCustomers[0] })
+//     manuh.publish(topics.customers.online, { customer: model.offlineCustomers[0] })
 // }, 100)
 // setTimeout(() => {
-//     manuh.publish(topics.customers.online, { costumer: model.offlineCustomers[0] })
+//     manuh.publish(topics.customers.online, { customer: model.offlineCustomers[0] })
 // }, 110)
 // setTimeout(() => {
-//     manuh.publish(topics.customers.online, { costumer: model.offlineCustomers[0] })
+//     manuh.publish(topics.customers.online, { customer: model.offlineCustomers[0] })
 // }, 120)
-// test('Offline to Online Costumer', done => {
+// test('Offline to Online Customer', done => {
 //     setTimeout(() => {
 //         try {
 //             //this setTimeout is used because `manuh` invokes the publish asynchronously    
@@ -66,3 +66,27 @@ test('initial state', () => {
 
 //     }, 300 )
 // })
+
+
+
+
+// {
+//     "sessionTopic": "server/sessions/request/1234/3211",
+//     "sessionId": "3211",
+//     "customer": { "id": "1234", 
+
+// "name": "Mary Lorem",
+//         "avatarURL":"http://cdn.mhpbooks.com/uploads/2014/03/test_ttp_big.jpg",
+//         "lastMessages": [{
+//             "content": "Alice asked, handing her hand and drank some poetry repeated thoughtfully",
+//             "dateTime": 1540051161217,
+//             "from": {
+//                 "id": "1234",
+//                 "name": "Mary Lorem"
+//             }
+//         }],
+//         "isOnline": true,
+//         "lastSeenAt": 1540051161217
+// },
+//     "requestID": "000-111-222"
+// }

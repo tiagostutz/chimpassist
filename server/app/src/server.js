@@ -17,7 +17,10 @@ sessionCoordinator.start(() => {
         const port = 3000
 
         app.post('/session', (req, res) => {
-            res.json({ sessionId: sessionCoordinator.generateSessionID()})
+            res.json({ 
+                sessionId: sessionCoordinator.generateSessionID(),
+                keepAliveTTL: sessionCoordinator.sessionKeepAliveTime
+            })
         })
 
         app.get('/config/attendant', (req, res) => {

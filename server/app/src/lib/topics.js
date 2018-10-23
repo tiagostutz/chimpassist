@@ -1,10 +1,9 @@
 const charol = require('charol')
+
 let topics = {
     server: {
         sessions: {
-            online: null,
-            request: null,
-            close: null
+            online: null
         },
         attendants: {
             online: null,
@@ -23,4 +22,5 @@ let topics = {
     }
 }
 topics = charol(topics)
-module.exports = topics
+
+ module.exports = topics

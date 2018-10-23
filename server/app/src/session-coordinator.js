@@ -38,9 +38,15 @@ module.exports = {
                 logger.info("Session database initialized. Details: databaseFile:", databaseCatalog.sessionDatabase)
             
                 // listens for chat requests
-                mqttClient.subscribe(topics.server.sessions.request, (msg) => {
-                    logger.debug("Chat session request received. Details: ", msg)
-            
+                mqttClient.subscribe(topics.server.sessions.online, (msg) => {
+                    
+                    const existingSession = _self.db.get("/" + msg.sessionTopic)
+                    if (existingSession) {
+                        // just update the session status if it already exists
+                        return _self.db.insert("/" + msg.sessionTopic, { status: msg.status }, false, _self.sessionKeepAliveTime)
+                    }
+
+                    logger.debug("New session received. Details: ", msg)    
                     // registers the creation of the session for the chat
                     const sessionInfo = Object.assign(msg,{
                                         "createdAt": new Date().getTime(), 
@@ -53,7 +59,7 @@ module.exports = {
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
                     
                     // listen for session control informations/instructions
-                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/backend/control`, (msg) => {
+                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/server/control`, (msg) => {
                         if (msg.instruction === instructions.attendant.unavailableAttendants) {
                             logger.info("No attendants available for this session. Aborting.")
                             msg.sessionInfo.status = status.session.aborted
@@ -75,7 +81,13 @@ module.exports = {
 
                                 // notify all the interested parts that the session is ready and they can start to chat around
                                 mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                                
+                                // KEEP-ALIVE listener
+                                mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, (msg) => {
+                                    _self.db.insert("/" + msg.sessionTopic, { status: msg.status }, false, _self.sessionKeepAliveTime)
+                                })
                             }
+
                         }
                     })
 
@@ -83,7 +95,6 @@ module.exports = {
                     logger.debug("Notify the attendant scheduler that the session is ready to have attendants assigned. Details: ", sessionInfo)
                     mqttClient.publish(topics.server.attendants.request, sessionInfo)
                 })
-
 
                 _self.status = 2
                 return ready()

@@ -64,7 +64,7 @@ test('Attendant assignment receive', done => {
         
         // with a keepAlive of 1000ms the heartbit send frequency will be 500ms ( = keepAliveTTL/2 )
         chatServices.startService(attendantInfo, () => {            
-            mqttClientParam.publish(topics.server.sessions.request, sessionInfo)
+            mqttClientParam.publish(topics.server.sessions.online, sessionInfo)
         });
 
         setTimeout(() => {

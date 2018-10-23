@@ -38,26 +38,15 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             isOnline: false,
         }]
 
-        
-        manuh.subscribe(topics.costumerRadar.status.online, "ChatStation", msg => {
-            let onlineCostumerArr = globalState.customers.filter(c => c.id === msg.costumer.id)
-            if (onlineCostumerArr.length === 0) { //new user
-                globalState.customers.push(msg.costumer)
+        // update globalState customer list
+        manuh.subscribe(topics.customer.sessions.updates, "ChatStation", customer => {            
+            let currentCustomerArr = globalState.customers.filter(c => c.id === customer.id)
+            if (currentCustomerArr.length === 0) { //new user
+                globalState.customers.push(customer)
             }else{
-                onlineCostumerArr[0].sessionTopic = msg.costumer.sessionTopic //update the MQTT sessionTopic
-                onlineCostumerArr[0].isOnline = true
+                // replace the customer in the global list with the received one
+                globalState.customers = globalState.customers.map(c => c.id === customer.id ? customer : c)
             }
-            manuh.publish(topics.costumerRadar.updates.global, msg.costumer)
-        })
-
-        manuh.subscribe(topics.costumerRadar.status.offline, "ChatStation", msg => {
-            let onlineCostumerArr = globalState.customers.filter(c => c.id === msg.costumer.id)
-            if (onlineCostumerArr.length === 0) { //new user
-                globalState.customers.push(msg.costumer)
-            }else{
-                onlineCostumerArr[0].isOnline = false
-            }
-            manuh.publish(topics.costumerRadar.updates.global, msg.costumer)
         })
         // -- end of customers setup
 

@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { attachModelToView } from 'rhelena'
-import CostumerDetailsModel from './CostumerDetails.model'
+import CustomerDetailsModel from './CustomerDetails.model'
 
-export default class CostumerDetails extends Component {
+export default class CustomerDetails extends Component {
 
     componentWillMount() {
-        attachModelToView(new CostumerDetailsModel(), this)
+        attachModelToView(new CustomerDetailsModel(), this)
     }
 
     render() {

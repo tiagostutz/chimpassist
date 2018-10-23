@@ -2,6 +2,7 @@ import mqttProvider from 'simple-mqtt-client'
 import uuidv1 from 'uuid/v1'
 import topics from '../topics'
 import config from '../config'
+import status from '../status'
 import instructions from './instructions'
 
 // import { t } from 'i18next';
@@ -27,23 +28,30 @@ let chatServices = {
             chatServices.mqttClient = mqttClientParam
 
             const sessionIdFetch = await fetch(`${config.backendEndpoint}/session`, { method: "POST" })
-            let sessionId = await sessionIdFetch.json()
-            const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
+            let sessionConfig = await sessionIdFetch.json()
+            const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionConfig.sessionId}`
             
             chatServices.mqttClient.subscribe(`${sessionTopic}/client/control`, (msg) => {
     
                 if (msg.instruction === instructions.session.ready) {
-                    onChatReady(msg.sessionInfo)
+                    debug("Session started. Details:", msg.sessionInfo)                    
+                    // start the keep alive cycle to inform that this session is online
+                    debug("Starting to send attendant KeepAlive. Interval: ", sessionConfig.keepAliveTTL/2)
+                    chatServices.keepAliveIntervalHandler = setInterval(() => {
+                        chatServices.mqttClient.publish(`${sessionTopic}/status`, { status: status.session.online })
+                    }, sessionConfig.keepAliveTTL/2)
                     
+                    onChatReady(msg.sessionInfo)
+
                 }else if (msg.instruction === instructions.session.aborted.unavailableAttendants) {
                     onChatAborted(msg.sessionInfo)
                 }
     
             })
             
-            chatServices.mqttClient.publish(topics.server.sessions.request, {
+            chatServices.mqttClient.publish(topics.server.sessions.online, {
                 "sessionTopic": sessionTopic,
-                "sessionId": sessionId,
+                "sessionConfig.sessionId": sessionConfig.sessionId,
                 "customerId": customerId,
                 "requestID": uuidv1(),
             })            

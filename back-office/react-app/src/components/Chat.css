@@ -54,10 +54,10 @@
 .chatView .chatHeader .moreInfo img.active{
     filter: grayscale(0%)
 }
-.chatView .chatHeader .costumerOnline {
+.chatView .chatHeader .customerOnline {
     color: var(--primary-contrast-color);
 }
-.chatView .chatHeader .costumerOffline {
+.chatView .chatHeader .customerOffline {
     color: var(--tertiary-dark);
 }
 
@@ -71,7 +71,7 @@
     flex-direction: column;    
     flex: 1;
 }
-.chatView .costumerDetails {
+.chatView .customerDetails {
     display: flex;
     position: absolute;
     right: -10%;
@@ -83,22 +83,22 @@
     transition: right 0.2s ease-out;
 }
 
-.chatView .costumerDetails.showCostumerDetails {
+.chatView .customerDetails.showCustomerDetails {
     position: relative;
     opacity: 1;
     transition: opacity .2s linear;
     right: 0%;
 }
 
-.chatView .costumerDetails header {
+.chatView .customerDetails header {
     padding: 1rem;
     background: #F0F0F0;
 }
-.chatView .costumerDetails header h1{
+.chatView .customerDetails header h1{
     font-size: 1.2rem;
     margin: 0px;
 }
-.chatView .costumerDetails .body {
+.chatView .customerDetails .body {
     border-left: 2px solid var(--primary-bright);
     flex: 1;
 }

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { attachModelToView } from 'rhelena'
+import moment from 'moment'
 import ChatModel from './Chat.model'
-import CostumerDetails from './CostumerDetails'
-
+import CustomerDetails from './CustomerDetails'
 import { 
     Avatar,
     Row,
@@ -28,14 +28,14 @@ class Chat extends Component {
 
     render() {
         
-        if (!this.state.costumer) {
+        if (!this.state.customer) {
             return <div className="chatView"></div>
         }    
 
         const { t } = this.props
         let messages = []
         let groupMessage = null
-        this.state.costumer.lastMessages.forEach(m => {
+        this.state.customer.lastMessages.forEach(m => {
             if (!groupMessage || groupMessage.userId !== m.from.id) {
                 groupMessage = {
                     userId: m.from.id,
@@ -48,21 +48,23 @@ class Chat extends Component {
             groupMessage.messages.push(m)
         })
 
+        const lastSeenAtMoment = moment(this.state.customer.lastSeenAt)
+
         return (                        
             <div className="chatView">
                 <header className="chatHeader">
                     <div className="headerLeft">
                         <div>
-                            <Avatar letter={this.state.costumer.avatarURL ? null : this.state.costumer.name.substring(0,1)} imgUrl={this.state.costumer.avatarURL ? this.state.costumer.avatarURL : null} />
+                            <Avatar letter={this.state.customer.avatarURL ? null : this.state.customer.name.substring(0,1)} imgUrl={this.state.customer.avatarURL ? this.state.customer.avatarURL : null} />
                         </div>
-                        <div className={"headerTitle " + (this.state.costumer.isOnline ? "costumerOnline" : "costumerOffline")}>
-                            <h1>{this.state.costumer.name}</h1>
-                            <span>{ this.state.costumer.lastSeenAt.calendar() }</span>
+                        <div className={"headerTitle " + (this.state.customer.isOnline ? "customerOnline" : "customerOffline")}>
+                            <h1>{this.state.customer.name}</h1>
+                            <span>{ lastSeenAtMoment.calendar() }</span>
                         </div>
                     </div>
                     <div>
-                        <div className="moreInfo" onClick={() => this.viewModel.toggleCostumerDetails()}>
-                            <img src="/images/show-more.png" className={this.state.showCostumerDetails ? "active" : ""} alt="Info" />
+                        <div className="moreInfo" onClick={() => this.viewModel.toggleCustomerDetails()}>
+                            <img src="/images/show-more.png" className={this.state.showCustomerDetails ? "active" : ""} alt="Info" />
                         </div>
                     </div>
                 </header>
@@ -77,7 +79,7 @@ class Chat extends Component {
                                         {
                                             g.messages.map((m, ix) => {
                                                 return (
-                                                    <Message key={"gr_" + ix} date={m.dateTime} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
+                                                    <Message key={"gr_" + ix} date={moment(new Date(m.dateTime)).fromNow()} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
                                                         <MessageText>
                                                             {m.content}
                                                         </MessageText>
@@ -99,12 +101,12 @@ class Chat extends Component {
                             </Row>
                         </TextComposer>
                     </div>              
-                    <div className={`costumerDetails ${this.state.showCostumerDetails ? "showCostumerDetails" : ""}`}>
+                    <div className={`customerDetails ${this.state.showCustomerDetails ? "showCustomerDetails" : ""}`}>
                         <header>
                             <h1>{ t("About") }</h1>
                         </header>
                         <div className="body">
-                            <CostumerDetails details={this.state.costumer.details} />
+                            <CustomerDetails details={this.state.customer.details} />
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import mqttProvider from 'simple-mqtt-client'
+import manuh from 'manuh'
 import topics from '../topics'
 import config from '../config'
 import instructions from './instructions'
@@ -43,6 +44,9 @@ let chatServices = {
                     chatServices.mqttClient.subscribe(`${msg.sessionTopic}/client/control`, (msg) => {
                         if (msg.instruction === instructions.session.ready) {
                             debug("Session started. Details:", msg.sessionInfo)
+
+                            // publish to the App components that this session is online
+                            manuh.publish(topics.customer.sessions.updates, msg.sessionInfo.customer)
                         }
                     })
 

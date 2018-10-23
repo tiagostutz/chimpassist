@@ -42,7 +42,7 @@ describe('Session Coordinator simple scenarios', () => {
                 const customerId = "user123"
                 const sessionId = uuidv1()
                 const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
-                mqttClient.publish(topics.server.sessions.request, {
+                mqttClient.publish(topics.server.sessions.online, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customer": {  "id": customerId },
@@ -73,7 +73,7 @@ describe('Session Coordinator simple scenarios', () => {
                     assert.equal(sessionCoordinator.getPendingSessions().length, 1); 
                     assert.equal(sessionInfo.status, status.session.waitingAttendantsAssignment)
                     
-                    mqttClient.publish(`${sessionInfo.sessionTopic}/backend/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfo })
+                    mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfo })
 
                     setTimeout(() => { //assert aborted after the coordinator receives the abort control message
 
@@ -94,7 +94,7 @@ describe('Session Coordinator simple scenarios', () => {
                 const customerId = "user123"
                 const sessionId = uuidv1()
                 const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
-                mqttClient.publish(topics.server.sessions.request, {
+                mqttClient.publish(topics.server.sessions.online, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customer": { id: customerId },
@@ -130,7 +130,7 @@ describe('Session Coordinator simple scenarios', () => {
                         status: status.attendant.connection.online,
                         activeSessions: []
                     }
-                    mqttClient.publish(`${sessionInfo.sessionTopic}/backend/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
+                    mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
 
                     setTimeout(() => { //assert ready after the coordinator receives the attendant assignment control message
 
@@ -151,7 +151,7 @@ describe('Session Coordinator simple scenarios', () => {
                 const customerId = "user123"
                 const sessionId = uuidv1()
                 const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
-                mqttClient.publish(topics.server.sessions.request, {
+                mqttClient.publish(topics.server.sessions.online, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customer": { "id": customerId },
@@ -200,14 +200,14 @@ describe('Session Coordinator simple scenarios', () => {
                         }
                     }, "testeSubscription") 
                     
-                    mqttClient.publish(`${sessionInfo.sessionTopic}/backend/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
+                    mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantMock, sessionInfo: sessionInfo })
 
                 }, 100)
 
                 const customerId = "user123"
                 const sessionId = uuidv1()
                 const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
-                mqttClient.publish(topics.server.sessions.request, {
+                mqttClient.publish(topics.server.sessions.online, {
                     "sessionTopic": sessionTopic,
                     "sessionId": sessionId,
                     "customer": { 

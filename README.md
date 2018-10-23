@@ -6,7 +6,7 @@
 
 Open source customer service chat plataform
 
-Backoffice and Frontoffice chat platform made with React for a typical costumer service or support
+Backoffice and Frontoffice chat platform made with React for a typical customer service or support
 
 ## Server
 

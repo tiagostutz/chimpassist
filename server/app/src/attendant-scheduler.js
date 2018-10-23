@@ -63,6 +63,7 @@ module.exports = {
             
                     let attendantsLoadOrdered = _self.getOrderedOnlineAttendants()       
                     
+                    logger.debug("Online attendants: ", this.db.get(this.dbPrefix))
                     sessionInfoRequest.sessionTemplate.attendants.forEach(attendantTemplate => {
                         
                         // filter attendants of the current type and that are not currently in this session                        

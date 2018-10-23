@@ -1,8 +1,12 @@
 import { RhelenaPresentationModel, globalState } from 'rhelena';
 import manuh from 'manuh'
 import moment from 'moment'
-
 import topics from '../topics'
+import chatServices from '../services/chatServices'
+import attendantTypes from '../attendant-types'
+
+import debugLib from 'debug'
+const debug = debugLib('debug-model-chatStation')
 
 export default class ChatStationModel extends RhelenaPresentationModel {
     constructor() {
@@ -10,8 +14,10 @@ export default class ChatStationModel extends RhelenaPresentationModel {
 
         globalState.loggedUser = {
             id: "10",
+            email: "john@smiht.com",
             name: "John Smith",
-            avatarURL: "https://st2.depositphotos.com/3369547/11899/v/950/depositphotos_118998210-stock-illustration-woman-glasses-female-avatar-person.jpg"
+            avatarURL: "https://st2.depositphotos.com/3369547/11899/v/950/depositphotos_118998210-stock-illustration-woman-glasses-female-avatar-person.jpg",
+            type: attendantTypes.support.firstLevel
         }
 
         //initialize customers
@@ -31,6 +37,7 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             lastMessages: [],
             isOnline: false,
         }]
+
         
         manuh.subscribe(topics.costumerRadar.status.online, "ChatStation", msg => {
             let onlineCostumerArr = globalState.customers.filter(c => c.id === msg.costumer.id)
@@ -53,6 +60,10 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             manuh.publish(topics.costumerRadar.updates.global, msg.costumer)
         })
         // -- end of customers setup
+
+        chatServices.startService(globalState.loggedUser, () => {
+            debug("Chat Service started from ChatStationModel")
+        })
     
     }   
 }

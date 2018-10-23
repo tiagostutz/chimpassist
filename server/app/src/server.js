@@ -1,5 +1,6 @@
 const logger = require('console-server')
 const express = require('express')
+const cors = require('cors')
 const sessionCoordinator = require('./session-coordinator')
 const attendantScheduler = require('./attendant-scheduler')
 
@@ -12,6 +13,7 @@ sessionCoordinator.start(() => {
 
         // bring up the API server 
         const app = express()
+        app.use(cors())
         const port = 3000
 
         app.post('/session', (req, res) => {

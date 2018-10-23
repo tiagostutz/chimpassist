@@ -70,7 +70,7 @@ module.exports = {
 
                         // ATTENDANT ASSIGNED
                         }else if (msg.instruction === instructions.attendant.assigned) {
-                            logger.debug("Attendant assignment successfully. Details:", msg.attendantInfo)                            
+                            logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
                             let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
                             sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
                             _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)

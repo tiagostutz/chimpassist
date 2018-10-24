@@ -7,7 +7,8 @@ let instructions = {
     session: {
         ready: null,
         aborted: {
-            unavailableAttendants: null
+            unavailableAttendants: null,
+            expired: null
         }
     }
 }

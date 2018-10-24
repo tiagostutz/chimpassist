@@ -24,7 +24,7 @@ export default class ChatListItem extends Component {
         
         let msgTimestamp = ""
         if (this.state.customer.lastMessages[0]) {
-            msgTimestamp = moment(this.state.customer.lastMessages[0].timestamp).calendar()
+            msgTimestamp = moment(this.state.customer.lastMessages[0].timestamp).format("L")
         }
         return (
             <UIChatListItem active={this.state.active} onClick={() => this.viewModel.onSelect()}>
@@ -32,7 +32,7 @@ export default class ChatListItem extends Component {
                 <Column>
                     <Row justify className="itemListCustomerName">
                         <Title ellipsis>{this.state.customer.name}</Title>
-                        {this.state.customer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
+                        {!this.state.customer.isOnline && this.state.customer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
                     </Row>
                     <Subtitle ellipsis>
                     { this.state.customer.lastMessages[0] ? this.state.customer.lastMessages[this.state.customer.lastMessages.length-1].content : ''}

@@ -47,6 +47,13 @@ let chatServices = {
 
                             // publish to the App components that this session is online
                             manuh.publish(topics.customer.sessions.updates, msg.sessionInfo.customer)
+                        
+                        }else if (msg.instruction === instructions.session.aborted.expired) {
+                            debug("Session expired. Details:", msg.sessionInfo)
+
+                            // publish to the App components that this session is online
+                            msg.sessionInfo.customer.isOnline = false
+                            manuh.publish(topics.customer.sessions.updates, msg.sessionInfo.customer)
                         }
                     })
 

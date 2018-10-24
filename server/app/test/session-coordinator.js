@@ -216,7 +216,7 @@ describe('Session Coordinator simple scenarios', () => {
                         "avatarURL":"http://cdn.mhpbooks.com/uploads/2014/03/test_ttp_big.jpg",
                         "lastMessages": [{
                             "content": "Alice asked, handing her hand and drank some poetry repeated thoughtfully",
-                            "dateTime": new Date().getTime(),
+                            "timestamp": new Date().getTime(),
                             "from": {
                                 "id": "user123",
                                 "name": "Mary Lorem"

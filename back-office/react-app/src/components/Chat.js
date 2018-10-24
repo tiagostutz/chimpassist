@@ -44,8 +44,9 @@ class Chat extends Component {
                 }
                 messages.push(groupMessage)
             }
-            if (m.dateTime)
-            groupMessage.messages.push(m)
+            if (m.timestamp) {
+                groupMessage.messages.push(m)
+            }
         })
 
         const lastSeenAtMoment = moment(this.state.customer.lastSeenAt)
@@ -79,7 +80,7 @@ class Chat extends Component {
                                         {
                                             g.messages.map((m, ix) => {
                                                 return (
-                                                    <Message key={"gr_" + ix} date={moment(new Date(m.dateTime)).fromNow()} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
+                                                    <Message key={"gr_" + ix} date={moment(new Date(m.timestamp)).fromNow()} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
                                                         <MessageText>
                                                             {m.content}
                                                         </MessageText>

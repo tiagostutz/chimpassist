@@ -1,8 +1,11 @@
 const assert = require('assert')
+const manuh = require('manuh')
+const topics = require('../../src/lib/topics')
 const DatabaseProvider = require('../../src/lib/database-provider');
 
 describe("Tests DatabaseProvider", () => {
-    const db = new DatabaseProvider("database-temp/test");
+    const databaseName = "database-temp/test"
+    const db = new DatabaseProvider(databaseName);
     it("should persist simple data", () => {
         db.insert("/test1", { "objA": "testA" })
         const obj = db.get("/test1")
@@ -103,5 +106,18 @@ describe("Tests DatabaseProvider", () => {
 
             db.insert("/test3", { "objA": "testA2" }, false, 200) 
         }, 100)
+    })
+
+    it("should expire and handle deletion notification", (done) => {
+        db.insert("/test4", { "objA": "testA4", "objB": "testB4" }, true, 500)
+        const obj = db.get("/test4")
+        assert.notEqual(obj, null)
+        const stringifiedObj = JSON.stringify(obj)
+        manuh.subscribe(db.deletionTopicNotification, "test", msg => {
+            assert.equal(msg.key, "/test4")
+            assert.equal(JSON.stringify(msg.value), stringifiedObj)
+            assert.equal(db.get("/test4"), null)
+            done()
+        })
     })
 })

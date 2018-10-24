@@ -1,5 +1,4 @@
 import { RhelenaPresentationModel, globalState } from 'rhelena';
-import moment from 'moment'
 import manuh from 'manuh'
 import topics from '../topics'
 
@@ -47,8 +46,7 @@ export default class ChatModel extends RhelenaPresentationModel {
         this.customer.lastMessages.push({
             from: globalState.loggedUser,
             to: this.customer,
-            dateTime: moment(new Date()).fromNow(),
-            timestamp: new Date(),
+            timestamp: new Date().getTime(),
             content: data
         })
         //update customer to all those listening to changes on it

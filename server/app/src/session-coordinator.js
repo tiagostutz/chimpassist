@@ -1,6 +1,7 @@
 const logger = require('console-server')
 const uuidv1 = require('uuid/v1');
 const mqttProvider = require('simple-mqtt-client')
+const manuh = require('manuh')
 
 const DatabaseProvider = require('./lib/database-provider');
 const topics = require('./lib/topics')
@@ -56,6 +57,12 @@ module.exports = {
                                     })
                     _self.db.insert("/" + msg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
                     
+                    // subscribe for the item expiration, which will be the also the session expiration
+                    manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
+                        // notify the clients of the session expiration
+                        mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.expired, sessionInfo: msg.value })
+                    })
+
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
                     
                     // listen for session control informations/instructions

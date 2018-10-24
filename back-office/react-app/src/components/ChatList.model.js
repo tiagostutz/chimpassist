@@ -13,10 +13,18 @@ export default class ChatListModel extends RhelenaPresentationModel {
         
         manuh.subscribe(topics.customer.sessions.updates, "ChatListModel", customer => {            
             if (customer.isOnline) {
-                this.onlineCustomers.push(customer)
+                const search = this.onlineCustomers.filter(c => c.id === customer.id)
+                console.log('===>>>>>>', search);
+                
+                if (search.length === 0) {
+                    this.onlineCustomers.push(customer)
+                }
                 this.offlineCustomers = this.offlineCustomers.filter(c => c.id !== customer.id)
             }else{
-                this.offlineCustomers.push(customer)
+                const search = this.offlineCustomers.filter(c => c.id === customer.id)
+                if (search.length === 0) {
+                    this.offlineCustomers.push(customer)
+                }
                 this.onlineCustomers = this.onlineCustomers.filter(c => c.id !== customer.id)
             }
         })        

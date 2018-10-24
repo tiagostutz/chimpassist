@@ -73,13 +73,13 @@ test('initial state', () => {
 // {
 //     "sessionTopic": "server/sessions/request/1234/3211",
 //     "sessionId": "3211",
+//     "requestID": "000-111-222",
 //     "customer": { "id": "1234", 
-
-// "name": "Mary Lorem",
+//     "name": "Mary Lorem",
 //         "avatarURL":"http://cdn.mhpbooks.com/uploads/2014/03/test_ttp_big.jpg",
 //         "lastMessages": [{
 //             "content": "Alice asked, handing her hand and drank some poetry repeated thoughtfully",
-//             "dateTime": 1540051161217,
+//             "timestamp": 1540051161217,
 //             "from": {
 //                 "id": "1234",
 //                 "name": "Mary Lorem"
@@ -87,6 +87,5 @@ test('initial state', () => {
 //         }],
 //         "isOnline": true,
 //         "lastSeenAt": 1540051161217
-// },
-//     "requestID": "000-111-222"
+//      },
 // }

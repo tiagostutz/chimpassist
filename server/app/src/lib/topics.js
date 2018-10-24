@@ -10,6 +10,11 @@ let topics = {
             request: null,
             quit: null,
             assign: null
+        },
+        infra: {
+            database: {
+                delete: null
+            }
         }
     },
     client: {

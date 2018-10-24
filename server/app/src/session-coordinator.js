@@ -61,6 +61,9 @@ module.exports = {
                     manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
                         // notify the clients of the session expiration
                         mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.expired, sessionInfo: msg.value })
+
+                        // notify the server components of the session expiration
+                        mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.session.aborted.expired, sessionInfo: msg.value })
                     })
 
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    

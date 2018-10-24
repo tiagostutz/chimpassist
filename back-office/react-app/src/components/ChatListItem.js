@@ -17,25 +17,25 @@ import './ChatListItem.css'
 export default class ChatListItem extends Component {
 
     componentWillMount() {
-        attachModelToView(new ChatListItemModel(this.props.customerId), this)
+        attachModelToView(new ChatListItemModel(this.props.session), this)
     }
 
     render() {
         
         let msgTimestamp = ""
-        if (this.state.customer.lastMessages[0]) {
-            msgTimestamp = moment(this.state.customer.lastMessages[0].timestamp).format("L")
+        if (this.state.session.customer.lastMessages[0]) {
+            msgTimestamp = moment(this.state.session.customer.lastMessages[0].timestamp).format("L")
         }
         return (
             <UIChatListItem active={this.state.active} onClick={() => this.viewModel.onSelect()}>
-                <Avatar letter={this.state.customer.avatarURL ? null : this.state.customer.name.substring(0,1)} imgUrl={this.state.customer.avatarURL ? this.state.customer.avatarURL : null} />
+                <Avatar letter={this.state.session.customer.avatarURL ? null : this.state.session.customer.name.substring(0,1)} imgUrl={this.state.session.customer.avatarURL ? this.state.session.customer.avatarURL : null} />
                 <Column>
                     <Row justify className="itemListCustomerName">
-                        <Title ellipsis>{this.state.customer.name}</Title>
-                        {!this.state.customer.isOnline && this.state.customer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
+                        <Title ellipsis>{this.state.session.customer.name}</Title>
+                        {!this.state.session.customer.isOnline && this.state.session.customer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
                     </Row>
                     <Subtitle ellipsis>
-                    { this.state.customer.lastMessages[0] ? this.state.customer.lastMessages[this.state.customer.lastMessages.length-1].content : ''}
+                    { this.state.session.customer.lastMessages[0] ? this.state.session.customer.lastMessages[this.state.session.customer.lastMessages.length-1].content : ''}
                     </Subtitle>
                 </Column>
             </UIChatListItem>

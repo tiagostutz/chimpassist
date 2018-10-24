@@ -1,24 +1,24 @@
-import { RhelenaPresentationModel, globalState } from 'rhelena';
+import { RhelenaPresentationModel } from 'rhelena';
 import manuh from 'manuh'
 
 import topics from '../topics'
 
 export default class ChatListItemModel extends RhelenaPresentationModel {
-    constructor(customerId) {
+    constructor(session) {
         super();
 
-        this.customer = globalState.customers.filter(c => c.id === customerId)[0]        
+        this.session = session        
         this.active = false
 
-        manuh.subscribe(topics.chatStation.customerList.selected, `ChatListItemModel_${this.customer.id}`, msg => {
-            this.active = (msg.customerId === this.customer.id)
+        manuh.subscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionTopic}`, msg => {
+            this.active = (msg.sessionTopic === this.session.sessionTopic)
         })
-        manuh.subscribe(`${topics.customer.messages.channel}/${this.customer.id}`, `ChatListItemModel_${this.customer.id}`, msg => {
-            this.customer = msg.customer
-        })
+        // manuh.subscribe(`${topics.session.messages.channel}/${this.session.id}`, `ChatListItemModel_${this.session.id}`, msg => {
+        //     this.session = msg.session
+        // })
     }
 
     onSelect() {   
-        manuh.publish(topics.chatStation.customerList.selected, { customerId: this.customer.id })
+        manuh.publish(topics.chatStation.sessionList.selected, { sessionTopic: this.session.sessionTopic })
     }
 }

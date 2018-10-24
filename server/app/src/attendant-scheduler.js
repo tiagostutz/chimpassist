@@ -93,15 +93,24 @@ module.exports = {
                 // listen for attendants assignment response
                 mqttClient.subscribe(topics.server.attendants.assign, (attendantAssignment) => {
                     const attendantsRegistry = _self.db.get(_self.dbPrefix)
-
+                    
                     //check whether that session has already been assigned to the attendant
                     const currentSession = attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.filter(a => a.sessionTopic === attendantAssignment.sessionInfo.sessionTopic)
                     if (currentSession.length  === 0) {
                         // update attendant active sessions
+                        
                         attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.push(attendantAssignment.sessionInfo)
-                        _self.db.insert(`${_self.dbPrefix}/${attendantsRegistry[attendantAssignment.attendantInfo.id]}`, attendantsRegistry[attendantAssignment.attendantInfo.id], false, _self.attendantKeepAliveTime)
+                        _self.db.insert(`${_self.dbPrefix}/${attendantAssignment.attendantInfo.id}`, attendantsRegistry[attendantAssignment.attendantInfo.id], true, _self.attendantKeepAliveTime)
                         mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/server/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
+                        
+                        // listen for session expiration to update the attendants state
+                        mqttClient.subscribe(`${attendantAssignment.sessionInfo.sessionTopic}/server/control`, msg => {
+                            if (msg.instruction === instructions.session.aborted.expired) {
+                                this.expireSession(msg.sessionInfo.sessionTopic)
+                            }
+                        })
                         logger.debug("New session assigned to ", attendantAssignment.attendantInfo.id)
+                        
                     }else{
                         logger.debug("Assignment to this classe was successfully mande before. Details: ")
                     }
@@ -131,5 +140,14 @@ module.exports = {
 
         const onlineattendantsList = Object.keys(attendantsRegistry).map(att => attendantsRegistry[att]).filter(att => att.status === status.attendant.connection.online)
         return onlineattendantsList.sort((a,b)  => a.activeSessions.length < b.activeSessions.length)
+    },
+
+    expireSession(sessionTopic) {
+        logger.debug("Session expired; removing from attendants registry. Details: ", sessionTopic)
+        let  allAttendants = this.db.get(this.dbPrefix)
+        allAttendants = Object.keys(allAttendants).map(k => allAttendants[k])
+        
+        // remove the session from the attendants
+        allAttendants.forEach(a => a.activeSessions = a.activeSessions.filter(s => s.sessionTopic != sessionTopic))
     }
 }

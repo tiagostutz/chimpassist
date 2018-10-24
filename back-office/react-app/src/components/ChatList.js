@@ -24,22 +24,22 @@ class ChatList extends Component {
         const { t } = this.props
 
         return (
-            <div className="customerList">
+            <div className="sessionList">
 
-                <div className="onlineCustomers">
+                <div className="onlineSessions">
                     <h1>{t("Online customers")}</h1>
                     <UIChatList>
-                        { this.state.onlineCustomers.map((c,idx) => {
-                            return <ChatListItem customerId={c.id} key={idx} />
+                        { this.state.onlineSessions.map((s,idx) => {
+                            return <ChatListItem session={s} key={idx} />
                         })}
                     </UIChatList>
                 </div>
 
-                <div className="offlineCustomers">
+                <div className="offlineSessions">
                     <h1>{t("Offline customers")}</h1>
                     <UIChatList>
-                        { this.state.offlineCustomers.map((c,idx) => {
-                            return <ChatListItem customerId={c.id} key={idx} />
+                        { this.state.offlineSessions.map((s,idx) => {
+                            return <ChatListItem session={s} key={idx} />
                         })}
                     </UIChatList>
                 </div>

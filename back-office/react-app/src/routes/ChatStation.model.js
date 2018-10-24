@@ -20,16 +20,16 @@ export default class ChatStationModel extends RhelenaPresentationModel {
         }
 
         //initialize customers
-        globalState.customers = []
+        globalState.sessions = []
 
         // update globalState customer list
-        manuh.subscribe(topics.customer.sessions.updates, "ChatStation", customer => {            
-            let currentCustomerArr = globalState.customers.filter(c => c.id === customer.id)
-            if (currentCustomerArr.length === 0) { //new user
-                globalState.customers.push(customer)
+        manuh.subscribe(topics.sessions.updates, "ChatStation", session => {            
+            let currentSessionsArr = globalState.sessions.filter(s => s.sessionTopic === session.sessionTopic)
+            if (currentSessionsArr.length === 0) { //new user
+                globalState.sessions.push(session)
             }else{
                 // replace the customer in the global list with the received one
-                globalState.customers = globalState.customers.map(c => c.id === customer.id ? customer : c)
+                globalState.sessions = globalState.sessions.map(s => s.sessionTopic === session.sessionTopic ? session : s)
             }
         })
         // -- end of customers setup

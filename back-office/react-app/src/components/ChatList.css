@@ -1,24 +1,24 @@
-.customerList {
+.sessionList {
     padding: .55rem;
 }
-.customerList h1 {
+.sessionList h1 {
     font-size: .85rem;
     text-transform: uppercase;
     color: var(--online-color);
 }
-.customerList .onlineCustomers {
+.sessionList .onlineSessions {
     margin-bottom: 3rem;
 }
-.customerList .offlineCustomers h1{
+.sessionList .offlineSessions h1{
     color: var(--tertiary-bright)
 }
 
 /* Livechat-ui-kit override */
-.customerList .css-l9p4i4 {
+.sessionList .css-l9p4i4 {
     background: var(--primary-contrast-color);
     color: var(--primary-bright);
     border: 0px;
 }
-.customerList  .css-brl83k {
+.sessionList  .css-brl83k {
     margin-right: 4rem;
 }

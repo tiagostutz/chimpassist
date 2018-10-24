@@ -2,17 +2,15 @@ import charol from 'charol'
 
 let topics = {
     chatStation: {
-        customerList: {
+        sessionList: {
             selected: null
         }
     },
-    customer: {
+    sessions: {
         messages: {
             channel: null
-        },
-        sessions: {
-            updates: null
-        }
+        },  
+        updates: null
     },
 
     

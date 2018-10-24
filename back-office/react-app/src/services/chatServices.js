@@ -29,7 +29,6 @@ let chatServices = {
             debug('Starting chatServices...')
             mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClientParam) => {    
                 
-                chatServices._ready = true
                 chatServices.mqttClient = mqttClientParam
                 
                 // subscribe to chat session attendant assignment requests 
@@ -46,14 +45,14 @@ let chatServices = {
                             debug("Session started. Details:", msg.sessionInfo)
 
                             // publish to the App components that this session is online
-                            manuh.publish(topics.customer.sessions.updates, msg.sessionInfo.customer)
+                            manuh.publish(topics.sessions.updates, msg.sessionInfo)
                         
                         }else if (msg.instruction === instructions.session.aborted.expired) {
                             debug("Session expired. Details:", msg.sessionInfo)
 
-                            // publish to the App components that this session is online
+                            // publish to the App components that this session is offline
                             msg.sessionInfo.customer.isOnline = false
-                            manuh.publish(topics.customer.sessions.updates, msg.sessionInfo.customer)
+                            manuh.publish(topics.customer.sessions.updates, msg.sessionInfo)
                         }
                     })
 
@@ -66,12 +65,16 @@ let chatServices = {
                 const post = await fetch(`${config.backendEndpoint}/config/attendant`)
                 const attendantConfig = await post.json()                   
                 debug("Starting to send attendant KeepAlive. Interval: ", attendantConfig.keepAliveTTL/2)
+                chatServices.mqttClient.publish(topics.server.attendants.online, {
+                    attendantInfo: attendantInfo
+                }) // send the first register
                 chatServices.keepAliveIntervalHandler = setInterval(() => {
                     chatServices.mqttClient.publish(topics.server.attendants.online, {
                         attendantInfo: attendantInfo
                     })
                 }, attendantConfig.keepAliveTTL/2)
         
+                chatServices._ready = true
             });
             
         }

@@ -3,6 +3,7 @@ const mqttProvider = require('simple-mqtt-client')
 const attendantScheduler = require('../src/attendant-scheduler')
 const status = require('../src/lib/status')
 const topics  = require('../src/lib/topics')
+const instructions  = require('../src/lib/instructions')
 const attendantTypes = require('../src/lib/attendant-types')
 
 describe("Attendant Scheduler simple scenarios", () => {
@@ -156,11 +157,11 @@ describe("Attendant Scheduler simple scenarios", () => {
         }, keepAliveTTL)
     }).timeout(2000)
 
-    it("Should have 1 assistant ON-LINE registered and assigned to a session", (done) => {
+    it("Should have 1 assistant ON-LINE assigned to a session that will expire and have this session removed from this activeSessions list", (done) => {
         attendantScheduler.start(() => {            
             mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
                 const attendantMock = {
-                    id: 51,
+                    id: 55,
                     status: status.attendant.connection.online,
                     activeSessions: [],
                     type: attendantTypes.support.firstLevel
@@ -172,36 +173,46 @@ describe("Attendant Scheduler simple scenarios", () => {
                     assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 1)
 
                     const sessionInfo = {
-                        "sessionTopic": "sessions/test/session51",
-                        "customerRequestID": "test51u1",
-                        "customer": { 
-                            "id": "u1"
-                        },
-                        "createdAt": new Date().getTime(), 
-                        "status": status.session.waitingAttendantsAssignment,
+                        "sessionTopic": "sessions/test/session55",
+                        "sessionId": "session55",
+                        "requestID": "req55",
                         "sessionTemplate": {
                             customersAllowed: 1,
                             attendants: [{
                                 type: attendantTypes.support.firstLevel,
                                 required: true
                             }]            
-                        }, 
-                        "assignedAttendants": []
+                        },
+                        "assignedAttendants": [],  
+                        "createdAt": new Date().getTime(),   
+                        "status": status.session.waitingAttendantsAssignment,                   
+                        "customer": { 
+                            "id": "u55",
+                            "name": "Mary Lorem",
+                            "avatarURL":"http://cdn.mhpbooks.com/uploads/2014/03/test_ttp_big.jpg",
+                            "lastMessages": [{
+                                "content": "Alice asked, handing her hand and drank some poetry repeated thoughtfully",
+                                "timestamp": new Date().getTime(),
+                                "from": {
+                                    "id": "user123",
+                                    "name": "Mary Lorem"
+                                }
+                            }],
+                            "isOnline": true,
+                            "lastSeenAt": new Date().getTime()
+                        }
                     }
-
+                    
                     // listen for attendant request and check the server status before and after responding
-                    mqttClient.subscribe(`${topics.client.attendants.assign}/${attendantMock.id}`, (msg) => {
+                    mqttClient.subscribe(`${topics.client.attendants.assign}/${attendantMock.id}`, _ => {
                         let attendantAssigned = attendantScheduler.db.get(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
                         
                         // BEFORE responding
                         let activeSessions = attendantAssigned.activeSessions.filter(s => s.sessionTopic === sessionInfo.sessionTopic)
-                        assert.equal(activeSessions.length, 0) // as the attendant has not yet responded, there are no active sessions for it                        
-                        
-                        // assignment response from client
+                        assert.equal(activeSessions.length, 0) // as the attendant has not yet responded, there are no active sessions for it                                                                    
                         mqttClient.publish(topics.server.attendants.assign, { attendantInfo: attendantMock, sessionInfo: sessionInfo })
 
                         setTimeout(() => {
-                            
                             // AFTER responding
                             attendantAssigned = attendantScheduler.db.get(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
                             activeSessions = attendantAssigned.activeSessions.filter(s => s.sessionTopic === sessionInfo.sessionTopic)
@@ -211,16 +222,29 @@ describe("Attendant Scheduler simple scenarios", () => {
                             assert.equal(activeSessions[0].customer.id, sessionInfo.customer.id)
                             assert.equal(activeSessions[0].createdAt, sessionInfo.createdAt)
                             
-                            attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
-                            done()
+                            // EXPIRE session
+                            mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, {
+                                instruction: instructions.session.aborted.expired, 
+                                sessionInfo: sessionInfo 
+                            })
+
+                            setTimeout(() => {
+                                attendantAssigned = attendantScheduler.db.get(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
+                                activeSessions = attendantAssigned.activeSessions.filter(s => s.sessionTopic === sessionInfo.sessionTopic)
+                                assert.equal(activeSessions.length, 0)
+                                
+                                attendantScheduler.db.delete(attendantScheduler.dbPrefix  + "/" + attendantMock.id)
+                                done()
+                            }, 70)
+
+                        }, 70)
                             
-                        }, 100)
-                        
                     })
 
+                    // reuest attendant assignment
                     mqttClient.publish(topics.server.attendants.request, sessionInfo)
                     
-                }, 50)
+                }, 70)
                 
             })
         })

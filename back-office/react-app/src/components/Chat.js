@@ -28,14 +28,14 @@ class Chat extends Component {
 
     render() {
         
-        if (!this.state.customer) {
+        if (!this.state.session) {
             return <div className="chatView"></div>
         }    
 
         const { t } = this.props
         let messages = []
         let groupMessage = null
-        this.state.customer.lastMessages.forEach(m => {
+        this.state.session.customer.lastMessages.forEach(m => {
             if (!groupMessage || groupMessage.userId !== m.from.id) {
                 groupMessage = {
                     userId: m.from.id,
@@ -49,17 +49,17 @@ class Chat extends Component {
             }
         })
 
-        const lastSeenAtMoment = moment(this.state.customer.lastSeenAt)
+        const lastSeenAtMoment = moment(this.state.session.customer.lastSeenAt)
 
         return (                        
             <div className="chatView">
                 <header className="chatHeader">
                     <div className="headerLeft">
                         <div>
-                            <Avatar letter={this.state.customer.avatarURL ? null : this.state.customer.name.substring(0,1)} imgUrl={this.state.customer.avatarURL ? this.state.customer.avatarURL : null} />
+                            <Avatar letter={this.state.session.customer.avatarURL ? null : this.state.session.customer.name.substring(0,1)} imgUrl={this.state.session.customer.avatarURL ? this.state.session.customer.avatarURL : null} />
                         </div>
-                        <div className={"headerTitle " + (this.state.customer.isOnline ? "customerOnline" : "customerOffline")}>
-                            <h1>{this.state.customer.name}</h1>
+                        <div className={"headerTitle " + (this.state.session.customer.isOnline ? "customerOnline" : "customerOffline")}>
+                            <h1>{this.state.session.customer.name}</h1>
                             <span>{ lastSeenAtMoment.calendar() }</span>
                         </div>
                     </div>
@@ -107,7 +107,7 @@ class Chat extends Component {
                             <h1>{ t("About") }</h1>
                         </header>
                         <div className="body">
-                            <CustomerDetails details={this.state.customer.details} />
+                            <CustomerDetails details={this.state.session.customer.details} />
                         </div>
                     </div>
                 </div>

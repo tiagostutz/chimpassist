@@ -4,13 +4,13 @@ import topics from '../topics'
 import moment from 'moment'
 
 let model = {}
-model.onlineCustomers = [{
+model.onlineSessions = [{
     id: "1",
     name: "Leonard",
     lastSeenAt: moment(new Date()).add(-3, 'minutes'),
     lastMessages: []
 }]
-model.offlineCustomers = [{
+model.offlineSessions = [{
     id: "2",
     name: "Mendoza",
     lastSeenAt: moment(new Date()).add(-3, 'days'),
@@ -24,18 +24,18 @@ model.offlineCustomers = [{
 }]
 
 test('initial state', () => {
-    expect(model.onlineCustomers.length).toEqual(1)
-    expect(model.offlineCustomers.length).toEqual(2)
+    expect(model.onlineSessions.length).toEqual(1)
+    expect(model.offlineSessions.length).toEqual(2)
 })
 // setTimeout(() => {
-//     manuh.publish(topics.customers.offline, { customer: model.onlineCustomers[0] })
+//     manuh.publish(topics.customers.offline, { customer: model.onlineSessions[0] })
 // }, 10)
 // test('Online to Offline Customer', done => {
 //     //this setTimeout is used because `manuh` invokes the publish asynchronously
 //     setTimeout(() => {
 //         try {            
-//             expect(model.onlineCustomers.length).toEqual(0)
-//             expect(model.offlineCustomers.length).toEqual(3)
+//             expect(model.onlineSessions.length).toEqual(0)
+//             expect(model.offlineSessions.length).toEqual(3)
 //         } catch (error) {            
 //             done.fail(error)
 //         }
@@ -45,20 +45,20 @@ test('initial state', () => {
 
 
 // setTimeout(() => {
-//     manuh.publish(topics.customers.online, { customer: model.offlineCustomers[0] })
+//     manuh.publish(topics.customers.online, { customer: model.offlineSessions[0] })
 // }, 100)
 // setTimeout(() => {
-//     manuh.publish(topics.customers.online, { customer: model.offlineCustomers[0] })
+//     manuh.publish(topics.customers.online, { customer: model.offlineSessions[0] })
 // }, 110)
 // setTimeout(() => {
-//     manuh.publish(topics.customers.online, { customer: model.offlineCustomers[0] })
+//     manuh.publish(topics.customers.online, { customer: model.offlineSessions[0] })
 // }, 120)
 // test('Offline to Online Customer', done => {
 //     setTimeout(() => {
 //         try {
 //             //this setTimeout is used because `manuh` invokes the publish asynchronously    
-//             expect(model.onlineCustomers.length).toEqual(3)
-//             expect(model.offlineCustomers.length).toEqual(0)        
+//             expect(model.onlineSessions.length).toEqual(3)
+//             expect(model.offlineSessions.length).toEqual(0)        
 //             done()
 //         } catch (error) {            
 //             done.fail(error)

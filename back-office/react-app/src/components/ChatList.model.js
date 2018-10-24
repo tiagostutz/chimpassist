@@ -8,24 +8,22 @@ export default class ChatListModel extends RhelenaPresentationModel {
     constructor() {
         super();
         
-        this.onlineCustomers = globalState.customers.filter(c => c.isOnline)
-        this.offlineCustomers = globalState.customers.filter(c => !c.isOnline)
+        this.onlineSessions = globalState.sessions.filter(s => s.isOnline)
+        this.offlineSessions = globalState.sessions.filter(s => !s.isOnline)
         
-        manuh.subscribe(topics.customer.sessions.updates, "ChatListModel", customer => {            
-            if (customer.isOnline) {
-                const search = this.onlineCustomers.filter(c => c.id === customer.id)
-                console.log('===>>>>>>', search);
-                
+        manuh.subscribe(topics.sessions.updates, "ChatListModel", session => {            
+            if (session.isOnline) {
+                const search = this.onlineSessions.filter(s => s.sessionTopic === session.sessionTopic)                
                 if (search.length === 0) {
-                    this.onlineCustomers.push(customer)
+                    this.onlineSessions.push(session)
                 }
-                this.offlineCustomers = this.offlineCustomers.filter(c => c.id !== customer.id)
+                this.offlineSessions = this.offlineSessions.filter(s => s.sessionTopic !== session.sessionTopic)
             }else{
-                const search = this.offlineCustomers.filter(c => c.id === customer.id)
+                const search = this.offlineSessions.filter(s => s.sessionTopic === session.sessionTopic)
                 if (search.length === 0) {
-                    this.offlineCustomers.push(customer)
+                    this.offlineSessions.push(session)
                 }
-                this.onlineCustomers = this.onlineCustomers.filter(c => c.id !== customer.id)
+                this.onlineSessions = this.onlineSessions.filter(s => s.sessionTopic !== session.sessionTopic)
             }
         })        
     }

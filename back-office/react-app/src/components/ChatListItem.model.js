@@ -1,6 +1,7 @@
 import { RhelenaPresentationModel } from 'rhelena';
 import manuh from 'manuh'
 
+import chatServices from '../services/chatServices'
 import topics from '../topics'
 
 export default class ChatListItemModel extends RhelenaPresentationModel {
@@ -13,9 +14,10 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
         manuh.subscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionTopic}`, msg => {
             this.active = (msg.sessionTopic === this.session.sessionTopic)
         })
-        // manuh.subscribe(`${topics.session.messages.channel}/${this.session.id}`, `ChatListItemModel_${this.session.id}`, msg => {
-        //     this.session = msg.session
-        // })
+        
+        chatServices.connectToChatSession(session, `ChatModelItem-${this.session.sessionTopic}`, sessionUpdated => {                
+            this.session = sessionUpdated //refresh session data (even messages)
+        })
     }
 
     onSelect() {   

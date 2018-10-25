@@ -7,9 +7,6 @@ let topics = {
         }
     },
     sessions: {
-        messages: {
-            channel: null
-        },  
         updates: null
     },
 

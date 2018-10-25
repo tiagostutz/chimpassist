@@ -79,6 +79,12 @@ let chatServices = {
             
         }
         onServiceStarted()                
+    },
+
+    connectToChatSession(sessionInfo, source, onMessageReceived) {
+        // associate this source to this chat session
+        this.mqttClient.unsubscribe(`${sessionInfo.sessionTopic}/messages`, source)
+        this.mqttClient.subscribe(`${sessionInfo.sessionTopic}/messages`, onMessageReceived, source)
     }
 }
 

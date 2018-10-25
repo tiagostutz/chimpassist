@@ -16,7 +16,8 @@ import {
   } from '@livechat/ui-kit'
   
 import { withI18n } from "react-i18next";
-  
+
+import status from '../status'
 import '../i18n.js'
 import './Chat.css'
 
@@ -35,7 +36,7 @@ class Chat extends Component {
         const { t } = this.props
         let messages = []
         let groupMessage = null
-        this.state.session.customer.lastMessages.forEach(m => {
+        this.state.session.lastMessages.forEach(m => {
             if (!groupMessage || groupMessage.userId !== m.from.id) {
                 groupMessage = {
                     userId: m.from.id,
@@ -58,7 +59,7 @@ class Chat extends Component {
                         <div>
                             <Avatar letter={this.state.session.customer.avatarURL ? null : this.state.session.customer.name.substring(0,1)} imgUrl={this.state.session.customer.avatarURL ? this.state.session.customer.avatarURL : null} />
                         </div>
-                        <div className={"headerTitle " + (this.state.session.isOnline ? "customerOnline" : "customerOffline")}>
+                        <div className={"headerTitle " + (this.state.session.status === status.session.online ? "customerOnline" : "customerOffline")}>
                             <h1>{this.state.session.customer.name}</h1>
                             <span>{ lastSeenAtMoment.calendar() }</span>
                         </div>

@@ -55,7 +55,7 @@ test('Attendant assignment receive', done => {
             avatarURL: "https://pickaface.net/gallery/avatar/20130919_112248_1385_mock.png",
             lastSeenAt: moment(new Date()).add(-3, 'minutes'),
             lastMessages: [],
-            isOnline: true,
+            status: status.session.online,
         },
         "status": status.session.waitingAttendantsAssignment
     }

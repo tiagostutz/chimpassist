@@ -113,6 +113,7 @@ describe("Tests DatabaseProvider", () => {
         const obj = db.get("/test4")
         assert.notEqual(obj, null)
         const stringifiedObj = JSON.stringify(obj)
+        manuh.unsubscribe(db.deletionTopicNotification, "test")
         manuh.subscribe(db.deletionTopicNotification, "test", msg => {
             assert.equal(msg.key, "/test4")
             assert.equal(JSON.stringify(msg.value), stringifiedObj)

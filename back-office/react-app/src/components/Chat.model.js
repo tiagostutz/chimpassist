@@ -10,6 +10,7 @@ export default class ChatModel extends RhelenaPresentationModel {
         this.session = null
         this.showCustomerDetails = false
         
+        manuh.unsubscribe(topics.chatStation.sessionList.selected, "ChatModel")
         manuh.subscribe(topics.chatStation.sessionList.selected, "ChatModel", session => {      
 
             // check whether this ViewModel was used for this customerId. If not, initialize and persist the data for this customer
@@ -25,7 +26,8 @@ export default class ChatModel extends RhelenaPresentationModel {
                 this.loadState("chatModels", session.sessionTopic);                   
             }
 
-            this.session = globalState.sessions.filter(s => s.sessionTopic === session.sessionTopic)[0]        
+            this.session = globalState.sessions.filter(s => s.sessionTopic === session.sessionTopic)[0]
+            globalState.lastActiveSession = this.session        
 
             // connect to this chat session topic messages
             chatServices.connectToChatSession(session, "ChatModel-Singleton", sessionUpdated => {                
@@ -44,7 +46,6 @@ export default class ChatModel extends RhelenaPresentationModel {
         //update customer to all those listening to changes on it
         chatServices.sendMessage(this.session, {
             from: globalState.loggedUser,
-            to: this.customer,
             timestamp: new Date().getTime(),
             content: data
         })

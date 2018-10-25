@@ -1,4 +1,4 @@
-import { RhelenaPresentationModel } from 'rhelena';
+import { RhelenaPresentationModel, globalState } from 'rhelena';
 import manuh from 'manuh'
 
 import chatServices from '../services/chatServices'
@@ -9,8 +9,9 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
         super();
 
         this.session = session        
-        this.active = false
+        this.active = globalState.lastActiveSession ? globalState.lastActiveSession.sessionTopic === this.session.sessionTopic : null
 
+        manuh.unsubscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionTopic}`)
         manuh.subscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionTopic}`, msg => {
             this.active = (msg.sessionTopic === this.session.sessionTopic)
         })

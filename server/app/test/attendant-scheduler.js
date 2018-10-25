@@ -186,19 +186,18 @@ describe("Attendant Scheduler simple scenarios", () => {
                         "assignedAttendants": [],  
                         "createdAt": new Date().getTime(),   
                         "status": status.session.waitingAttendantsAssignment,                   
-                        "isOnline": true,
+                        "lastMessages": [{
+                            "content": "Alice asked, handing her hand and drank some poetry repeated thoughtfully",
+                            "timestamp": new Date().getTime(),
+                            "from": {
+                                "id": "user123",
+                                "name": "Mary Lorem"
+                            }
+                        }],
                         "customer": { 
                             "id": "u55",
                             "name": "Mary Lorem",
                             "avatarURL":"http://cdn.mhpbooks.com/uploads/2014/03/test_ttp_big.jpg",
-                            "lastMessages": [{
-                                "content": "Alice asked, handing her hand and drank some poetry repeated thoughtfully",
-                                "timestamp": new Date().getTime(),
-                                "from": {
-                                    "id": "user123",
-                                    "name": "Mary Lorem"
-                                }
-                            }],
                             "lastSeenAt": new Date().getTime()
                         }
                     }

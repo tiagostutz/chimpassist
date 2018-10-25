@@ -58,6 +58,7 @@ module.exports = {
                     _self.db.insert("/" + msg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
                     
                     // subscribe for the item expiration, which will be the also the session expiration
+                    manuh.unsubscribe(_self.db.deletionTopicNotification, "SessionCoordinator")
                     manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
                         // notify the clients of the session expiration
                         const expirationInstructionMsg = { instruction: instructions.session.aborted.expired, sessionInfo: msg.value }
@@ -135,7 +136,7 @@ module.exports = {
     },
 
     getOnlineSessions: function() {
-        return this.getSessionByStatus(status.session.ready)
+        return this.getSessionByStatus(status.session.ready).concat(this.getSessionByStatus(status.session.online))
     },
 
     getPendingSessions: function() {

@@ -1,5 +1,7 @@
 import mqttProvider from 'simple-mqtt-client'
 import manuh from 'manuh'
+
+import status from '../status'
 import topics from '../topics'
 import config from '../config'
 import instructions from './instructions'
@@ -45,13 +47,14 @@ let chatServices = {
                             debug("Session started. Details:", msg.sessionInfo)
 
                             // publish to the App components that this session is online
+                            msg.sessionInfo.status = status.session.online
                             manuh.publish(topics.sessions.updates, msg.sessionInfo)
                         
                         }else if (msg.instruction === instructions.session.aborted.expired) {
                             debug("Session expired. Details:", msg.sessionInfo)
 
                             // publish to the App components that this session is offline
-                            msg.sessionInfo.isOnline = false
+                            msg.sessionInfo.status = status.session.aborted
                             manuh.publish(topics.sessions.updates, msg.sessionInfo)
                         }
                     })
@@ -85,6 +88,12 @@ let chatServices = {
         // associate this source to this chat session
         this.mqttClient.unsubscribe(`${sessionInfo.sessionTopic}/messages`, source)
         this.mqttClient.subscribe(`${sessionInfo.sessionTopic}/messages`, onMessageReceived, source)
+    },
+
+    //update customer to all those listening to changes on it
+    sendMessage(session, message) {
+        session.lastMessages.push(message)
+        this.mqttClient.publish(`${session.sessionTopic}/messages`, session) //session with updated message list
     }
 }
 

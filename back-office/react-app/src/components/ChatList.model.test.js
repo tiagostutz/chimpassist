@@ -75,7 +75,6 @@ test('initial state', () => {
 //     "sessionId": "3211",
 //     "requestID": "000-111-222",
 //     "customer": { "id": "1234", 
-//     "isOnline": true,
 //     "name": "Mary Lorem",
 //         "avatarURL":"http://cdn.mhpbooks.com/uploads/2014/03/test_ttp_big.jpg",
 //         "lastMessages": [{

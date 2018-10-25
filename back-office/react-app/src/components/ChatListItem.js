@@ -12,6 +12,7 @@ import {
     Subtitle
   } from '@livechat/ui-kit'
 
+import status from '../status'
 import './ChatListItem.css'
 
 export default class ChatListItem extends Component {
@@ -23,8 +24,8 @@ export default class ChatListItem extends Component {
     render() {
         
         let msgTimestamp = ""
-        if (this.state.session.customer.lastMessages[0]) {
-            msgTimestamp = moment(this.state.session.customer.lastMessages[0].timestamp).format("L")
+        if (this.state.session.lastMessages[0]) {
+            msgTimestamp = moment(this.state.session.lastMessages[0].timestamp).format("L")
         }
         return (
             <UIChatListItem active={this.state.active} onClick={() => this.viewModel.onSelect()}>
@@ -32,10 +33,10 @@ export default class ChatListItem extends Component {
                 <Column>
                     <Row justify className="itemListCustomerName">
                         <Title ellipsis>{this.state.session.customer.name}</Title>
-                        {!this.state.session.isOnline && this.state.session.customer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
+                        {!this.state.session.status === status.session.online && this.state.session.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
                     </Row>
                     <Subtitle ellipsis>
-                    { this.state.session.customer.lastMessages[0] ? this.state.session.customer.lastMessages[this.state.session.customer.lastMessages.length-1].content : ''}
+                    { this.state.session.lastMessages[0] ? this.state.session.lastMessages[this.state.session.lastMessages.length-1].content : ''}
                     </Subtitle>
                 </Column>
             </UIChatListItem>

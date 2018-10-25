@@ -58,7 +58,7 @@ class Chat extends Component {
                         <div>
                             <Avatar letter={this.state.session.customer.avatarURL ? null : this.state.session.customer.name.substring(0,1)} imgUrl={this.state.session.customer.avatarURL ? this.state.session.customer.avatarURL : null} />
                         </div>
-                        <div className={"headerTitle " + (this.state.session.customer.isOnline ? "customerOnline" : "customerOffline")}>
+                        <div className={"headerTitle " + (this.state.session.isOnline ? "customerOnline" : "customerOffline")}>
                             <h1>{this.state.session.customer.name}</h1>
                             <span>{ lastSeenAtMoment.calendar() }</span>
                         </div>

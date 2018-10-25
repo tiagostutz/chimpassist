@@ -60,10 +60,13 @@ module.exports = {
                     // subscribe for the item expiration, which will be the also the session expiration
                     manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
                         // notify the clients of the session expiration
-                        mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.expired, sessionInfo: msg.value })
-
+                        const expirationInstructionMsg = { instruction: instructions.session.aborted.expired, sessionInfo: msg.value }
+                        mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, expirationInstructionMsg)
+                        
                         // notify the server components of the session expiration
-                        mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.session.aborted.expired, sessionInfo: msg.value })
+                        mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, expirationInstructionMsg)
+                        
+                        logger.debug(`Session expiration sent to ${sessionInfo.sessionTopic}/client/control and ${sessionInfo.sessionTopic}/server/control. Message:`, expirationInstructionMsg)
                     })
 
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
@@ -99,7 +102,7 @@ module.exports = {
                             }
 
                         }
-                    })
+                    }, "session-coordinator")
 
                     // notify that the chat session is ready and ask for the distributor to allocate the attendants
                     logger.debug("Notify the attendant scheduler that the session is ready to have attendants assigned. Details: ", sessionInfo)

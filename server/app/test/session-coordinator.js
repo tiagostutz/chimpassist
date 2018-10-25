@@ -222,9 +222,9 @@ describe('Session Coordinator simple scenarios', () => {
                                 "name": "Mary Lorem"
                             }
                         }],
-                        "isOnline": true,
                         "lastSeenAt": new Date().getTime()
                     },
+                    "isOnline": true,
                     "requestID": uuidv1(),
                 })
             })

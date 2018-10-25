@@ -103,13 +103,15 @@ module.exports = {
                         _self.db.insert(`${_self.dbPrefix}/${attendantAssignment.attendantInfo.id}`, attendantsRegistry[attendantAssignment.attendantInfo.id], true, _self.attendantKeepAliveTime)
                         mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/server/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
                         
+                        logger.debug("New session assigned to ", attendantAssignment.attendantInfo.id)
                         // listen for session expiration to update the attendants state
+                        logger.debug(`Subscribing to ${attendantAssignment.sessionInfo.sessionTopic}/server/control for expiration notification and other controls`)
                         mqttClient.subscribe(`${attendantAssignment.sessionInfo.sessionTopic}/server/control`, msg => {
+                            logger.debug(`Server session control message received. Instruction: ${msg.instruction}. Message: ${JSON.stringify(msg)}`)
                             if (msg.instruction === instructions.session.aborted.expired) {
                                 this.expireSession(msg.sessionInfo.sessionTopic)
                             }
-                        })
-                        logger.debug("New session assigned to ", attendantAssignment.attendantInfo.id)
+                        }, "attendant-scheduler")
                         
                     }else{
                         logger.debug("Assignment to this classe was successfully mande before. Details: ")

@@ -32,7 +32,7 @@ export default class ChatListItem extends Component {
                 <Column>
                     <Row justify className="itemListCustomerName">
                         <Title ellipsis>{this.state.session.customer.name}</Title>
-                        {!this.state.session.customer.isOnline && this.state.session.customer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
+                        {!this.state.session.isOnline && this.state.session.customer.lastMessages[0] && <Subtitle nowrap>{msgTimestamp}</Subtitle> }
                     </Row>
                     <Subtitle ellipsis>
                     { this.state.session.customer.lastMessages[0] ? this.state.session.customer.lastMessages[this.state.session.customer.lastMessages.length-1].content : ''}

@@ -51,8 +51,8 @@ let chatServices = {
                             debug("Session expired. Details:", msg.sessionInfo)
 
                             // publish to the App components that this session is offline
-                            msg.sessionInfo.customer.isOnline = false
-                            manuh.publish(topics.customer.sessions.updates, msg.sessionInfo)
+                            msg.sessionInfo.isOnline = false
+                            manuh.publish(topics.sessions.updates, msg.sessionInfo)
                         }
                     })
 

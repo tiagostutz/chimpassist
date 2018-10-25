@@ -186,6 +186,7 @@ describe("Attendant Scheduler simple scenarios", () => {
                         "assignedAttendants": [],  
                         "createdAt": new Date().getTime(),   
                         "status": status.session.waitingAttendantsAssignment,                   
+                        "isOnline": true,
                         "customer": { 
                             "id": "u55",
                             "name": "Mary Lorem",
@@ -198,7 +199,6 @@ describe("Attendant Scheduler simple scenarios", () => {
                                     "name": "Mary Lorem"
                                 }
                             }],
-                            "isOnline": true,
                             "lastSeenAt": new Date().getTime()
                         }
                     }

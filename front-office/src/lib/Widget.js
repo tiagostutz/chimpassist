@@ -5,10 +5,9 @@ import {
   FixedWrapper
 } from '@livechat/ui-kit'
 
-import WidgetMinimized from './components/WidgetMinimized'
-import WidgetMaximized from './components/WidgetMaximized'
+import Minimized from './Minimized'
+import Maximized from './Maximized'
 
-import './App.css';
 
 const themes = {
   defaultTheme: {
@@ -19,11 +18,7 @@ const themes = {
     },
   }
 }
-class App extends Component {
-
-  constructor()  {
-    super();
-  }
+class Widget extends Component {
 
   render() {
 
@@ -31,11 +26,11 @@ class App extends Component {
       <div>
         <ThemeProvider theme={themes.defaultTheme}>
           <FixedWrapper.Root>
-            <FixedWrapper.Maximized ref={this.myRef2}>
-              <WidgetMaximized {...this.props} />
+            <FixedWrapper.Maximized>
+              <Maximized {...this.props} />
             </FixedWrapper.Maximized>
             <FixedWrapper.Minimized>
-              <WidgetMinimized {...this.props} />
+              <Minimized {...this.props} />
             </FixedWrapper.Minimized>
           </FixedWrapper.Root>   
         </ThemeProvider>
@@ -45,4 +40,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default Widget;

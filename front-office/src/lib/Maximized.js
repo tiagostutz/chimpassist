@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import { 
   IconButton,
@@ -19,6 +19,8 @@ import {
   SendButton,
   Fit
 } from '@livechat/ui-kit'
+
+import Messages from './Messages'
 
 export default ({
   minimize, 
@@ -100,9 +102,7 @@ export default ({
       </AgentBar>   
 
       <div style={messageListStyle}>
-        <MessageList active containScrollInSubtree>
-          
-        </MessageList>
+        <Messages />
       </div>
 
       <TextComposer>

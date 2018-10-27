@@ -30,7 +30,7 @@ export default class ChatModel extends RhelenaPresentationModel {
             globalState.lastActiveSession = this.session        
 
             // connect to this chat session topic messages
-            chatServices.connectToChatSession(session, "ChatModel-Singleton", sessionUpdated => {                
+            chatServices.connectToChatSession(session, "ChatModel-Singleton", sessionUpdated => {   
                 this.session = sessionUpdated //refresh session data (even messages)
             })
         })

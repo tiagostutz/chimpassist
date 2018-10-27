@@ -42,14 +42,13 @@ let chatServices = {
                     }
     
                     // start listening for serssion instructions and notify that this attendant is available
-                    chatServices.mqttClient.subscribe(`${msg.sessionTopic}/client/control`, (msg) => {
+                    chatServices.mqttClient.subscribe(`${msg.sessionTopic}/client/control`, msg => {
                         if (msg.instruction === instructions.session.ready) {
                             debug("Session started. Details:", msg.sessionInfo)
 
                             // publish to the App components that this session is online
-                            msg.sessionInfo.status = status.session.online
                             manuh.publish(topics.sessions.updates, msg.sessionInfo)
-                        
+
                         }else if (msg.instruction === instructions.session.aborted.expired) {
                             debug("Session expired. Details:", msg.sessionInfo)
 

@@ -39,23 +39,25 @@ module.exports = {
                 logger.info("Session database initialized. Details: databaseFile:", databaseCatalog.sessionDatabase)
             
                 // listens for chat requests
-                mqttClient.subscribe(topics.server.sessions.online, (msg) => {
+                mqttClient.subscribe(topics.server.sessions.online, sessionInfoMsg => {
                     
-                    const existingSession = _self.db.get("/" + msg.sessionTopic)
+                    const existingSession = _self.db.get("/" + sessionInfoMsg.sessionTopic)
                     if (existingSession) {
                         // just update the session status if it already exists
-                        return _self.db.insert("/" + msg.sessionTopic, { status: msg.status }, false, _self.sessionKeepAliveTime)
+                        _self.db.insert("/" + sessionInfoMsg.sessionTopic, { status: sessionInfoMsg.status }, false, _self.sessionKeepAliveTime)
+                        mqttClient.publish(`${sessionInfoMsg.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoMsg })
+                        return
                     }
 
-                    logger.debug("New session received. Details: ", msg)    
+                    logger.debug("New session received. Details: ", sessionInfoMsg)    
                     // registers the creation of the session for the chat
-                    const sessionInfo = Object.assign(msg,{
+                    const sessionInfo = Object.assign(sessionInfoMsg,{
                                         "createdAt": new Date().getTime(), 
                                         "status": status.session.waitingAttendantsAssignment,
                                         "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
                                         "assignedAttendants": []
                                     })
-                    _self.db.insert("/" + msg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
+                    _self.db.insert("/" + sessionInfoMsg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
                     
                     // subscribe for the item expiration, which will be the also the session expiration
                     manuh.unsubscribe(_self.db.deletionTopicNotification, "SessionCoordinator")
@@ -96,9 +98,9 @@ module.exports = {
                                 // notify all the interested parts that the session is ready and they can start to chat around
                                 mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
                                 
-                                // KEEP-ALIVE listener
-                                mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, (msg) => {
-                                    _self.db.insert("/" + msg.sessionTopic, { status: msg.status }, false, _self.sessionKeepAliveTime)
+                                // Client Handshake listener
+                                mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, sessionInfo => {
+                                    _self.db.insert("/" + msg.sessionTopic, { status: sessionInfo.status }, false, _self.sessionKeepAliveTime)                                    
                                 })
                             }
 

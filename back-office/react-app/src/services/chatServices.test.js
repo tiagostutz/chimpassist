@@ -49,12 +49,12 @@ test('Attendant assignment receive', done => {
         "sessionTopic": "sessions/test/session51",
         "sessionId": "99999999",
         "customerRequestID": "test51u1",
+        "lastMessages": [],
         "customer": {
             id: "1",
             name: "Enzo",
             avatarURL: "https://pickaface.net/gallery/avatar/20130919_112248_1385_mock.png",
             lastSeenAt: moment(new Date()).add(-3, 'minutes'),
-            lastMessages: [],
             status: status.session.online,
         },
         "status": status.session.waitingAttendantsAssignment

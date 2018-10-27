@@ -23,7 +23,7 @@ export default class ChatListItem extends Component {
 
     render() {
         
-        let msgTimestamp = ""
+        let msgTimestamp = ""        
         if (this.state.session.lastMessages[0]) {
             msgTimestamp = moment(this.state.session.lastMessages[0].timestamp).format("L")
         }

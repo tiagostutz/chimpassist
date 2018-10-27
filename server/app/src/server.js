@@ -16,6 +16,11 @@ sessionCoordinator.start(() => {
         app.use(cors())
         const port = 3000
 
+        app.get('/session/:id', (req, res) => {
+            let resp = sessionCoordinator.getSession(req.params.id)
+            res.json(resp)
+        })
+
         app.post('/session', (req, res) => {
             res.json({ 
                 sessionId: sessionCoordinator.generateSessionID(),

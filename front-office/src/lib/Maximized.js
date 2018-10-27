@@ -11,32 +11,21 @@ import {
   Title,
   Subtitle,
   RateGoodIcon,
-  RateBadIcon,
-  TextInput,
-  TextComposer,
-  Fill,
-  MessageList,
-  SendButton,
-  Fit
+  RateBadIcon
 } from '@livechat/ui-kit'
 
 import Messages from './Messages'
+import MessageInputText from './MessageInputText'
 
 export default ({
-  minimize, 
-  title, 
-  attendantAvatarURL, 
-  attendantTitle, 
-  attendantSubtitle, 
-  showPoweredBy=true,
-  sessionTopic
-}) => {
-  
-  const messageListStyle = {
-    flexGrow: 1,
-    minHeight: 0,
-    height: '100%',
-  }
+    minimize, 
+    title, 
+    attendantAvatarURL, 
+    attendantTitle, 
+    attendantSubtitle, 
+    showPoweredBy=true,
+    sessionTopic
+  }) => {
   
   const poweredByStyle = {
     textAlign: 'center',
@@ -100,21 +89,10 @@ export default ({
 
         </Row>
       </AgentBar>   
-
-      <div style={messageListStyle}>
-        <Messages />
-      </div>
-
-      <TextComposer>
-        <Row align="center">
-          <Fill>
-            <TextInput />
-          </Fill>
-          <Fit>
-            <SendButton />
-          </Fit>
-        </Row>
-      </TextComposer>
+      
+      <Messages sessionTopic={sessionTopic} />
+      
+      <MessageInputText sessionTopic={sessionTopic} />
 
       <div style={poweredByStyle}>
         {showPoweredBy && 'Powered by Chimp Assist'}

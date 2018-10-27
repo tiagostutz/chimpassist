@@ -14,6 +14,7 @@ module.exports = class DatabaseProvider {
     insert(key, value, override=true, ttl=0) {
         debug(`inserting data. Details: key=${key} value=${JSON.stringify(value)} override=${override} ttl=${ttl}`)
         this.db.push(key, value, override)
+        debug(`Data inserted. Details: key=${key} value=${JSON.stringify(this.db.getData(key))}`)
 
         if (this.timers[key]) { //clear TTL
             clearTimeout(this.timers[key])

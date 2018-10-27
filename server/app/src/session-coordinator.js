@@ -16,6 +16,7 @@ module.exports = {
     status: 0,
     db: null,
     dbPrefix: "/" + topics.server.sessions._path,
+    mqttClient: null,
     sessionKeepAliveTime: process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000,
 
     start: function(ready) {
@@ -31,7 +32,8 @@ module.exports = {
                         MQTT_USERNAME=${process.env.MQTT_USERNAME} 
                         MQTT_PASSWORD=${process.env.MQTT_PASSWORD}
                         MQTT_BASE_TOPIC=${mqttBaseTopic}`)
-            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, mqttClient => {    
+                _self.mqttClient = mqttClient
                 logger.info("MQTT connection ready.")
             
                 _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
@@ -43,9 +45,16 @@ module.exports = {
                     
                     const existingSession = _self.db.get("/" + sessionInfoMsg.sessionTopic)
                     if (existingSession) {
-                        // just update the session status if it already exists
-                        _self.db.insert("/" + sessionInfoMsg.sessionTopic, { status: sessionInfoMsg.status }, false, _self.sessionKeepAliveTime)
-                        mqttClient.publish(`${sessionInfoMsg.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoMsg })
+
+                        // just update the session status if it already exists                        
+                        existingSession.status = sessionInfoMsg.status
+                        _self.db.insert("/" + existingSession.sessionTopic, existingSession, true, _self.sessionKeepAliveTime)
+                        mqttClient.publish(`${existingSession.sessionTopic}/client/control`, { instruction: instructions.session.update, sessionInfo: existingSession })
+                        return
+                    }else if (!sessionInfoMsg.sessionTopic) {
+                        logger.debug('Expired session attempt to refresh. Sending abort control message');
+                        // notify the clients of the session expiration
+                        _self.expireSession(sessionInfoMsg)
                         return
                     }
 
@@ -56,20 +65,15 @@ module.exports = {
                                         "status": status.session.waitingAttendantsAssignment,
                                         "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
                                         "assignedAttendants": []
-                                    })
+                                    });
+                    
                     _self.db.insert("/" + sessionInfoMsg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
                     
                     // subscribe for the item expiration, which will be the also the session expiration
                     manuh.unsubscribe(_self.db.deletionTopicNotification, "SessionCoordinator")
                     manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
                         // notify the clients of the session expiration
-                        const expirationInstructionMsg = { instruction: instructions.session.aborted.expired, sessionInfo: msg.value }
-                        mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, expirationInstructionMsg)
-                        
-                        // notify the server components of the session expiration
-                        mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, expirationInstructionMsg)
-                        
-                        logger.debug(`Session expiration sent to ${sessionInfo.sessionTopic}/client/control and ${sessionInfo.sessionTopic}/server/control. Message:`, expirationInstructionMsg)
+                        _self.expireSession(msg.value)
                     })
 
                     logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
@@ -79,8 +83,9 @@ module.exports = {
                         if (msg.instruction === instructions.attendant.unavailableAttendants) {
                             logger.info("No attendants available for this session. Aborting.")
                             msg.sessionInfo.status = status.session.aborted
-                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
 
+                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
+                            
                             //notify the customer that the session cannot be started due to lack of available attendant
                             mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: msg.instruction, sessionInfo: msg.sessionInfo })
 
@@ -89,18 +94,19 @@ module.exports = {
                             logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
                             let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
                             sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
+                            
                             _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)
+
 
                             if (_self.isSessionSetupReady(sessionInfoAssignment)) {
                                 sessionInfoAssignment.status = status.session.ready
                                 this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
-
                                 // notify all the interested parts that the session is ready and they can start to chat around
                                 mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
                                 
                                 // Client Handshake listener
                                 mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, sessionInfo => {
-                                    _self.db.insert("/" + msg.sessionTopic, { status: sessionInfo.status }, false, _self.sessionKeepAliveTime)                                    
+                                    _self.db.insert("/" + msg.sessionTopic,sessionInfo, true, _self.sessionKeepAliveTime)                                    
                                 })
                             }
 
@@ -137,15 +143,26 @@ module.exports = {
         }
     },
 
+    expireSession: function(sessionInfo) {
+        sessionInfo.status = status.session.aborted
+        const expirationInstructionMsg = { instruction: instructions.session.aborted.expired, sessionInfo: sessionInfo }
+        this.mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, expirationInstructionMsg)
+        
+        // notify the server components of the session expiration
+        this.mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, expirationInstructionMsg)
+        
+        logger.debug(`Session expiration sent to ${sessionInfo.sessionTopic}/client/control and ${sessionInfo.sessionTopic}/server/control. Message:`, expirationInstructionMsg)
+    },
+
     getOnlineSessions: function() {
-        return this.getSessionByStatus(status.session.ready).concat(this.getSessionByStatus(status.session.online))
+        return this.getSessionsByStatus(status.session.ready).concat(this.getSessionsByStatus(status.session.online))
     },
 
     getPendingSessions: function() {
-        return this.getSessionByStatus(status.session.waitingAttendantsAssignment)
+        return this.getSessionsByStatus(status.session.waitingAttendantsAssignment)
     },
 
-    getSessionByStatus: function(statusParam) {
+    getSessionsByStatus: function(statusParam) {
          try {       
             let filteredSessions = []
             const sessionsData = this.db.get(this.dbPrefix)                        
@@ -162,6 +179,31 @@ module.exports = {
             }
 
             return filteredSessions;
+                
+            
+        } catch (error) {
+            logger.error("Error accessing database. Details:", error)
+            throw "Error accessing session database"
+        }
+    },
+
+    getSession: function(id) {
+        try {       
+            let resp = null
+            const sessionsData = this.db.get(this.dbPrefix) 
+            if (Object.keys(sessionsData).length > 0) {
+                
+                const customers = Object.keys(sessionsData).map(customerId => sessionsData[customerId])
+                customers.forEach(customer => {
+                    Object.keys(customer).forEach(sessionId =>  {
+                        if (sessionId === id) {                            
+                            resp = customer[sessionId]
+                        }
+                    })
+                })
+            }
+
+            return resp;
                 
             
         } catch (error) {

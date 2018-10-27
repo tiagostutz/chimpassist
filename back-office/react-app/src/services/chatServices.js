@@ -49,6 +49,13 @@ let chatServices = {
                             // publish to the App components that this session is online
                             manuh.publish(topics.sessions.updates, msg.sessionInfo)
 
+                        }else if (msg.instruction === instructions.session.update) {
+                            debug("Session update received. Details:", msg.sessionInfo)
+
+                            // publish to the App components the session update
+                            manuh.publish(topics.sessions.updates, msg.sessionInfo)
+
+                        
                         }else if (msg.instruction === instructions.session.aborted.expired) {
                             debug("Session expired. Details:", msg.sessionInfo)
 
@@ -92,6 +99,8 @@ let chatServices = {
     //update customer to all those listening to changes on it
     sendMessage(session, message) {
         session.lastMessages.push(message)
+        console.log('=====>>>',`${session.sessionTopic}/messages`);
+        
         this.mqttClient.publish(`${session.sessionTopic}/messages`, session) //session with updated message list
     }
 }

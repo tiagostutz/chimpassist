@@ -9,7 +9,8 @@ let instructions = {
         aborted: {
             unavailableAttendants: null,
             expired: null
-        }
+        },
+        update: null
     }
 }
 instructions = charol(instructions)

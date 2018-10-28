@@ -34,10 +34,10 @@ export default class ChimpWidget extends Component {
         <ThemeProvider theme={themes.defaultTheme}>
           <FixedWrapper.Root>
             <FixedWrapper.Maximized>
-              <Maximized sessionTopic={this.state.session ? this.state.session.sessionTopic : null} {...this.props} />
+              <Maximized {...this.props} />
             </FixedWrapper.Maximized>
             <FixedWrapper.Minimized>
-              <Minimized sessionTopic={this.state.session ? this.state.session.sessionTopic : null}{...this.props} />
+              <Minimized {...this.props} />
             </FixedWrapper.Minimized>
           </FixedWrapper.Root>   
         </ThemeProvider>

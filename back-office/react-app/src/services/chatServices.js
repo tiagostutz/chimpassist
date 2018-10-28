@@ -81,12 +81,14 @@ let chatServices = {
                         attendantInfo: attendantInfo
                     })
                 }, attendantConfig.keepAliveTTL/2)
-        
+                
                 chatServices._ready = true
+                onServiceStarted()
             });
             
-        }
-        onServiceStarted()                
+        }else{
+            onServiceStarted()
+        }                
     },
 
     connectToChatSession(sessionInfo, source, onMessageReceived) {
@@ -97,8 +99,18 @@ let chatServices = {
 
     //update customer to all those listening to changes on it
     sendMessage(session, message) {
-        session.lastMessages.push(message)
-        this.mqttClient.publish(`${session.sessionTopic}/messages`, session) //session with updated message list
+        //send just the last 5 messages
+        let clonedSession = JSON.parse(JSON.stringify(session))
+        clonedSession.lastMessages.push(message)
+        const startIndex = clonedSession.lastMessages.length-1 > 5 ? clonedSession.lastMessages.length-5 : 0
+        clonedSession.lastMessages = clonedSession.lastMessages.slice(startIndex, clonedSession.lastMessages.length)
+        this.mqttClient.publish(`${session.sessionTopic}/messages`, clonedSession) //session with updated message list
+    },
+
+    async getAttendantSessions(attendantId) {
+        const req = await fetch(`${config.backendEndpoint}/attendant/${attendantId}/sessions`)
+        const res = await req.json()
+        return res
     }
 }
 

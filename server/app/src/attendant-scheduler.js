@@ -112,6 +112,8 @@ module.exports = {
                             logger.debug(`Server session control message received. Instruction: ${msg.instruction}. Message: ${JSON.stringify(msg)}`)
                             if (msg.instruction === instructions.session.aborted.expired) {
                                 this.expireSession(msg.sessionInfo.sessionTopic)
+                            }else if (msg.instruction === instructions.session.ready) {
+                                this.updateActiveSession(msg.sessionInfo)
                             }
                         }, "attendant-scheduler")
                         
@@ -146,6 +148,25 @@ module.exports = {
         return onlineattendantsList.sort((a,b)  => a.activeSessions.length < b.activeSessions.length)
     },
 
+
+    getSessionsByAttendant: function(attendantId) {
+        try {       
+            const registerKey = `${this.dbPrefix}/${attendantId}`
+            const attendantData = this.db.get(registerKey)
+
+            if (!attendantData) {
+                return []
+            }
+            
+            return attendantData.activeSessions;
+                            
+        } catch (error) {
+            logger.error("Error accessing database. Details:", error)
+            throw "Error accessing session database"
+        }
+    },
+
+
     expireSession(sessionTopic) {
         logger.debug("Session expired; removing from attendants registry. Details: ", sessionTopic)
         let  allAttendants = this.db.get(this.dbPrefix)
@@ -153,5 +174,20 @@ module.exports = {
         
         // remove the session from the attendants
         allAttendants.forEach(a => a.activeSessions = a.activeSessions.filter(s => s.sessionTopic != sessionTopic))
+    },
+
+    updateActiveSession(session) {
+        logger.debug("Session updated; updating the registry. Details: ", session)
+        let  allAttendants = this.db.get(this.dbPrefix)
+        allAttendants = Object.keys(allAttendants).map(k => allAttendants[k])
+        
+        // update the session on the attendants active sessions
+        allAttendants.forEach(a => a.activeSessions = a.activeSessions.map(s => {
+            if (s.sessionTopic == session.sessionTopic) { //replace the session instance
+                return session
+            }else{
+                return s
+            }
+        }))
     }
 }

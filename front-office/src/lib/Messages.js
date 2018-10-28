@@ -9,6 +9,10 @@ export default class Messages extends Component {
     componentWillMount() {
         attachModelToView(new MessagesModel(this.props.sessionTopic), this)
     }
+    componentWillUnmount() {
+		// remove manuh listeners
+		this.viewModel.clearListeners()
+	}
 
     render() {
 

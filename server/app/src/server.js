@@ -28,6 +28,11 @@ sessionCoordinator.start(() => {
             })
         })
 
+        app.get('/attendant/:id/sessions', (req, res) => {
+            let resp = attendantScheduler.getSessionsByAttendant(req.params.id)
+            res.json(resp)
+        })
+
         app.get('/config/attendant', (req, res) => {
             res.json({
                 keepAliveTTL: attendantScheduler.attendantKeepAliveTime

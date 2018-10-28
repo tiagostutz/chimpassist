@@ -59,7 +59,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             sessionTopic = `${topics.server.sessions._path}/${this.userData.id}/${sessionId}`
             this.keepAliveTTL = sessionConfig.keepAliveTTL
 
-            // send start session event
+            // send start new session event
             this.mqttClient.publish(topics.server.sessions.online, 
             {
                 "sessionTopic": sessionTopic,
@@ -95,8 +95,12 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
 
         }, "ChimpWidgetModel")
 
-        this.mqttClient.subscribe(`${sessionTopic}/messages`, msg => {
-            manuh.publish(topics.sessions.updates, msg)
+        this.mqttClient.subscribe(`${sessionTopic}/messages`, sessionWithMessages => {
+            console.log('SEND MESSAGE', sessionWithMessages);
+            
+            globalState.session = sessionWithMessages
+            manuh.publish(`${sessionTopic}/messages`, sessionWithMessages)
+
         }, "ChimpWidgetModel")        
         
     }

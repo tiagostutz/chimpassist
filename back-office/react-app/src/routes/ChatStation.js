@@ -46,12 +46,13 @@ export default class ChatStation extends Component {
   }
 
   render() {
+    
     return (
       <ThemeProvider theme={textComposeTheme}>
 
         <div className="mainArea">
-
             <div className="chatListPane">
+            { this.state.status }
               <ChatList />
             </div>
 

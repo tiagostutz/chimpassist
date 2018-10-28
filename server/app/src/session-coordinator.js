@@ -101,8 +101,10 @@ module.exports = {
                             if (_self.isSessionSetupReady(sessionInfoAssignment)) {
                                 sessionInfoAssignment.status = status.session.online
                                 this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
-                                // notify all the interested parts that the session is ready and they can start to chat around
+                                // notify all the interested parts in client that the session is ready and they can start to chat around
                                 mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                                // notify all the interested parts that in server the session is ready and they can start to chat around
+                                mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
                                 
                                 // Client Handshake listener
                                 mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, sessionInfo => {

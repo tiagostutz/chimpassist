@@ -10,10 +10,9 @@ import debugLib from 'debug'
 const debug = debugLib('debug-chatServices')
 
 // enable debug for browser, if running on it
-if (window.localStorage)  {
+if (window.localStorage && process.env.REACT_APP_DEBUG)  {
     window.localStorage.debug = process.env.REACT_APP_DEBUG
-    console.log('window.localStorage.debug', window.localStorage.debug);
-    
+    console.log('window.localStorage.debug', window.localStorage.debug);    
 } 
 
 let chatServices = {
@@ -99,8 +98,6 @@ let chatServices = {
     //update customer to all those listening to changes on it
     sendMessage(session, message) {
         session.lastMessages.push(message)
-        console.log('=====>>>',`${session.sessionTopic}/messages`);
-        
         this.mqttClient.publish(`${session.sessionTopic}/messages`, session) //session with updated message list
     }
 }

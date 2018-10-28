@@ -16,6 +16,7 @@ describe('Session Coordinator simple scenarios', () => {
             assert.equal(sessionCoordinator.getOnlineSessions().length, 0); 
 
             sessionCoordinator.db.delete("/")
+            attendantScheduler.db.delete("/")
             done();   
         })
 
@@ -35,6 +36,7 @@ describe('Session Coordinator simple scenarios', () => {
                     assert.equal(sessionCoordinator.getOnlineSessions().length, 0);                     
                     assert.equal(sessionCoordinator.getPendingSessions().length, 1); 
                     sessionCoordinator.db.delete("/")
+                    attendantScheduler.db.delete("/")
                     done();   
 
                 }, 100)
@@ -86,6 +88,7 @@ describe('Session Coordinator simple scenarios', () => {
                         assert.equal(sessionInfo.status, status.session.aborted)
                         
                         sessionCoordinator.db.delete("/")
+                        attendantScheduler.db.delete("/")
                         done();   
                     }, 50)
 
@@ -140,9 +143,10 @@ describe('Session Coordinator simple scenarios', () => {
     
                         assert.equal(sessionCoordinator.getOnlineSessions().length, 1);                     
                         assert.equal(sessionCoordinator.getPendingSessions().length, 0); 
-                        assert.equal(sessionInfo.status, status.session.ready)
+                        assert.equal(sessionInfo.status, status.session.online)
                         
                         sessionCoordinator.db.delete("/")
+                        attendantScheduler.db.delete("/")
                         done();   
                     }, 50)
 
@@ -196,6 +200,7 @@ describe('Session Coordinator simple scenarios', () => {
                             assert.equal(sessionCoordinator.getPendingSessions().length, 0); 
         
                             sessionCoordinator.db.delete("/")
+                            attendantScheduler.db.delete("/")
                             done();                               
                         }
                     }, "testeSubscription") 

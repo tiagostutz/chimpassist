@@ -44,7 +44,7 @@ module.exports = {
                 mqttClient.subscribe(topics.server.sessions.online, sessionInfoMsg => {
                     
                     const existingSession = _self.db.get("/" + sessionInfoMsg.sessionTopic)
-                    if (existingSession) {
+                    if (existingSession && existingSession.status === status.session.online) {
 
                         // just update the session status if it already exists                        
                         existingSession.status = sessionInfoMsg.status
@@ -87,7 +87,7 @@ module.exports = {
                             _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
                             
                             //notify the customer that the session cannot be started due to lack of available attendant
-                            mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: msg.instruction, sessionInfo: msg.sessionInfo })
+                            mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.unavailableAttendants, sessionInfo: msg.sessionInfo })
 
                         // ATTENDANT ASSIGNED
                         }else if (msg.instruction === instructions.attendant.assigned) {
@@ -99,7 +99,7 @@ module.exports = {
 
 
                             if (_self.isSessionSetupReady(sessionInfoAssignment)) {
-                                sessionInfoAssignment.status = status.session.ready
+                                sessionInfoAssignment.status = status.session.online
                                 this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
                                 // notify all the interested parts that the session is ready and they can start to chat around
                                 mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
@@ -155,7 +155,7 @@ module.exports = {
     },
 
     getOnlineSessions: function() {
-        return this.getSessionsByStatus(status.session.ready).concat(this.getSessionsByStatus(status.session.online))
+        return this.getSessionsByStatus(status.session.online)
     },
 
     getPendingSessions: function() {

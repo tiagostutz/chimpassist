@@ -40,18 +40,20 @@ module.exports = {
             
                 // listen for online attendants heartbit
                 mqttClient.subscribe(topics.server.attendants.online, ({attendantInfo}) => {           
-                    const attendantsRegistry = _self.db.get(_self.dbPrefix)
+                    const registerKey = `${_self.dbPrefix}/${attendantInfo.id}`
+                    const attendant = _self.db.get(registerKey)
                     
                     //check whether the attendant is already registered and updates its status or register it for the first time                    
-                    if (attendantsRegistry[attendantInfo.id]) {
+                    if (attendant) {
                         // if the attendant is already registered, just set the status to online and refresh the keep alive
-                        _self.db.insert(`${_self.dbPrefix}/${attendantInfo.id}`, { status: status.attendant.connection.online }, false, _self.attendantKeepAliveTime)
+                        attendant.status = status.attendant.connection.online
+                        _self.db.insert(registerKey, attendant, true, _self.attendantKeepAliveTime)
                     }else{
                         // register the attendant for the first time
                         attendantInfo.status = status.attendant.connection.online
                         attendantInfo.activeSessions = [] //initialize
                         
-                        _self.db.insert(`${_self.dbPrefix}/${attendantInfo.id}`, attendantInfo, true, _self.attendantKeepAliveTime)
+                        _self.db.insert(registerKey, attendantInfo, true, _self.attendantKeepAliveTime)
                         logger.debug("New attendant registered:", attendantInfo, JSON.stringify(attendantInfo,_self.db.get("/")))
                     }
                 }, _self.instanceID)

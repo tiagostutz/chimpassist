@@ -1,25 +1,37 @@
-import * as React from 'react'
+import React, { Component } from 'react'
+import { attachModelToView } from 'rhelena'
 import { IconButton, ChatIcon } from '@livechat/ui-kit'
 
-const Minimized = ({ maximize }) => (
-	<div
-		onClick={maximize}
-		style={{
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			width: '60px',
-			height: '60px',
-			background: '#0093FF',
-			color: '#fff',
-			borderRadius: '50%',
-			cursor: 'pointer',
-		}}
-	>
-		<IconButton color="#fff">
-			<ChatIcon />
-		</IconButton>
-	</div>
-)
+import status from './services/status'
+import MinimizedModel from './Minimized.model'
 
-export default Minimized
+export default class Minimized extends Component {
+
+	componentWillMount() {
+		attachModelToView(new MinimizedModel(), this)
+	}
+
+	render() {
+		const bgColor = (this.state.session && this.state.session.status === status.session.online) ? '#0093FF' : "gray"
+		return (
+			<div
+				onClick={this.props.maximize}
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					width: '60px',
+					height: '60px',
+					background: bgColor,
+					color: '#fff',
+					borderRadius: '50%',
+					cursor: 'pointer',
+				}}
+			>
+				<IconButton color="#fff">
+					<ChatIcon />
+				</IconButton>
+			</div>
+		)
+	}
+}

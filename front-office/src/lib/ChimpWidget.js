@@ -29,19 +29,15 @@ export default class ChimpWidget extends Component {
       }
     }
 
-    if (!this.state.session) {
-      return <div>Loading...</div>
-    }
-
     return (
       <div>
         <ThemeProvider theme={themes.defaultTheme}>
           <FixedWrapper.Root>
             <FixedWrapper.Maximized>
-              <Maximized sessionTopic={this.state.session.sessionTopic} {...this.props} />
+              <Maximized sessionTopic={this.state.session ? this.state.session.sessionTopic : null} {...this.props} />
             </FixedWrapper.Maximized>
             <FixedWrapper.Minimized>
-              <Minimized sessionTopic={this.state.session.sessionTopic} {...this.props} />
+              <Minimized sessionTopic={this.state.session ? this.state.session.sessionTopic : null}{...this.props} />
             </FixedWrapper.Minimized>
           </FixedWrapper.Root>   
         </ThemeProvider>

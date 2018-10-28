@@ -1,7 +1,7 @@
-import { RhelenaPresentationModel } from 'rhelena';
+import { RhelenaPresentationModel, globalState } from 'rhelena';
 import mqttProvider from 'simple-mqtt-client'
 import manuh from 'manuh'
-import status from './services/status'
+
 import instructions from './services/instructions'
 import topics from './services/topics'
 
@@ -11,10 +11,12 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
     constructor(backendEndpoint, mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic) {
         super();
 
-        this.session = null
         this.userData = global.userData
         this.keepAliveIntervalHandler = null
         this.keepAliveTTL = 0
+        this.mqttClient = null
+        this.backendEndpoint = backendEndpoint
+
         if (!this.userData && window.localStorage.userData) {
             this.userData = JSON.parse(window.localStorage.userData)
         }else{
@@ -26,79 +28,90 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             window.localStorage.userData = JSON.stringify(this.userData)
         }
 
+        mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
+            this.mqttClient = mqttClient
+            this.startSession()
+        })
+    }
+
+    async startSession() {
+
         let sessionTopic = null
         let sessionId = null
-        mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
 
-            // resolve sessionTopic
-            if (window.localStorage.lastSessionInfo) {
-                const sessionInfo = JSON.parse(window.localStorage.lastSessionInfo)
-                this.session = await fetch(`${backendEndpoint}/session/${sessionInfo.sessionId}`)                
-                this.session = await this.session.json()
-                sessionId = sessionInfo.sessionId
-            }
-            
-            if (!this.session) { //if the session was not found or didn't existed
-                delete window.localStorage.lastSessionInfo
-                let sessionConfig = await fetch(`${backendEndpoint}/session`, { method: "POST" })
-                sessionConfig = await sessionConfig.json()
-                sessionId = sessionConfig.sessionId
-                sessionTopic = `${topics.server.sessions._path}/${this.userData.id}/${sessionId}`
-                this.keepAliveTTL = sessionConfig.keepAliveTTL
-                
-            }else{ //if the session is still active, retrieve to resume it
-                sessionTopic = this.session.sessionTopic
-                manuh.publish(topics.sessions.updates, this.session) //update locally
-            } 
-            
-            mqttClient.subscribe(`${sessionTopic}/client/control`, msg => {
-                
-                if (msg.instruction === instructions.session.ready) {
-                    this.session = msg.sessionInfo
-                    window.localStorage.lastSessionInfo = JSON.stringify(this.session)
-                    
-                    if (this.keepAliveIntervalHandler) {
-                        clearInterval(this.keepAliveIntervalHandler)
-                    }
+        if (this.keepAliveIntervalHandler) {
+            clearInterval(this.keepAliveIntervalHandler)
+        }
 
-                    // first keepAlive
-                    this.session.status = status.session.online
-                    mqttClient.publish(topics.server.sessions.online, this.session)                    
+        // resolve sessionTopic
+        if (window.localStorage.lastSessionInfo) {
+            const sessionInfo = JSON.parse(window.localStorage.lastSessionInfo)
+            const sessionReq = await fetch(`${this.backendEndpoint}/session/${sessionInfo.sessionId}`)                            
+            globalState.session = await sessionReq.json()
+            sessionId = sessionInfo.sessionId
+        }
+        
+        if (!globalState.session) { //if the session was not found or didn't existed
+            delete window.localStorage.lastSessionInfo
+            let sessionConfig = await fetch(`${this.backendEndpoint}/session`, { method: "POST" })
+            sessionConfig = await sessionConfig.json()
+            sessionId = sessionConfig.sessionId
+            sessionTopic = `${topics.server.sessions._path}/${this.userData.id}/${sessionId}`
+            this.keepAliveTTL = sessionConfig.keepAliveTTL
 
-                    // Schedule keep alives
-                    console.log('===>>>',this.keepAliveTTL);
-                    
-                    this.keepAliveIntervalHandler = setInterval(() => {
-                        this.session.status = status.session.online
-                        mqttClient.publish(topics.server.sessions.online, this.session)
-                    }, this.keepAliveTTL/2)
-                    
-                    manuh.publish(topics.sessions.updates, msg.sessionInfo)
-                }else if (msg.instruction === instructions.session.aborted.expired) {
-                    delete window.localStorage.lastSessionInfo
-                    if (this.keepAliveIntervalHandler) {
-                        clearInterval(this.keepAliveIntervalHandler)
-                    }
-                }
-            }, "ChimpWidgetModel")
-
-            mqttClient.subscribe(`${sessionTopic}/messages`, msg => {
-                manuh.publish(topics.sessions.updates, msg)
-            })
-
-            
-            
             // send start session event
-            mqttClient.publish(topics.server.sessions.online, 
-                {
-                    "sessionTopic": sessionTopic,
-                    "sessionId": sessionId,
-                    "lastMessages": [],
-                    "customer": this.userData,
-                    "requestID": uuidv1(),
-                    "keepAliveTTL": this.keepAliveTTL
-                })
+            this.mqttClient.publish(topics.server.sessions.online, 
+            {
+                "sessionTopic": sessionTopic,
+                "sessionId": sessionId,
+                "lastMessages": [],
+                "customer": this.userData,
+                "requestID": uuidv1(),
+                "keepAliveTTL": this.keepAliveTTL
+            })
+            
+        }else{ //if the session is still active, retrieve to resume it
+            sessionTopic = globalState.session.sessionTopic
+            this.keepAliveTTL = globalState.session.keepAliveTTL
+            this.startKeepAliveCron()
+            manuh.publish(topics.sessions.updates, globalState.session) //update locally
+        } 
+        
+        // receive commands and updates from session (not included messages)
+        this.mqttClient.subscribe(`${sessionTopic}/client/control`, msg => {                            
+            
+            if ( !globalState.session || (JSON.stringify(globalState.session) !== JSON.stringify(msg.sessionInfo)) ) { //online update when there is effectively changes
+                globalState.session = msg.sessionInfo
+                window.localStorage.lastSessionInfo = JSON.stringify(globalState.session) //update persistent session
+                manuh.publish(topics.sessions.updates, globalState.session)
+            }
 
-        })
+            if (msg.instruction === instructions.session.ready) { //when the session is ready, send a final message telling that the communication is "online"
+                this.startKeepAliveCron()
+                
+            }else if (msg.instruction === instructions.session.aborted.expired) {
+                this.startSession()                
+            }
+
+        }, "ChimpWidgetModel")
+
+        this.mqttClient.subscribe(`${sessionTopic}/messages`, msg => {
+            manuh.publish(topics.sessions.updates, msg)
+        }, "ChimpWidgetModel")        
+        
+    }
+
+    startKeepAliveCron() {
+
+        // immediately send a keepAlive
+        this.mqttClient.publish(topics.server.sessions.online, globalState.session)                    
+        
+        // Schedule keep alives
+        if (this.keepAliveIntervalHandler) {
+            clearInterval(this.keepAliveIntervalHandler)
+        }
+        this.keepAliveIntervalHandler = setInterval(() => {
+            this.mqttClient.publish(topics.server.sessions.online, globalState.session)
+        }, this.keepAliveTTL/2)
     }
 }

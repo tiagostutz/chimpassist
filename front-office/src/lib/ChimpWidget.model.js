@@ -96,8 +96,6 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         }, "ChimpWidgetModel")
 
         this.mqttClient.subscribe(`${sessionTopic}/messages`, sessionWithMessages => {
-            console.log('SEND MESSAGE', sessionWithMessages);
-            
             globalState.session = sessionWithMessages
             manuh.publish(`${sessionTopic}/messages`, sessionWithMessages)
 

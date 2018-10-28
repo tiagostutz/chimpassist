@@ -11,16 +11,15 @@ export default class MessagesModel extends RhelenaPresentationModel {
         manuh.unsubscribe(topics.sessions.updates, "MessagesModel")
         manuh.subscribe(topics.sessions.updates, "MessagesModel", session => {
             session.lastMessages = this.session.lastMessages
-            this.session = session
-            
-            manuh.unsubscribe(`${this.session.sessionTopic}/messages`, "MessagesModel")
-            manuh.subscribe(`${this.session.sessionTopic}/messages`, "MessagesModel", sessionWithMessages => {
-                const mixSession = this.session                
-                console.log('mexSession', mixSession);
-                mixSession.lastMessages.push(sessionWithMessages.lastMessages[sessionWithMessages.lastMessages.length-1])
-                this.session = mixSession
-            })
+            this.session = session            
         })        
+
+        manuh.unsubscribe(`${this.session.sessionTopic}/messages`, "MessagesModel")
+        manuh.subscribe(`${this.session.sessionTopic}/messages`, "MessagesModel", sessionWithMessages => {
+            const mixSession = this.session                
+            mixSession.lastMessages.push(sessionWithMessages.lastMessages[sessionWithMessages.lastMessages.length-1])
+            this.session = mixSession
+        })
     }
 
     clearListeners() {

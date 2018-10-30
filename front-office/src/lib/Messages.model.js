@@ -15,8 +15,9 @@ export default class MessagesModel extends RhelenaPresentationModel {
         })        
 
         manuh.unsubscribe(`${this.session.sessionTopic}/messages`, "MessagesModel")
-        manuh.subscribe(`${this.session.sessionTopic}/messages`, "MessagesModel", sessionWithMessages => {
+        manuh.subscribe(`${this.session.sessionTopic}/messages`, "MessagesModel", payload => {
             const mixSession = this.session                
+            const sessionWithMessages = payload.sessionInfo
             mixSession.lastMessages.push(sessionWithMessages.lastMessages[sessionWithMessages.lastMessages.length-1])
             this.session = mixSession
         })

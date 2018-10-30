@@ -95,9 +95,10 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
 
         }, "ChimpWidgetModel")
 
-        this.mqttClient.subscribe(`${sessionTopic}/messages`, sessionWithMessages => {
+        this.mqttClient.subscribe(`${sessionTopic}/messages`, payload => {
+            const sessionWithMessages = payload.sessionInfo
             globalState.session = sessionWithMessages
-            manuh.publish(`${sessionTopic}/messages`, sessionWithMessages)
+            manuh.publish(`${sessionTopic}/messages`, payload)
 
         }, "ChimpWidgetModel")        
         

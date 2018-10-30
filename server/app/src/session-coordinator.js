@@ -28,7 +28,7 @@ module.exports = {
             _self.status = 1
             _self.mqttClient = mqttClient
 
-            logger.info("MQTT client details:", mqttClient)
+            logger.debug("MQTT client details:", mqttClient)
         
             _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
             _self.db.insert(_self.dbPrefix, {})

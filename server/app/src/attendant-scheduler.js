@@ -24,7 +24,7 @@ module.exports = {
         if (_self.status < 2) {
             logger.info("Starting attendant-distributor...")
             logger.info("Attendant Scheduler Keep Alive parameter: ", _self.attendantKeepAliveTime)
-            logger.info("MQTT client details:", mqttClient)
+            logger.debug("MQTT client details:", mqttClient)
             _self.status = 1
         
             _self.db = new DatabaseProvider(databaseCatalog.attendantDatabase)

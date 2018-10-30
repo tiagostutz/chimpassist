@@ -104,7 +104,10 @@ let chatServices = {
         clonedSession.lastMessages.push(message)
         const startIndex = clonedSession.lastMessages.length-1 > 5 ? clonedSession.lastMessages.length-5 : 0
         clonedSession.lastMessages = clonedSession.lastMessages.slice(startIndex, clonedSession.lastMessages.length)
-        this.mqttClient.publish(`${session.sessionTopic}/messages`, clonedSession) //session with updated message list
+        this.mqttClient.publish(`${session.sessionTopic}/messages`, {
+            sessionInfo: clonedSession,
+            message: message
+        }) //session with updated message list
     },
 
     async getAttendantSessions(attendantId) {

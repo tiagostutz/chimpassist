@@ -1,6 +1,6 @@
 const assert = require('assert');
 const uuidv1 = require('uuid/v1');
-const mqttClient = require('simple-mqtt-client')
+const mqttProvider = require('simple-mqtt-client')
 
 const attendantScheduler = require('../src/attendant-scheduler')
 const sessionCoordinator = require('../src/session-coordinator')
@@ -8,35 +8,48 @@ const topics = require('../src/lib/topics')
 const status = require('../src/lib/status')
 const instructions  = require('../src/lib/instructions')
 
+const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
+
+
+const cleanData = () => {
+    if (sessionCoordinator.db) {
+        sessionCoordinator.db.delete(sessionCoordinator.dbPrefix)
+    }
+    if (attendantScheduler.db) {
+        attendantScheduler.db.delete(attendantScheduler.dbPrefix)
+    }
+}
+
 describe('Session Coordinator simple scenarios', () => {
     
     it("should return empty array on getOnlineSessions.", (done) => {
 
-        sessionCoordinator.start(() => {
-            assert.equal(sessionCoordinator.getOnlineSessions().length, 0); 
-
-            sessionCoordinator.db.delete("/")
-            attendantScheduler.db.delete("/")
-            done();   
+        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+            sessionCoordinator.start(mqttClient, () => {
+                assert.equal(sessionCoordinator.getOnlineSessions().length, 0); 
+                
+                cleanData()
+                done();   
+            })
         })
 
     }).timeout(5000)
 
     it(`should return array with 0 session on getOnlineSessions`, (done) => {
 
-        sessionCoordinator.start(() => {
-            
-            //clean subscriptions from attendantScheduler that can change the behavior of session state
-            mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
-
-            mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
-                                
+        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+            sessionCoordinator.start(mqttClient, () => {
+                
+                //clean subscriptions from attendantScheduler that can change the behavior of session state
+                mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
+                                    
                 setTimeout(() => { //assert after the session request has been processed
 
                     assert.equal(sessionCoordinator.getOnlineSessions().length, 0);                     
                     assert.equal(sessionCoordinator.getPendingSessions().length, 1); 
-                    sessionCoordinator.db.delete("/")
-                    attendantScheduler.db.delete("/")
+
+                    
+                    cleanData()
                     done();   
 
                 }, 100)
@@ -57,14 +70,12 @@ describe('Session Coordinator simple scenarios', () => {
 
 
     it(`should set the session as "aborted" due to no available attendants`, (done) => {
+        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+            sessionCoordinator.start(mqttClient, () => {
+                
+                //clean subscriptions from attendantScheduler that can change the behavior of session state
+                mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
 
-        sessionCoordinator.start(() => {
-            
-            //clean subscriptions from attendantScheduler that can change the behavior of session state
-            mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
-
-            mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
-                                
                 setTimeout(() => { //assert after the session request has been processed
 
                     // BEFORE receive the message with no attendants available
@@ -86,15 +97,14 @@ describe('Session Coordinator simple scenarios', () => {
                         assert.equal(sessionCoordinator.getOnlineSessions().length, 0);                     
                         assert.equal(sessionCoordinator.getPendingSessions().length, 0); 
                         assert.equal(sessionInfo.status, status.session.aborted)
-                        
-                        sessionCoordinator.db.delete("/")
-                        attendantScheduler.db.delete("/")
+
+                        cleanData()
                         done();   
                     }, 50)
 
                 }, 100)
 
-                const customerId = "user123"
+                const customerId = "user222"
                 const sessionId = uuidv1()
                 const sessionTopic = `${topics.server.sessions._path}/${customerId}/${sessionId}`
                 mqttClient.publish(topics.server.sessions.online, {
@@ -104,19 +114,18 @@ describe('Session Coordinator simple scenarios', () => {
                     "requestID": uuidv1(),
                 })
             })
-        })
+        })            
 
     }).timeout(5000)
 
 
     it(`should set the session as "ready" with one available attendant`, (done) => {
 
-        sessionCoordinator.start(() => {
-            
-            //clean subscriptions from attendantScheduler that can change the behavior of session state
-            mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
-
-            mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
+        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+            sessionCoordinator.start(mqttClient, () => {
+                
+                //clean subscriptions from attendantScheduler that can change the behavior of session state
+                mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
                                 
                 setTimeout(() => { //assert after the session request has been processed
 
@@ -144,9 +153,8 @@ describe('Session Coordinator simple scenarios', () => {
                         assert.equal(sessionCoordinator.getOnlineSessions().length, 1);                     
                         assert.equal(sessionCoordinator.getPendingSessions().length, 0); 
                         assert.equal(sessionInfo.status, status.session.online)
-                        
-                        sessionCoordinator.db.delete("/")
-                        attendantScheduler.db.delete("/")
+
+                        cleanData()
                         done();   
                     }, 50)
 
@@ -170,13 +178,12 @@ describe('Session Coordinator simple scenarios', () => {
 
     it(`should send the final chat handshake to sessionTopic`, (done) => {
 
-        sessionCoordinator.start(() => {
-            
-            //clean subscriptions from attendantScheduler that can change the behavior of session state
-            mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
+        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+            sessionCoordinator.start(mqttClient, () => {
+                
+                //clean subscriptions from attendantScheduler that can change the behavior of session state
+                mqttClient.unsubscribe(topics.server.attendants.request, attendantScheduler.instanceID)
 
-            mqttClient.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
-                                
                 setTimeout(() => { //assert after the session request has been processed
 
                     // BEFORE receive the message with no attendants available
@@ -199,8 +206,8 @@ describe('Session Coordinator simple scenarios', () => {
                             assert.equal(sessionCoordinator.getOnlineSessions().length, 1);                     
                             assert.equal(sessionCoordinator.getPendingSessions().length, 0); 
         
-                            sessionCoordinator.db.delete("/")
-                            attendantScheduler.db.delete("/")
+
+                            cleanData()
                             done();                               
                         }
                     }, "testeSubscription") 

@@ -19,115 +19,109 @@ module.exports = {
     mqttClient: null,
     sessionKeepAliveTime: process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000,
 
-    start: function(ready) {
+    start: function(mqttClient, ready) {
 
-        const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
         const _self = this
-        if (_self.status === 0) {
+        if (_self.status < 2) {
             logger.info("Starting session-coordinator...")
             logger.info("Session Coordinator Keep Alive parameter: ", _self.sessionKeepAliveTime)
             _self.status = 1
-            logger.info(`MQTT Provider params: 
-                        MQTT_BROKER_HOST=${process.env.MQTT_BROKER_HOST} 
-                        MQTT_USERNAME=${process.env.MQTT_USERNAME} 
-                        MQTT_PASSWORD=${process.env.MQTT_PASSWORD}
-                        MQTT_BASE_TOPIC=${mqttBaseTopic}`)
-            mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, mqttClient => {    
-                _self.mqttClient = mqttClient
-                logger.info("MQTT connection ready.")
-            
-                _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
-                _self.db.insert(_self.dbPrefix, {})
-                logger.info("Session database initialized. Details: databaseFile:", databaseCatalog.sessionDatabase)
-            
-                // listens for chat requests
-                mqttClient.subscribe(topics.server.sessions.online, sessionInfoMsg => {
-                    
-                    const existingSession = _self.db.get("/" + sessionInfoMsg.sessionTopic)
-                    if (existingSession && existingSession.status === status.session.online) {
+            _self.mqttClient = mqttClient
 
-                        // just update the session status if it already exists                        
-                        existingSession.status = sessionInfoMsg.status
-                        _self.db.insert("/" + existingSession.sessionTopic, existingSession, true, _self.sessionKeepAliveTime)
-                        mqttClient.publish(`${existingSession.sessionTopic}/client/control`, { instruction: instructions.session.update, sessionInfo: existingSession })
-                        return
-                    }else if (!sessionInfoMsg.sessionTopic) {
-                        logger.debug('Expired session attempt to refresh. Sending abort control message');
-                        // notify the clients of the session expiration
-                        _self.expireSession(sessionInfoMsg)
-                        return
-                    }
+            logger.info("MQTT client details:", mqttClient)
+        
+            _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
+            _self.db.insert(_self.dbPrefix, {})
+            logger.info("Session database initialized. Details: databaseFile:", databaseCatalog.sessionDatabase)
+        
+            // listens for chat requests
+            mqttClient.subscribe(topics.server.sessions.online, sessionInfoMsg => {
+                
+                const existingSession = _self.db.get("/" + sessionInfoMsg.sessionTopic)
+                if (existingSession && existingSession.status === status.session.online) {
 
-                    logger.debug("New session received. Details: ", sessionInfoMsg)    
-                    // registers the creation of the session for the chat
-                    const sessionInfo = Object.assign(sessionInfoMsg,{
-                                        "createdAt": new Date().getTime(), 
-                                        "status": status.session.waitingAttendantsAssignment,
-                                        "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
-                                        "assignedAttendants": []
-                                    });
-                    
-                    _self.db.insert("/" + sessionInfoMsg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
-                    
-                    // subscribe for the item expiration, which will be the also the session expiration
-                    manuh.unsubscribe(_self.db.deletionTopicNotification, "SessionCoordinator")
-                    manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
-                        // notify the clients of the session expiration
-                        _self.expireSession(msg.value)
-                    })
+                    // just update the session status if it already exists                        
+                    existingSession.status = sessionInfoMsg.status
+                    _self.db.insert("/" + existingSession.sessionTopic, existingSession, true, _self.sessionKeepAliveTime)
+                    mqttClient.publish(`${existingSession.sessionTopic}/client/control`, { instruction: instructions.session.update, sessionInfo: existingSession })
+                    return
+                }else if (!sessionInfoMsg.sessionTopic) {
+                    logger.debug('Expired session attempt to refresh. Sending abort control message');
+                    // notify the clients of the session expiration
+                    _self.expireSession(sessionInfoMsg)
+                    return
+                }
 
-                    logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
-                    
-                    // listen for session control informations/instructions
-                    mqttClient.subscribe(`${sessionInfo.sessionTopic}/server/control`, (msg) => {
-                        if (msg.instruction === instructions.attendant.unavailableAttendants) {
-                            logger.info("No attendants available for this session. Aborting.")
-                            msg.sessionInfo.status = status.session.aborted
-
-                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
-                            
-                            //notify the customer that the session cannot be started due to lack of available attendant
-                            mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.unavailableAttendants, sessionInfo: msg.sessionInfo })
-
-                        // ATTENDANT ASSIGNED
-                        }else if (msg.instruction === instructions.attendant.assigned) {
-                            logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
-                            let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
-                            sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
-                            
-                            _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)
-
-
-                            if (_self.isSessionSetupReady(sessionInfoAssignment)) {
-                                sessionInfoAssignment.status = status.session.online
-                                this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
-                                // notify all the interested parts in client that the session is ready and they can start to chat around
-                                mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
-                                // notify all the interested parts that in server the session is ready and they can start to chat around
-                                mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
-                                
-                                // Client Handshake listener
-                                mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, sessionInfo => {
-                                    _self.db.insert("/" + msg.sessionTopic,sessionInfo, true, _self.sessionKeepAliveTime)                                    
-                                })
-                            }
-
-                        }
-                    }, "session-coordinator")
-
-                    // notify that the chat session is ready and ask for the distributor to allocate the attendants
-                    logger.debug("Notify the attendant scheduler that the session is ready to have attendants assigned. Details: ", sessionInfo)
-                    mqttClient.publish(topics.server.attendants.request, sessionInfo)
+                logger.debug("New session received. Details: ", sessionInfoMsg)    
+                // registers the creation of the session for the chat
+                const sessionInfo = Object.assign(sessionInfoMsg,{
+                                    "createdAt": new Date().getTime(), 
+                                    "status": status.session.waitingAttendantsAssignment,
+                                    "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
+                                    "assignedAttendants": []
+                                });
+                
+                _self.db.insert("/" + sessionInfoMsg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
+                
+                // subscribe for the item expiration, which will be the also the session expiration
+                manuh.unsubscribe(_self.db.deletionTopicNotification, "SessionCoordinator")
+                manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
+                    // notify the clients of the session expiration
+                    _self.expireSession(msg.value)
                 })
 
-                _self.status = 2
-                return ready()
-            
+                logger.debug("Chat session created and persisted. Details: ", sessionInfo)                    
+                
+                // listen for session control informations/instructions
+                mqttClient.subscribe(`${sessionInfo.sessionTopic}/server/control`, (msg) => {
+                    if (msg.instruction === instructions.attendant.unavailableAttendants) {
+                        logger.info("No attendants available for this session. Aborting.")
+                        msg.sessionInfo.status = status.session.aborted
+
+                        _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
+                        
+                        //notify the customer that the session cannot be started due to lack of available attendant
+                        mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.unavailableAttendants, sessionInfo: msg.sessionInfo })
+
+                    // ATTENDANT ASSIGNED
+                    }else if (msg.instruction === instructions.attendant.assigned) {
+                        logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
+                        let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
+                        sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
+                        
+                        _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)
+
+
+                        if (_self.isSessionSetupReady(sessionInfoAssignment)) {
+                            sessionInfoAssignment.status = status.session.online
+                            this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
+                            // notify all the interested parts in client that the session is ready and they can start to chat around
+                            mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                            // notify all the interested parts that in server the session is ready and they can start to chat around
+                            mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
+                            
+                            // Client Handshake listener
+                            mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, sessionInfo => {
+                                _self.db.insert("/" + msg.sessionTopic,sessionInfo, true, _self.sessionKeepAliveTime)                                    
+                            })
+                        }
+
+                    }
+                }, "session-coordinator")
+
+                // notify that the chat session is ready and ask for the distributor to allocate the attendants
+                logger.debug("Notify the attendant scheduler that the session is ready to have attendants assigned. Details: ", sessionInfo)
+                mqttClient.publish(topics.server.attendants.request, sessionInfo)
             })
+
+            _self.status = 2            
+            return ready()
+
         }else{
             logger.debug("Sessions Coordinator already started. Ignoring start request...")
             return ready()
         }
+
 
     },
 

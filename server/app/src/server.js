@@ -45,6 +45,23 @@ app.get('/session/:id', (req, res) => {
     res.json(resp)
 })
 
+
+app.get('/session/:sessionId/messages', (req, res) => {
+    chatLogger.getMessages(req.params.sessionId, 20, (messages) => {
+        if(!messages) {
+            return res.status(500).send("Error retrieving message")
+        }
+        messages = messages.map(message => {
+            delete message._id
+            delete message.sessionInfo.sessionTemplate
+            delete message.sessionInfo.assignedAttendants
+            message.sessionInfo.lastMessages = []
+            return message
+        })
+        return res.json(messages)
+    })
+})
+
 app.post('/session', (req, res) => {
     res.json({ 
         sessionId: sessionCoordinator.generateSessionID(),

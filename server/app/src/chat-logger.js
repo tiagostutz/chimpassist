@@ -3,15 +3,15 @@ const topics = require('./lib/topics')
 const MongoClient = require('mongodb').MongoClient;
 
 let bufferedMessage = []
+
+const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
+const dbName = 'myproject';
+const client = new MongoClient(url);
+
 module.exports = {
 
     start: (mqttClient, ready) => {
         logger.info("Starting session chat logger...")
-        
-        const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
-        const dbName = 'myproject';
-        const client = new MongoClient(url);
-
 
         client.connect((err) => {
 
@@ -19,9 +19,9 @@ module.exports = {
                 throw err
             }
             
+            console.log("chat-logger connected successfully to MongoDB");
             const db = client.db(dbName);
             const collection = db.collection('chat-messages')
-            console.log("chat-logger connected successfully to MongoDB");
             
             mqttClient.subscribe(`${topics.server.sessions._path}/#`, msg => {
         
@@ -48,5 +48,25 @@ module.exports = {
             // client.close();
         });
 
+    },
+
+    getMessages: (sessionId, limit, receive) => {
+        client.connect((err) => {
+
+            if (err) {
+                throw err
+            }
+
+            const db = client.db(dbName);
+            const collection = db.collection('chat-messages')
+
+            collection.find({"sessionInfo.sessionId": sessionId}).limit(limit).toArray((err, docs) => {
+                if (err) {
+                    return receive()
+                }
+                receive(docs)
+                client.close();
+            });
+        })
     }
 }

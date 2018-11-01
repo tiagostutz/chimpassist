@@ -37,6 +37,7 @@ class Chat extends Component {
         let messages = []
         let groupMessage = null
         this.state.session.lastMessages.forEach(m => {
+            
             if (!groupMessage || groupMessage.userId !== m.from.id) {
                 groupMessage = {
                     userId: m.from.id,

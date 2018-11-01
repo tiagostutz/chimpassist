@@ -41,7 +41,7 @@ let chatServices = {
                     }
     
                     // start listening for serssion instructions and notify that this attendant is available
-                    chatServices.mqttClient.subscribe(`${msg.sessionTopic}/client/control`, msg => {
+                    chatServices.mqttClient.subscribe(`${msg.sessionTopic}/client/control`, async msg => {
                         if (msg.instruction === instructions.session.ready) {
                             debug("Session started. Details:", msg.sessionInfo)
 
@@ -112,8 +112,15 @@ let chatServices = {
 
     async getAttendantSessions(attendantId) {
         const req = await fetch(`${config.backendEndpoint}/attendant/${attendantId}/sessions`)
-        const res = await req.json()
-        return res
+        const sessions = await req.json()
+        sessions.map(async session => {
+            const get = await fetch(`${config.backendEndpoint}/session/${session.sessionId}/messages`)
+            const sentMessages = await get.json()
+            session.lastMessages = sentMessages.map(m => m.message)
+            return session
+        })
+
+        return sessions
     }
 }
 

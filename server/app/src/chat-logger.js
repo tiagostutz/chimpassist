@@ -19,7 +19,7 @@ module.exports = {
                 throw err
             }
             
-            console.log("chat-logger connected successfully to MongoDB");
+            logger.debug("chat-logger connected successfully to MongoDB");
             const db = client.db(dbName);
             const collection = db.collection('chat-messages')
             

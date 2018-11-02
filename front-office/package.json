@@ -27,7 +27,7 @@
     "manuh": "^1.4.0",
     "moment": "^2.22.2",
     "rhelena": "^1.2.4",
-    "simple-mqtt-client": "^0.3.4",
+    "simple-mqtt-client": "^0.3.6",
     "uuid": "^3.3.2"
   },
   "browserslist": [

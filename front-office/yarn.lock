@@ -2381,13 +2381,13 @@ date-now@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/date-now/-/date-now-0.1.4.tgz#eaf439fd4d4848ad74e5cc7dbef200672b9e345b"
 
-debug@2.6.8:
+debug@2.6.8, debug@^2.6.8:
   version "2.6.8"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.8.tgz#e731531ca2ede27d188222427da17821d68ff4fc"
   dependencies:
     ms "2.0.0"
 
-debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3, debug@^2.6.0, debug@^2.6.6, debug@^2.6.8, debug@^2.6.9:
+debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3, debug@^2.6.0, debug@^2.6.6, debug@^2.6.9:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   dependencies:
@@ -2546,13 +2546,9 @@ detect-port-alt@1.1.6:
     address "^1.0.1"
     debug "^2.6.0"
 
-diff@3.2.0:
+diff@3.2.0, diff@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.2.0.tgz#c9ce393a4b7cbd0b058a725c93df299027868ff9"
-
-diff@^3.2.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
 
 diffie-hellman@^5.0.0:
   version "5.0.3"
@@ -5235,7 +5231,15 @@ mamacro@^0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/mamacro/-/mamacro-0.0.3.tgz#ad2c9576197c9f1abf308d0787865bd975a3f3e4"
 
-manuh@^1.3.4, manuh@^1.4.0:
+manuh-bridge@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/manuh-bridge/-/manuh-bridge-0.0.2.tgz#22bbcaa8909c81c5b716532d296bb5b1c13c3a53"
+  dependencies:
+    debug "^3.1.0"
+    manuh "^1.3.0"
+    mqtt "^2.18.1"
+
+manuh@^1.3.0, manuh@^1.3.4, manuh@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/manuh/-/manuh-1.4.0.tgz#091b3c30ffaec254d7f45fb3b63b1281a576ff3d"
   dependencies:
@@ -5523,7 +5527,7 @@ mqtt-packet@^5.6.0:
     process-nextick-args "^2.0.0"
     safe-buffer "^5.1.0"
 
-mqtt@^2.18.8:
+mqtt@^2.18.1, mqtt@^2.18.8:
   version "2.18.8"
   resolved "https://registry.yarnpkg.com/mqtt/-/mqtt-2.18.8.tgz#9d213ccab92151accfb21ee8c0860dc6866ab259"
   dependencies:
@@ -7654,12 +7658,13 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-simple-mqtt-client@^0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/simple-mqtt-client/-/simple-mqtt-client-0.3.4.tgz#219ca9188cc4a8314ddbde1b8f8c8d2de9151077"
+simple-mqtt-client@^0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/simple-mqtt-client/-/simple-mqtt-client-0.3.6.tgz#065246044c14e9d3e79459db62afa39116f49610"
   dependencies:
     debug "^4.1.0"
     manuh "^1.3.4"
+    manuh-bridge "^0.0.2"
     mqtt "^2.18.8"
 
 simple-swizzle@^0.2.2:
@@ -8012,7 +8017,7 @@ stylis@^3.3.2:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/stylis/-/stylis-3.5.3.tgz#99fdc46afba6af4deff570825994181a5e6ce546"
 
-supports-color@3.1.2:
+supports-color@3.1.2, supports-color@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.1.2.tgz#72a262894d9d408b956ca05ff37b2ed8a6e2a2d5"
   dependencies:
@@ -8021,12 +8026,6 @@ supports-color@3.1.2:
 supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
-
-supports-color@^3.1.2:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.2.3.tgz#65ac0504b3954171d8a64946b2ae3cbb8a5f54f6"
-  dependencies:
-    has-flag "^1.0.0"
 
 supports-color@^5.1.0, supports-color@^5.3.0, supports-color@^5.4.0, supports-color@^5.5.0:
   version "5.5.0"

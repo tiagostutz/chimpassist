@@ -25,6 +25,31 @@ let chatServices = {
         const mqttBrokerPassword = process.env.REACT_APP_MQTT_PASSWORD || ""
         const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
         
+        const sessionControlSubscribe = (sessionTopic) => {
+            // start listening for serssion instructions and notify that this attendant is available
+            chatServices.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {
+                if (msg.instruction === instructions.session.ready) {
+                    debug("Session started. Details:", msg.sessionInfo)
+    
+                    // publish to the App components that this session is online
+                    manuh.publish(topics.sessions.updates, msg.sessionInfo)
+    
+                }else if (msg.instruction === instructions.session.update) {
+                    debug("Session update received. Details:", msg.sessionInfo)
+    
+                    // publish to the App components the session update
+                    manuh.publish(topics.sessions.updates, msg.sessionInfo)
+                
+                }else if (msg.instruction === instructions.session.aborted.expired) {
+                    debug("Session expired. Details:", msg.sessionInfo)
+    
+                    // publish to the App components that this session is offline
+                    msg.sessionInfo.status = status.session.aborted
+                    manuh.publish(topics.sessions.updates, msg.sessionInfo)
+                }
+            }, "sessionControlSubscribe")  
+        }
+
         if (!chatServices._ready) {
 
             debug('Starting chatServices...')
@@ -40,29 +65,7 @@ let chatServices = {
                         sessionInfo: msg
                     }
     
-                    // start listening for serssion instructions and notify that this attendant is available
-                    chatServices.mqttClient.subscribe(`${msg.sessionTopic}/client/control`, async msg => {
-                        if (msg.instruction === instructions.session.ready) {
-                            debug("Session started. Details:", msg.sessionInfo)
-
-                            // publish to the App components that this session is online
-                            manuh.publish(topics.sessions.updates, msg.sessionInfo)
-
-                        }else if (msg.instruction === instructions.session.update) {
-                            debug("Session update received. Details:", msg.sessionInfo)
-
-                            // publish to the App components the session update
-                            manuh.publish(topics.sessions.updates, msg.sessionInfo)
-
-                        
-                        }else if (msg.instruction === instructions.session.aborted.expired) {
-                            debug("Session expired. Details:", msg.sessionInfo)
-
-                            // publish to the App components that this session is offline
-                            msg.sessionInfo.status = status.session.aborted
-                            manuh.publish(topics.sessions.updates, msg.sessionInfo)
-                        }
-                    })
+                    sessionControlSubscribe(msg.sessionTopic)
 
                     // respond the assignment positively
                     chatServices.mqttClient.publish(topics.server.attendants.assign, attendantAssignment)
@@ -83,11 +86,16 @@ let chatServices = {
                 }, attendantConfig.keepAliveTTL/2)
                 
                 chatServices._ready = true
-                onServiceStarted()
+
+                const activeSessions = await chatServices.getAttendantSessions(attendantInfo.id)
+                activeSessions.forEach(session => sessionControlSubscribe(session.sessionTopic))
+                onServiceStarted(activeSessions)
             });
             
         }else{
-            onServiceStarted()
+            const activeSessions = await chatServices.getAttendantSessions(attendantInfo.id)
+            activeSessions.forEach(session => sessionControlSubscribe(session.sessionTopic))
+            onServiceStarted(activeSessions)
         }                
     },
 

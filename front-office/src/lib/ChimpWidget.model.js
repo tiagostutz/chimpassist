@@ -16,6 +16,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         this.keepAliveTTL = 0
         this.mqttClient = null
         this.backendEndpoint = backendEndpoint
+        this.retryHandler = null
 
         if (!this.userData && window.localStorage.userData) {
             this.userData = JSON.parse(window.localStorage.userData)
@@ -53,8 +54,14 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         
         if (!globalState.session) { //if the session was not found or didn't existed
             delete window.localStorage.lastSessionInfo
-            let sessionConfig = await fetch(`${this.backendEndpoint}/session`, { method: "POST" })
-            sessionConfig = await sessionConfig.json()
+            let req = await fetch(`${this.backendEndpoint}/session`, { method: "POST" })
+            if (req.status !== 200) {
+                this.retryHandler = setInterval(() => {
+                    this.startSession()
+                }, 10000)
+                return console.error("Could not retrieve sessionConfig from server. Aborting and retrying.")                
+            }            
+            let sessionConfig = await req.json()
             sessionId = sessionConfig.sessionId
             sessionTopic = `${topics.server.sessions._path}/${this.userData.id}/${sessionId}`
             this.keepAliveTTL = sessionConfig.keepAliveTTL
@@ -69,6 +76,10 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
                 "requestID": uuidv1(),
                 "keepAliveTTL": this.keepAliveTTL
             })
+
+            if (this.retryHandler) {
+                clearInterval(this.retryHandler)
+            }
             
         }else{ //if the session is still active, retrieve to resume it
             sessionTopic = globalState.session.sessionTopic
@@ -113,8 +124,9 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         if (this.keepAliveIntervalHandler) {
             clearInterval(this.keepAliveIntervalHandler)
         }
+        const refreshInterval = this.keepAliveTTL>15000 ? 15000 : this.keepAliveTTL/2
         this.keepAliveIntervalHandler = setInterval(() => {
             this.mqttClient.publish(topics.server.sessions.online, globalState.session)
-        }, this.keepAliveTTL/2)
+        }, refreshInterval)
     }
 }

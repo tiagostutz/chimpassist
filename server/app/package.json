@@ -34,7 +34,7 @@
     "mongodb": "^3.1.8",
     "mqtt": "^2.18.8",
     "node-json-db": "^0.9.1",
-    "simple-mqtt-client": "^0.3.0",
+    "simple-mqtt-client": "^0.3.9",
     "uuid": "^3.3.2"
   },
   "devDependencies": {}

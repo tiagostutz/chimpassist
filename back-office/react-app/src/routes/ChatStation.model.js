@@ -62,8 +62,6 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             // check the session updates
             setInterval(() => {
                 globalState.sessionsRefresh.forEach(sessionRefresh => {
-                    console.log('----', new Date().getTime() - sessionRefresh.lastRefresh);
-                    
                     //if the customer stop sending refresh for more than 60 seconds, it will considered offline
                     if(new Date().getTime() - sessionRefresh.lastRefresh > 60000) {
                         let sessionExpiredArr = globalState.sessions.filter(s => s.sessionId === sessionRefresh.sessionId)

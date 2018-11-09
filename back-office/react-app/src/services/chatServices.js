@@ -26,7 +26,7 @@ let chatServices = {
         const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
         
         const sessionControlSubscribe = (sessionTopic) => {
-            // start listening for serssion instructions and notify that this attendant is available
+            // // start listening for serssion instructions and notify that this attendant is available
             chatServices.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {
                 if (msg.instruction === instructions.session.ready) {
                     debug("Session started. Details:", msg.sessionInfo)
@@ -87,8 +87,18 @@ let chatServices = {
                 
                 chatServices._ready = true
 
-                const activeSessions = await chatServices.getAttendantSessions(attendantInfo.id)
-                activeSessions.forEach(session => sessionControlSubscribe(session.sessionTopic))
+                // active sessions means: only the users that had chatted recently
+                const activeSessions = await chatServices.getAttendantDistinctSessions(attendantInfo.id)
+                
+                for(let count=0; count < activeSessions.length; count++) {
+                    const session = activeSessions[count]
+                    // retrieve the last sessions messages for the same user if the last session has few messages
+                    if (session.lastMessages.length < 50) {
+                        session.lastMessages = await chatServices.getCustomerLastMessages(session.customer.id)
+                    }
+                    sessionControlSubscribe(session.sessionTopic)
+                }
+                
                 onServiceStarted(activeSessions)
             });
             
@@ -118,17 +128,17 @@ let chatServices = {
         }) //session with updated message list
     },
 
-    async getAttendantSessions(attendantId) {
+    async getAttendantDistinctSessions(attendantId) {
         const req = await fetch(`${config.backendEndpoint}/attendant/${attendantId}/sessions`)
         const sessions = await req.json()
-        sessions.map(async session => {
-            const get = await fetch(`${config.backendEndpoint}/session/${session.sessionId}/messages`)
-            const sentMessages = await get.json()
-            session.lastMessages = sentMessages.map(m => m.message)
-            return session
-        })
 
-        return sessions
+        return sessions.map(s => s.sessionInfo)        
+    },
+
+    async getCustomerLastMessages(customerId) {
+        const req = await fetch(`${config.backendEndpoint}/customer/${customerId}/messages?limit=50`)
+        const messages = await req.json()        
+        return messages.map(m => m.message)
     }
 }
 

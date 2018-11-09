@@ -27,6 +27,7 @@ export default class ChatListItem extends Component {
         if (this.state.session.lastMessages[0]) {
             msgTimestamp = moment(this.state.session.lastMessages[0].timestamp).format("L")
         }
+        
         return (
             <UIChatListItem active={this.state.active} onClick={() => this.viewModel.onSelect()}>
                 <Avatar letter={this.state.session.customer.avatarURL ? null : this.state.session.customer.name.substring(0,1)} imgUrl={this.state.session.customer.avatarURL ? this.state.session.customer.avatarURL : null} />

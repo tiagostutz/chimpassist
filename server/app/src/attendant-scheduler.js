@@ -1,6 +1,6 @@
 const logger = require('console-server')
 const uuidv1 = require('uuid/v1');
-const mqttProvider = require('simple-mqtt-client')
+const MongoClient = require('mongodb').MongoClient;
 
 const DatabaseProvider = require('./lib/database-provider');
 const topics = require('./lib/topics')
@@ -8,12 +8,16 @@ const status = require('./lib/status')
 const databaseCatalog = require('./lib/database-catalog')
 const instructions = require('./lib/instructions')
 
+const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
+const dbName = 'myproject';
+const client = new MongoClient(url);
 
 module.exports = {
     
     instanceID: uuidv1(),
     status: 0,
     db: null,
+    mongoCollection: null,
     dbPrefix: "/" + topics.server.attendants._path,
     attendantKeepAliveTime: process.env.ATTENDANT_KEEP_ALIVE_TIME || 30*1000,
     
@@ -117,7 +121,16 @@ module.exports = {
             logger.debug("Assignment confirm listener initialized.")
 
             _self.status = 2
-            ready()      
+            client.connect((err) => {
+
+                if (err) {
+                    return ready(err)
+                }
+                const db = client.db(dbName);
+                this.mongoCollection = db.collection('chat-messages')
+    
+                ready()      
+            })
         }else{
             logger.debug("Attendant Scheduler already started. Ignoring start request...")
             return ready()
@@ -141,21 +154,27 @@ module.exports = {
     },
 
 
-    getSessionsByAttendant: function(attendantId) {
-        try {       
-            const registerKey = `${this.dbPrefix}/${attendantId}`
-            const attendantData = this.db.get(registerKey)
-
-            if (!attendantData) {
-                return []
+    getSessionsByAttendant: function(attendantId, offset=0, limit=50, receive) {
+        
+        this.mongoCollection.aggregate([ 
+            { $match: { "sessionInfo.assignedAttendants.id": attendantId} },
+            { $group : { _id : "$sessionInfo.customer.id", sessionInfo: { $last: "$sessionInfo" } } }, 
+            { $project: {"_id": 0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0} },
+            { $addFields: { "sessionInfo.lastMessages": [] } }
+        ])
+                    .skip(parseInt(offset))
+                    .limit(parseInt(limit))
+                    .sort({"sessionInfo.createdAt": -1, "message.timestamp": -1})
+        .toArray((err, docs) => {
+            if (err) {
+                return receive(null, err)
             }
-            
-            return attendantData.activeSessions;
-                            
-        } catch (error) {
-            logger.error("Error accessing database. Details:", error)
-            throw "Error accessing session database"
-        }
+            docs.map(d => {
+                d.sessionInfo.status = status.session.aborted //put offline by default
+                return d
+            })    
+            receive(docs)
+        });
     },
 
 

@@ -24,7 +24,7 @@ export default class Messages extends Component {
   
         return (
             <div style={messageListStyle}>
-                <ChimpMessageList session={this.state.session} userId="demoUserId" />
+                <ChimpMessageList session={this.state.session} userId={this.state.userData.id} />
             </div>
         )
     }

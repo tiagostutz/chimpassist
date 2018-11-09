@@ -30,7 +30,7 @@ class ChatList extends Component {
                     <h1>{t("Online customers")}</h1>
                     <UIChatList>
                         { this.state.onlineSessions.map((s,idx) => {
-                            return <ChatListItem session={s} key={idx} />
+                            return <ChatListItem session={s} key={"online-"+idx} />
                         })}
                     </UIChatList>
                 </div>
@@ -39,7 +39,7 @@ class ChatList extends Component {
                     <h1>{t("Offline customers")}</h1>
                     <UIChatList>
                         { this.state.offlineSessions.map((s,idx) => {
-                            return <ChatListItem session={s} key={idx} />
+                            return <ChatListItem session={s} key={"offline-"+idx} />
                         })}
                     </UIChatList>
                 </div>

@@ -11,22 +11,21 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
     constructor(backendEndpoint, mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic) {
         super();
 
-        this.userData = global.userData
         this.keepAliveIntervalHandler = null
         this.keepAliveTTL = 0
         this.mqttClient = null
         this.backendEndpoint = backendEndpoint
         this.retryHandler = null
 
-        if (!this.userData && window.localStorage.userData) {
-            this.userData = JSON.parse(window.localStorage.userData)
+        if (!global.userData && window.localStorage.userData) {
+            global.userData = JSON.parse(window.localStorage.userData)
         }else{
-            this.userData = {
-                "name": "Guest",
+            global.userData = {
+                "name": "Guest " + 100000 * Math.random(),
                 "id": uuidv1(),
                 "avatarURL": "https://camo.githubusercontent.com/0742cd827f51572237a28b94922e84b5294f98e2/68747470733a2f2f7265732e636c6f7564696e6172792e636f6d2f737475747a736f6c75636f65732f696d6167652f75706c6f61642f635f63726f702c685f3330382f76313533393930363537362f6e6f756e5f436162696e5f4d6f6e6b65795f3737343332385f7978696463722e706e67"
             }
-            window.localStorage.userData = JSON.stringify(this.userData)
+            window.localStorage.userData = JSON.stringify(global.userData)
         }
 
         mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
@@ -51,7 +50,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             globalState.session = await sessionReq.json()
             sessionId = sessionInfo.sessionId
         }
-        
+
         if (!globalState.session) { //if the session was not found or didn't existed
             delete window.localStorage.lastSessionInfo
             let req = await fetch(`${this.backendEndpoint}/session`, { method: "POST" })
@@ -63,7 +62,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             }            
             let sessionConfig = await req.json()
             sessionId = sessionConfig.sessionId
-            sessionTopic = `${topics.server.sessions._path}/${this.userData.id}/${sessionId}`
+            sessionTopic = `${topics.server.sessions._path}/${global.userData.id}/${sessionId}`
             this.keepAliveTTL = sessionConfig.keepAliveTTL
 
             // send start new session event
@@ -72,7 +71,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
                 "sessionTopic": sessionTopic,
                 "sessionId": sessionId,
                 "lastMessages": [],
-                "customer": this.userData,
+                "customer": global.userData,
                 "requestID": uuidv1(),
                 "keepAliveTTL": this.keepAliveTTL
             })
@@ -111,8 +110,30 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             globalState.session = sessionWithMessages
             manuh.publish(`${sessionTopic}/messages`, payload)
 
-        }, "ChimpWidgetModel")        
+        }, "ChimpWidgetModel")  
         
+        manuh.subscribe(topics.chatStation.messagePane.send, "ChimpWidgetModel", msg => {
+            this.sendMessage(msg.messageContent)
+        })
+        
+    }
+
+    sendMessage(messageContent) {
+        const message = {
+            "from" : global.userData, 
+            "timestamp" : new Date().getTime(), 
+            "content" : messageContent
+        }
+
+        let clonedSession = JSON.parse(JSON.stringify(globalState.session))
+        clonedSession.lastMessages.push(message)
+        const startIndex = clonedSession.lastMessages.length-1 > 5 ? clonedSession.lastMessages.length-5 : 0
+        clonedSession.lastMessages = clonedSession.lastMessages.slice(startIndex, clonedSession.lastMessages.length)
+        this.mqttClient.publish(`${globalState.session.sessionTopic}/messages`, {
+            sessionInfo: clonedSession,
+            message: message
+        })
+
     }
 
     startKeepAliveCron() {

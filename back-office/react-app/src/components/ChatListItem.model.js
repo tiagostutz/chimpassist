@@ -18,6 +18,7 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
         
         chatServices.connectToChatSession(session, `ChatModelItem-${this.session.sessionTopic}`, payload => {                
             this.session = payload.sessionInfo //refresh session data (even messages)
+            
         })
     }
 

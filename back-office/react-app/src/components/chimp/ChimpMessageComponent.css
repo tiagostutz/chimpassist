@@ -1,0 +1,48 @@
+.groupedMessage {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    margin-bottom: 1.4rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.groupedMessage.left{
+    align-items: flex-start;    
+}
+.groupedMessage.right{
+    align-items: flex-end;
+}
+
+.groupedMessage .groupedMessageName {
+    font-size: .8rem;
+    font-weight: bold;
+    margin-bottom: .5rem;
+    color: orange;
+}
+
+.groupedMessage .groupedMessageBubble {
+    box-shadow: 0 3px 4px 0 rgba(87,116,151,.1);
+    background: white;
+    padding: 9px 16px;
+    border-radius: 16px;
+    font-size: .9rem;    
+    min-width: 15%;
+    max-width: 55%;
+    margin-bottom: .2rem;
+}
+.groupedMessage.right .groupedMessageBubble{
+    background: rgb(73, 132, 229);
+    color: white;
+}
+.groupedMessage .groupedMessageBubble .groupedMessageTimestamp {
+    color: #999;
+    font-size: .6rem;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: .4rem;
+}
+.groupedMessage.right .groupedMessageBubble .groupedMessageTimestamp{
+    color: #CCC;
+}

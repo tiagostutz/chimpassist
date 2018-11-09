@@ -19,7 +19,7 @@ export default class MessageInputText extends Component {
 
     render() {
         return (            
-            <TextComposer>
+            <TextComposer onSend={message => this.viewModel.sendMessage(message)}>
                 <Row align="center">
                     <Fill>
                         <TextInput />

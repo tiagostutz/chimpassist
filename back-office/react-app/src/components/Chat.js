@@ -8,12 +8,10 @@ import {
     Row,
     TextComposer,
     SendButton,
-    TextInput,
-    MessageList,
-    Message,
-    MessageGroup,
-    MessageText
+    TextInput
   } from '@livechat/ui-kit'
+
+import ChimpMessageList from './chimp/ChimpMessageList'
   
 import { withI18n } from "react-i18next";
 
@@ -33,24 +31,7 @@ class Chat extends Component {
             return <div className="chatView"></div>
         }    
 
-        const { t } = this.props
-        let messages = []
-        let groupMessage = null
-        this.state.session.lastMessages.forEach(m => {
-            
-            if (!groupMessage || groupMessage.userId !== m.from.id) {
-                groupMessage = {
-                    userId: m.from.id,
-                    avatarURL: m.from.avatarURL,
-                    messages: []
-                }
-                messages.push(groupMessage)
-            }
-            if (m.timestamp) {
-                groupMessage.messages.push(m)
-            }
-        })
-
+        const { t } = this.props        
         const lastSeenAtMoment = moment(this.state.session.customer.lastSeenAt)
 
         return (                        
@@ -73,29 +54,8 @@ class Chat extends Component {
                 </header>
                 <div className="chatBody">  
                     <div className="messageArea">
-                        <MessageList  active containScrollInSubtree>
 
-                            { 
-                                messages.map((g,idx) => {
-                                    return (
-                                        <MessageGroup key={idx} onlyFirstWithMeta>
-                                        {
-                                            g.messages.map((m, ix) => {
-                                                return (
-                                                    <Message key={"gr_" + ix} date={moment(new Date(m.timestamp)).fromNow()} isOwn={m.from.id === this.state.loggedUser.id} authorName={m.from.name}>
-                                                        <MessageText>
-                                                            {m.content}
-                                                        </MessageText>
-                                                    </Message>
-                                                )
-                                            })
-                                        }
-                                        </MessageGroup>
-                                        )
-                                    })
-                            }
-
-                        </MessageList>
+                        <ChimpMessageList messages={this.state.session.lastMessages} userId={this.state.loggedUser.id} />
                         
                         <TextComposer onSend={(data) => this.viewModel.sendMessage(data)}>
                             <Row align="center">

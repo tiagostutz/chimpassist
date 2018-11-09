@@ -10,6 +10,8 @@ const client = new MongoClient(url);
 
 module.exports = {
 
+    mongoCollection: null,
+
     start: (mqttClient, ready) => {
         logger.info("Starting session chat logger...")
 
@@ -43,14 +45,38 @@ module.exports = {
             }, "chatLogger")
 
             logger.debug("Chat logger succesfully initialized.")
-            return ready()
+            client.connect((err) => {
+                if (err) {
+                    return ready(err)
+                }
+    
+                const db = client.db(dbName);
+                this.mongoCollection = db.collection('chat-messages')
+    
+                return ready()
+            })
 
-            // client.close();
         });
 
     },
 
-    getMessages: (sessionId, limit, receive) => {
+    getSessionMessages: (sessionId, offset=0, limit, receive) => {
+        
+        this.mongoCollection.find({"sessionInfo.sessionId": sessionId})
+                    .skip(parseInt(offset))
+                    .limit(parseInt(limit))
+                    .sort({"message.timestamp": -1})
+        .toArray((err, docs) => {
+            if (err) {
+                return receive(null, err)
+            }
+            receive(docs)
+            client.close();
+        })
+    },
+
+
+    getCustomerMessages: (customerId, offset=0, limit, receive) => {
         client.connect((err) => {
 
             if (err) {
@@ -60,9 +86,13 @@ module.exports = {
             const db = client.db(dbName);
             const collection = db.collection('chat-messages')
 
-            collection.find({"sessionInfo.sessionId": sessionId}).limit(limit).toArray((err, docs) => {
+            collection.find({"sessionInfo.customer.id": customerId}, {"_id":0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0})
+                        .skip(parseInt(offset))
+                        .limit(parseInt(limit))
+                        .sort({"message.timestamp": -1})
+            .toArray((err, docs) => {
                 if (err) {
-                    return receive()
+                    return receive(null, err)
                 }
                 receive(docs)
                 client.close();

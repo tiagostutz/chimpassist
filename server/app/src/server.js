@@ -46,15 +46,12 @@ app.get('/session/:id', (req, res) => {
 })
 
 
-app.get('/session/:sessionId/messages', (req, res) => {
-    chatLogger.getMessages(req.params.sessionId, 20, (messages) => {
+app.get('/session/:sessionId/messages', (req, res) => {    
+    chatLogger.getSessionMessages(req.params.sessionId, req.query.offset ? req.query.offset : 0, req.query.limit ? req.query.limit : 20, (messages) => {
         if(!messages) {
             return res.status(500).send("Error retrieving message")
         }
         messages = messages.map(message => {
-            delete message._id
-            delete message.sessionInfo.sessionTemplate
-            delete message.sessionInfo.assignedAttendants
             message.sessionInfo.lastMessages = []
             return message
         })
@@ -69,14 +66,35 @@ app.post('/session', (req, res) => {
     })
 })
 
-app.get('/attendant/:id/sessions', (req, res) => {
-    let resp = attendantScheduler.getSessionsByAttendant(req.params.id)
-    res.json(resp)
+app.get('/attendant/:attendantId/sessions', (req, res) => {
+    attendantScheduler.getSessionsByAttendant(req.params.attendantId, req.query.offset ? req.query.offset : 0, req.query.limit ? req.query.limit : 50, (sessions, err) => {
+        if (err) {
+            console.error(err)
+            return res.status(500).send("Error retrieving attendant sessions")
+        }
+        res.json(sessions)
+    })
 })
 
 app.get('/config/attendant', (req, res) => {
     res.json({
         keepAliveTTL: attendantScheduler.attendantKeepAliveTime
+    })
+})
+
+app.get('/customer/:customerId/messages', (req, res) => {
+    chatLogger.getCustomerMessages(req.params.customerId, req.query.offset ? req.query.offset : 0, req.query.limit ? req.query.limit : 50, (messages, err) => {
+        if(!messages || err) {
+            return res.status(500).send("Error retrieving message")
+        }
+        messages = messages.map(message => {
+            delete message._id
+            delete message.sessionInfo.sessionTemplate
+            delete message.sessionInfo.assignedAttendants
+            message.sessionInfo.lastMessages = []
+            return message
+        })
+        return res.json(messages)
     })
 })
 

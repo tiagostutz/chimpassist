@@ -4,6 +4,9 @@ let topics = {
     chatStation: {
         sessionList: {
             selected: null
+        },
+        messagePane: {
+            send: null
         }
     },
     sessions: {

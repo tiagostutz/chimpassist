@@ -3,10 +3,11 @@ import manuh from 'manuh'
 import topics from './services/topics'
 
 export default class MessagesModel extends RhelenaPresentationModel {
-    constructor(sessionTopic) {
+    constructor() {
         super();
 
         this.session = globalState.session
+        this.userData = global.userData
         
         manuh.unsubscribe(topics.sessions.updates, "MessagesModel")
         manuh.subscribe(topics.sessions.updates, "MessagesModel", session => {

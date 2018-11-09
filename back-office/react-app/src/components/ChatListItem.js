@@ -20,7 +20,7 @@ export default class ChatListItem extends Component {
     componentWillMount() {
         attachModelToView(new ChatListItemModel(this.props.session), this)
     }
-
+    
     render() {
         
         let msgTimestamp = ""        

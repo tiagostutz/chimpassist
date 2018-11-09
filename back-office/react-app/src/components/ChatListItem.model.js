@@ -11,14 +11,15 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
         this.session = session        
         this.active = globalState.lastActiveSession ? globalState.lastActiveSession.sessionTopic === this.session.sessionTopic : null
 
-        manuh.unsubscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionTopic}`)
-        manuh.subscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionTopic}`, msg => {
+        manuh.unsubscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionId}`)
+        manuh.subscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionId}`, msg => {
+            console.log(msg.sessionTopic, "===", this.session.sessionTopic);
+            
             this.active = (msg.sessionTopic === this.session.sessionTopic)
         })
         
         chatServices.connectToChatSession(session, `ChatModelItem-${this.session.sessionTopic}`, payload => {                
-            this.session = payload.sessionInfo //refresh session data (even messages)
-            
+            this.session = payload.sessionInfo //refresh session data (even messages)            
         })
     }
 

@@ -55,7 +55,8 @@ export default class ChatStationModel extends RhelenaPresentationModel {
                         sessionId: session.sessionId,
                         lastRefresh: new Date().getTime()
                     })
-                }                
+                }  
+                
             })
             // -- end of customers setup
             

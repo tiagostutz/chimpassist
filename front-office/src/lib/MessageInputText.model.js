@@ -1,4 +1,4 @@
-import { RhelenaPresentationModel, globalState } from 'rhelena';
+import { RhelenaPresentationModel } from 'rhelena';
 import manuh from 'manuh'
 import topics from './services/topics'
 

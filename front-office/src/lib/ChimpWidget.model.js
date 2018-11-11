@@ -21,7 +21,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             global.userData = JSON.parse(window.localStorage.userData)
         }else{
             global.userData = {
-                "name": "Guest " + 100000 * Math.random(),
+                "name": "Guest " +  Math.floor(100000 * Math.random()),
                 "id": uuidv1(),
                 "avatarURL": "https://camo.githubusercontent.com/0742cd827f51572237a28b94922e84b5294f98e2/68747470733a2f2f7265732e636c6f7564696e6172792e636f6d2f737475747a736f6c75636f65732f696d6167652f75706c6f61642f635f63726f702c685f3330382f76313533393930363537362f6e6f756e5f436162696e5f4d6f6e6b65795f3737343332385f7978696463722e706e67"
             }
@@ -76,11 +76,16 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
                 "keepAliveTTL": this.keepAliveTTL
             })
 
-            if (this.retryHandler) {
-                clearInterval(this.retryHandler)
+            if (this.retryHandler) { //schedule retry handler if there's no attendant now, but can be avaliable in a interval
+                this.retryHandler = setInterval(() => {
+                    this.startSession()
+                }, 10000)
             }
             
         }else{ //if the session is still active, retrieve to resume it
+            if (!this.retryHandler) {
+                clearInterval(this.retryHandler)
+            }
             sessionTopic = globalState.session.sessionTopic
             this.keepAliveTTL = globalState.session.keepAliveTTL
             this.startKeepAliveCron()
@@ -97,6 +102,9 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             }
 
             if (msg.instruction === instructions.session.ready) { //when the session is ready, send a final message telling that the communication is "online"
+                if (!this.retryHandler) {
+                    clearInterval(this.retryHandler)
+                }
                 this.startKeepAliveCron()
                 
             }else if (msg.instruction === instructions.session.aborted.expired) {
@@ -145,7 +153,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         if (this.keepAliveIntervalHandler) {
             clearInterval(this.keepAliveIntervalHandler)
         }
-        const refreshInterval = this.keepAliveTTL>15000 ? 15000 : this.keepAliveTTL/2
+        const refreshInterval = this.keepAliveTTL>30000 ? 30000 : this.keepAliveTTL/2
         this.keepAliveIntervalHandler = setInterval(() => {
             this.mqttClient.publish(topics.server.sessions.online, globalState.session)
         }, refreshInterval)

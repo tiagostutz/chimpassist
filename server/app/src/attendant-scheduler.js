@@ -9,7 +9,7 @@ const databaseCatalog = require('./lib/database-catalog')
 const instructions = require('./lib/instructions')
 
 const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
-const dbName = 'myproject';
+const dbName = 'chimpassist';
 const client = new MongoClient(url);
 
 module.exports = {
@@ -37,36 +37,38 @@ module.exports = {
         
             // listen for online attendants heartbit
             mqttClient.subscribe(topics.server.attendants.online, ({attendantInfo}) => {           
+                logger.debug("Receiving attendant keepAlive. Details: ", attendantInfo)
                 const registerKey = `${_self.dbPrefix}/${attendantInfo.id}`
-                const attendant = _self.db.get(registerKey)
+                let attendant = _self.db.get(registerKey)
                 
                 //check whether the attendant is already registered and updates its status or register it for the first time                    
-                if (attendant) {
-                    // if the attendant is already registered, just set the status to online and refresh the keep alive
-                    attendant.status = status.attendant.connection.online
-                    _self.db.insert(registerKey, attendant, true, _self.attendantKeepAliveTime)
-                }else{
-                    // register the attendant for the first time
-                    attendantInfo.status = status.attendant.connection.online
+                if (!attendant) { // register the attendant for the first time
+                    attendant = attendantInfo
                     attendantInfo.activeSessions = [] //initialize
                     
-                    _self.db.insert(registerKey, attendantInfo, true, _self.attendantKeepAliveTime)
                     logger.debug("New attendant registered:", attendantInfo, JSON.stringify(attendantInfo,_self.db.get("/")))
                 }
+                // whether the attendant is or not already registered, just set the status to online and refresh the keep alive
+                attendant.status = status.attendant.connection.online
+                _self.db.insert(registerKey, attendant, true, _self.attendantKeepAliveTime)
+
             }, _self.instanceID)
             logger.debug("Online attendants listener initialized. Details: ",topics.server.attendants.online)
 
             // listen for session coordinator attendants request
             mqttClient.subscribe(topics.server.attendants.request, (sessionInfoRequest) => {
                 logger.debug("Attendant request received. Details: ", sessionInfoRequest)
+                logger.debug("All available attendants: ", JSON.stringify(_self.db.get(_self.dbPrefix)))
+                _self.expireSessionAssignment(sessionInfoRequest.sessionTopic)
         
+                //clear previous assignment for this session, if have                
                 let attendantsLoadOrdered = _self.getOrderedOnlineAttendants()       
-                
-                logger.debug("Online attendants: ", this.db.get(this.dbPrefix))
+                logger.debug("Attendants load ordered: ", JSON.stringify(attendantsLoadOrdered))
+
                 sessionInfoRequest.sessionTemplate.attendants.forEach(attendantTemplate => {
                     
                     // filter attendants of the current type and that are not currently in this session                        
-                    const possibleAttendants = attendantsLoadOrdered.filter(a => a.type === attendantTemplate.type && !_self.isAttendantAssignedToSession(a, sessionInfoRequest))
+                    const possibleAttendants = attendantsLoadOrdered.filter(a => a.type === attendantTemplate.type && !_self.isAttendantAssignedToSession(a.id, sessionInfoRequest))
                     if (possibleAttendants.length > 0) {
 
                         // clone the object to avoid updating the database object. The main goal here is to avoid that an attendent 
@@ -78,7 +80,7 @@ module.exports = {
                         // send assign message to attendant to this session
                         mqttClient.publish(`${topics.client.attendants.assign}/${possibleAttendantClone.id}`, sessionInfoRequest)
                     }else{
-                        logger.info("No attendant available that fills the requirements: ", attendantTemplate)
+                        logger.info("No attendant available fills the requirements: ", attendantTemplate)
                         if (attendantTemplate.required) {
                             logger.warn("Required attendant not found.")
                             mqttClient.publish(`${sessionInfoRequest.sessionTopic}/server/control`, { instruction: instructions.attendant.unavailableAttendants, sessionInfo: sessionInfoRequest })
@@ -93,10 +95,17 @@ module.exports = {
             mqttClient.subscribe(topics.server.attendants.assign, (attendantAssignment) => {
                 const attendantsRegistry = _self.db.get(_self.dbPrefix)
                 
+                // this is an inconsistent state that should rarely happen
+                if (!attendantsRegistry[attendantAssignment.attendantInfo.id]) {
+                    logger.warn("The attendant is no longer registered at the attendant registry. Skipping assignment...")
+                    return
+                }
+
                 //check whether that session has already been assigned to the attendant
                 const currentSession = attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.filter(a => a.sessionTopic === attendantAssignment.sessionInfo.sessionTopic)
                 if (currentSession.length  === 0) {
                     // update attendant active sessions
+                    
                     
                     attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.push(attendantAssignment.sessionInfo)
                     _self.db.insert(`${_self.dbPrefix}/${attendantAssignment.attendantInfo.id}`, attendantsRegistry[attendantAssignment.attendantInfo.id], true, _self.attendantKeepAliveTime)
@@ -108,14 +117,14 @@ module.exports = {
                     mqttClient.subscribe(`${attendantAssignment.sessionInfo.sessionTopic}/server/control`, msg => {
                         logger.debug(`Server session control message received. Instruction: ${msg.instruction}. Message: ${JSON.stringify(msg)}`)
                         if (msg.instruction === instructions.session.aborted.expired) {
-                            this.expireSession(msg.sessionInfo.sessionTopic)
+                            this.expireSessionAssignment(msg.sessionInfo.sessionTopic)
                         }else if (msg.instruction === instructions.session.ready) {
                             this.updateActiveSession(msg.sessionInfo)
                         }
                     }, "attendant-scheduler")
-                    
+
                 }else{
-                    logger.debug("Assignment to this classe was successfully mande before. Details: ")
+                    logger.debug("Assignment to this session was successfully mande before. Details: ")
                 }
             }, _self.instanceID)
             logger.debug("Assignment confirm listener initialized.")
@@ -138,9 +147,21 @@ module.exports = {
 
     },
 
-    isAttendantAssignedToSession: function(attendant, sessionInfo) {
+    isAttendantAssignedToSession: function(attendantId, sessionInfo) {
+        const attendant = this.db.get(`${this.dbPrefix}/${attendantId}`)
+        if (!attendant || !attendant.activeSessions) {
+            return false
+        }
         const activeSessionsTopics = attendant.activeSessions.map(s => s.sessionTopic)
         return activeSessionsTopics.indexOf(sessionInfo.sessionTopic) !== -1
+    },
+
+    getAttendantsBySession: function(sessionInfo) {
+        const attendantsRegistry = this.db.get(this.dbPrefix)
+        if (!attendantsRegistry || Object.keys(attendantsRegistry) === 0) {
+            return []
+        }
+        return Object.keys(attendantsRegistry).filter(att => attendantsRegistry[att].activeSessions.filter(as => as.sessionId === sessionInfo.sessionId).length>0 )
     },
 
     getOrderedOnlineAttendants: function() {
@@ -178,16 +199,25 @@ module.exports = {
     },
 
 
-    expireSession(sessionTopic) {
+    expireSessionAssignment: function(sessionTopic) {
         logger.debug("Session expired; removing from attendants registry. Details: ", sessionTopic)
         let  allAttendants = this.db.get(this.dbPrefix)
+        if (!allAttendants) {
+            return
+        }
+
         allAttendants = Object.keys(allAttendants).map(k => allAttendants[k])
         
         // remove the session from the attendants
-        allAttendants.forEach(a => a.activeSessions = a.activeSessions.filter(s => s.sessionTopic != sessionTopic))
+        allAttendants.forEach(a => { 
+            a.activeSessions = a.activeSessions.filter(s => s.sessionTopic != sessionTopic)
+            const registerKey = `${this.dbPrefix}/${a.id}`
+            this.db.insert(registerKey, a, true, this.attendantKeepAliveTime)
+        })
+        logger.debug('Session Assignment Expired. Attendants: ', JSON.stringify(allAttendants))
     },
 
-    updateActiveSession(session) {
+    updateActiveSession: function(session) {
         logger.debug("Session updated; updating the registry. Details: ", session)
         let  allAttendants = this.db.get(this.dbPrefix)
         allAttendants = Object.keys(allAttendants).map(k => allAttendants[k])
@@ -200,5 +230,6 @@ module.exports = {
                 return s
             }
         }))
+        
     }
 }

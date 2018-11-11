@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 let bufferedMessage = []
 
 const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
-const dbName = 'myproject';
+const dbName = 'chimpassist';
 const client = new MongoClient(url);
 
 module.exports = {
@@ -89,7 +89,7 @@ module.exports = {
             collection.find({"sessionInfo.customer.id": customerId}, {"_id":0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0})
                         .skip(parseInt(offset))
                         .limit(parseInt(limit))
-                        .sort({"message.timestamp": -1})
+                        .sort({"message.timestamp": 1})
             .toArray((err, docs) => {
                 if (err) {
                     return receive(null, err)

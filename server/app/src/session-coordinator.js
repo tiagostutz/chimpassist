@@ -9,8 +9,9 @@ const databaseCatalog = require('./lib/database-catalog')
 const status = require('./lib/status')
 const attendantTypes = require('./lib/attendant-types')
 const instructions = require('./lib/instructions')
+const attendatScheduler = require('./attendant-scheduler')
 
-
+let lastSessionOnlineMessage = null
 module.exports = {
 
     status: 0,
@@ -37,13 +38,34 @@ module.exports = {
             // listens for chat requests
             mqttClient.subscribe(topics.server.sessions.online, sessionInfoMsg => {
                 
+                //prevent duplicate messages crash
+                if (lastSessionOnlineMessage && JSON.stringify(sessionInfoMsg) === lastSessionOnlineMessage.content && (new Date().getTime()-lastSessionOnlineMessage.timestamp)<100) {
+                    return;
+                }
+                lastSessionOnlineMessage = { content: JSON.stringify(sessionInfoMsg), timestamp: new Date().getTime() }
+                
                 const existingSession = _self.db.get("/" + sessionInfoMsg.sessionTopic)
+                
                 if (existingSession && existingSession.status === status.session.online) {
 
                     // just update the session status if it already exists                        
-                    existingSession.status = sessionInfoMsg.status
+                    // check whether the attendants assigned are still online
+                    let attendantCount = 0
+                    existingSession.assignedAttendants.forEach(attId => {
+                        if(attendatScheduler.isAttendantAssignedToSession(attId, existingSession)) {
+                            attendantCount++
+                        }
+                    })
+                    
+                    if (attendantCount > 0) { //if there are at least one more attendant available, just update the session
+                        existingSession.status = sessionInfoMsg.status
+                        mqttClient.publish(`${existingSession.sessionTopic}/client/control`, { instruction: instructions.session.update, sessionInfo: existingSession })
+                    
+                    }else{ //if the attendants are not available anymore, publish an abort message
+                        existingSession.status = status.session.aborted
+                        mqttClient.publish(`${existingSession.sessionTopic}/client/control`, { instruction: instructions.session.aborted.unavailableAttendants, sessionInfo: existingSession })
+                    }
                     _self.db.insert("/" + existingSession.sessionTopic, existingSession, true, _self.sessionKeepAliveTime)
-                    mqttClient.publish(`${existingSession.sessionTopic}/client/control`, { instruction: instructions.session.update, sessionInfo: existingSession })
                     return
                 }else if (!sessionInfoMsg.sessionTopic) {
                     logger.debug('Expired session attempt to refresh. Sending abort control message');
@@ -54,13 +76,12 @@ module.exports = {
 
                 logger.debug("New session received. Details: ", sessionInfoMsg)    
                 // registers the creation of the session for the chat
-                const sessionInfo = Object.assign(sessionInfoMsg,{
-                                    "createdAt": new Date().getTime(), 
-                                    "status": status.session.waitingAttendantsAssignment,
-                                    "sessionTemplate": _self.resolveChatTemplate(), //could be customized to have more than one attendant
-                                    "assignedAttendants": []
-                                });
-                
+                let sessionInfo = JSON.parse(JSON.stringify(sessionInfoMsg))
+                sessionInfo.createdAt = new Date().getTime()
+                sessionInfo.status = status.session.waitingAttendantsAssignment
+                sessionInfo.sessionTemplate = _self.resolveChatTemplate() //could be customized to have more than one attendant
+                sessionInfo.assignedAttendants = []
+                                
                 _self.db.insert("/" + sessionInfoMsg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
                 
                 // subscribe for the item expiration, which will be the also the session expiration
@@ -87,7 +108,7 @@ module.exports = {
                     }else if (msg.instruction === instructions.attendant.assigned) {
                         logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
                         let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
-                        sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo)
+                        sessionInfoAssignment.assignedAttendants = attendatScheduler.getAttendantsBySession(sessionInfoAssignment)
                         
                         _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)
 

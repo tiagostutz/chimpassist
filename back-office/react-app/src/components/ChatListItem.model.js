@@ -13,8 +13,6 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
 
         manuh.unsubscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionId}`)
         manuh.subscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionId}`, msg => {
-            console.log(msg.sessionTopic, "===", this.session.sessionTopic);
-            
             this.active = (msg.sessionTopic === this.session.sessionTopic)
         })
         

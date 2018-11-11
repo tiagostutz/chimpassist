@@ -26,8 +26,8 @@ let chatServices = {
         const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
         
         const sessionControlSubscribe = (sessionTopic) => {
-            // // start listening for serssion instructions and notify that this attendant is available
-            chatServices.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {
+            // start listening for serssion instructions and notify that this attendant is available
+            chatServices.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {                
                 if (msg.instruction === instructions.session.ready) {
                     debug("Session started. Details:", msg.sessionInfo)
     
@@ -109,10 +109,15 @@ let chatServices = {
         }                
     },
 
-    connectToChatSession(sessionInfo, source, onMessageReceived) {
+    async connectToChatSession(sessionInfo, source, onConnect, onMessageReceived) {
         // associate this source to this chat session
         this.mqttClient.unsubscribe(`${sessionInfo.sessionTopic}/messages`, source)
         this.mqttClient.subscribe(`${sessionInfo.sessionTopic}/messages`, onMessageReceived, source)
+        if (onConnect) {
+            const lastCustomerMessages = await chatServices.getCustomerLastMessages(sessionInfo.customer.id)
+            sessionInfo.lastMessages = lastCustomerMessages
+            onConnect(sessionInfo)
+        }
     },
 
     //update customer to all those listening to changes on it

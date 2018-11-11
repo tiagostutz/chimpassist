@@ -82,6 +82,17 @@ app.get('/config/attendant', (req, res) => {
     })
 })
 
+
+app.get('/customer/:customerId/sessions/last', (req, res) => {
+    sessionCoordinator.getSessionsByCustomer(req.params.customerId, 0, 10, (sessions, err) => {
+        if (err) {
+            console.error(err)
+            return res.status(500).send("Error retrieving attendant sessions")
+        }
+        res.json(sessions)
+    })
+})
+
 app.get('/customer/:customerId/messages', (req, res) => {
     chatLogger.getCustomerMessages(req.params.customerId, req.query.offset ? req.query.offset : 0, req.query.limit ? req.query.limit : 50, (messages, err) => {
         if(!messages || err) {

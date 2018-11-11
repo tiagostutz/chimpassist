@@ -31,7 +31,7 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             globalState.sessions = activeSessions
             globalState.sessions.forEach(session => {
                 globalState.sessionsRefresh.push({
-                    sessionId: session.sessionId,
+                    sessionTopic: session.sessionTopic,
                     lastRefresh: new Date().getTime()
                 })
                 manuh.publish(topics.sessions.updates, session)
@@ -40,21 +40,19 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             // update globalState customer list
             manuh.subscribe(topics.sessions.updates, "ChatStation", session => {            
                 
+                let newSessionRefresh = {
+                    sessionTopic: session.sessionTopic,
+                    lastRefresh: new Date().getTime()
+                }
                 let currentSessionsArr = globalState.sessions.filter(s => s.sessionTopic === session.sessionTopic)
                 if (currentSessionsArr.length === 0) { //new user                    
                     globalState.sessions.push(session)
-                    globalState.sessionsRefresh.push({
-                        sessionId: session.sessionId,
-                        lastRefresh: new Date().getTime()
-                    })
+                    globalState.sessionsRefresh.push(newSessionRefresh)
                 }else{
                     // replace the customer in the global list with the received one
                     globalState.sessions = globalState.sessions.map(s => s.sessionTopic === session.sessionTopic ? session : s)                    
                     // replace the refresh
-                    globalState.sessionsRefresh = globalState.sessionsRefresh.map(sessionRefresh => sessionRefresh.sessionId !== session.sessionId ? sessionRefresh : {
-                        sessionId: session.sessionId,
-                        lastRefresh: new Date().getTime()
-                    })
+                    globalState.sessionsRefresh = globalState.sessionsRefresh.map(sessionRefresh => sessionRefresh.sessionTopic !== session.sessionTopic ? sessionRefresh : newSessionRefresh)
                 }  
                 
             })
@@ -64,8 +62,9 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             setInterval(() => {
                 globalState.sessionsRefresh.forEach(sessionRefresh => {
                     //if the customer stop sending refresh for more than 60 seconds, it will considered offline
-                    if(new Date().getTime() - sessionRefresh.lastRefresh > 60000) {
-                        let sessionExpiredArr = globalState.sessions.filter(s => s.sessionId === sessionRefresh.sessionId)
+                    
+                    if(new Date().getTime() - sessionRefresh.lastRefresh > 20000) {
+                        let sessionExpiredArr = globalState.sessions.filter(s => s.sessionTopic === sessionRefresh.sessionTopic)
                         if (sessionExpiredArr.length > 0) {
                             let sessionExpired = sessionExpiredArr[0]
                             sessionExpired.status = status.session.aborted

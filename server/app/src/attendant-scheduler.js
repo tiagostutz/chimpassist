@@ -178,14 +178,14 @@ module.exports = {
     getSessionsByAttendant: function(attendantId, offset=0, limit=50, receive) {
         
         this.mongoCollection.aggregate([ 
-            { $match: { "sessionInfo.assignedAttendants.id": attendantId} },
+            { $match: { "sessionInfo.assignedAttendants": attendantId} },
             { $group : { _id : "$sessionInfo.customer.id", sessionInfo: { $last: "$sessionInfo" } } }, 
             { $project: {"_id": 0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0} },
             { $addFields: { "sessionInfo.lastMessages": [] } }
         ])
-                    .skip(parseInt(offset))
-                    .limit(parseInt(limit))
-                    .sort({"sessionInfo.createdAt": -1, "message.timestamp": -1})
+        .skip(parseInt(offset))
+        .limit(parseInt(limit))
+        .sort({"sessionInfo.createdAt": -1, "message.timestamp": -1})
         .toArray((err, docs) => {
             if (err) {
                 return receive(null, err)

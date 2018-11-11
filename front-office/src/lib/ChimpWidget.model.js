@@ -17,15 +17,15 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         this.backendEndpoint = backendEndpoint
         this.retryHandler = null
 
-        if (!global.userData && window.localStorage.userData) {
-            global.userData = JSON.parse(window.localStorage.userData)
+        if (!globalState.userData && window.localStorage.userData) {
+            globalState.userData = JSON.parse(window.localStorage.userData)
         }else{
-            global.userData = {
+            globalState.userData = {
                 "name": "Guest " +  Math.floor(100000 * Math.random()),
                 "id": uuidv1(),
                 "avatarURL": "https://camo.githubusercontent.com/0742cd827f51572237a28b94922e84b5294f98e2/68747470733a2f2f7265732e636c6f7564696e6172792e636f6d2f737475747a736f6c75636f65732f696d6167652f75706c6f61642f635f63726f702c685f3330382f76313533393930363537362f6e6f756e5f436162696e5f4d6f6e6b65795f3737343332385f7978696463722e706e67"
             }
-            window.localStorage.userData = JSON.stringify(global.userData)
+            window.localStorage.userData = JSON.stringify(globalState.userData)
         }
 
         mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
@@ -36,58 +36,58 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
 
     async startSession() {
 
-        let sessionTopic = null
-        let sessionId = null
-
         if (this.keepAliveIntervalHandler) {
             clearInterval(this.keepAliveIntervalHandler)
         }
 
-        // resolve sessionTopic
-        if (window.localStorage.lastSessionInfo) {
-            const sessionInfo = JSON.parse(window.localStorage.lastSessionInfo)
-            const sessionReq = await fetch(`${this.backendEndpoint}/session/${sessionInfo.sessionId}`)                            
-            globalState.session = await sessionReq.json()
-            sessionId = sessionInfo.sessionId
+        // resolve last session
+        const sessionReq = await fetch(`${this.backendEndpoint}/customer/${globalState.userData.id}/sessions/last`)                            
+        const arrSessions = await sessionReq.json()
+        
+        if (arrSessions > 0) {
+            globalState.session = arrSessions[0]
         }
 
+        let sessionTopic = null
         if (!globalState.session) { //if the session was not found or didn't existed
             delete window.localStorage.lastSessionInfo
-            let req = await fetch(`${this.backendEndpoint}/session`, { method: "POST" })
+            const req = await fetch(`${this.backendEndpoint}/session`, { method: "POST" })
+
+            // if there were a problem fetching session setup config
             if (req.status !== 200) {
                 this.retryHandler = setInterval(() => {
                     this.startSession()
                 }, 10000)
                 return console.error("Could not retrieve sessionConfig from server. Aborting and retrying.")                
             }            
-            let sessionConfig = await req.json()
-            sessionId = sessionConfig.sessionId
-            sessionTopic = `${topics.server.sessions._path}/${global.userData.id}/${sessionId}`
+
+            // go on and config the session request
+            const sessionConfig = await req.json()
+            sessionTopic = `${topics.server.sessions._path}/${globalState.userData.id}`
             this.keepAliveTTL = sessionConfig.keepAliveTTL
 
             // send start new session event
             this.mqttClient.publish(topics.server.sessions.online, 
             {
                 "sessionTopic": sessionTopic,
-                "sessionId": sessionId,
+                "sessionId": sessionConfig.sessionId,
                 "lastMessages": [],
-                "customer": global.userData,
+                "customer": globalState.userData,
                 "requestID": uuidv1(),
                 "keepAliveTTL": this.keepAliveTTL
             })
 
-            if (this.retryHandler) { //schedule retry handler if there's no attendant now, but can be avaliable in a interval
-                this.retryHandler = setInterval(() => {
-                    this.startSession()
-                }, 10000)
-            }
+            //schedule retry handler if there's no attendant now, but can be avaliable in a interval
+            this.retryHandler = setInterval(() => {
+                this.startSession()
+            }, 10000)
             
         }else{ //if the session is still active, retrieve to resume it
-            if (!this.retryHandler) {
+            if (this.retryHandler) {
                 clearInterval(this.retryHandler)
             }
             sessionTopic = globalState.session.sessionTopic
-            this.keepAliveTTL = globalState.session.keepAliveTTL
+            this.keepAliveTTL = globalState.session.keepAliveTTL            
             this.startKeepAliveCron()
             manuh.publish(topics.sessions.updates, globalState.session) //update locally
         } 
@@ -95,16 +95,18 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         // receive commands and updates from session (not included messages)
         this.mqttClient.subscribe(`${sessionTopic}/client/control`, msg => {                            
             
-            if ( !globalState.session || (JSON.stringify(globalState.session) !== JSON.stringify(msg.sessionInfo)) ) { //online update when there is effectively changes
+            // check whether is just a keep-alive or there are actual changes to the session, like the new session accepted
+            if ( !globalState.session || (JSON.stringify(globalState.session) !== JSON.stringify(msg.sessionInfo)) ) {
                 globalState.session = msg.sessionInfo
                 window.localStorage.lastSessionInfo = JSON.stringify(globalState.session) //update persistent session
                 manuh.publish(topics.sessions.updates, globalState.session)
             }
-
+            
             if (msg.instruction === instructions.session.ready) { //when the session is ready, send a final message telling that the communication is "online"
-                if (!this.retryHandler) {
+                if (this.retryHandler) {
                     clearInterval(this.retryHandler)
                 }
+
                 this.startKeepAliveCron()
                 
             }else if (msg.instruction === instructions.session.aborted.expired) {
@@ -128,7 +130,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
 
     sendMessage(messageContent) {
         const message = {
-            "from" : global.userData, 
+            "from" : globalState.userData, 
             "timestamp" : new Date().getTime(), 
             "content" : messageContent
         }
@@ -153,7 +155,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         if (this.keepAliveIntervalHandler) {
             clearInterval(this.keepAliveIntervalHandler)
         }
-        const refreshInterval = this.keepAliveTTL>30000 ? 30000 : this.keepAliveTTL/2
+        const refreshInterval = this.keepAliveTTL>10000 ? 10000 : this.keepAliveTTL/2
         this.keepAliveIntervalHandler = setInterval(() => {
             this.mqttClient.publish(topics.server.sessions.online, globalState.session)
         }, refreshInterval)

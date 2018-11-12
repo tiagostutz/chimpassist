@@ -107,6 +107,10 @@ module.exports = {
                     }else if (msg.instruction === instructions.attendant.assigned) {
                         logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
                         let sessionInfoAssignment = sessionRepo.getSession(msg.sessionInfo.sessionId)
+                        if (!sessionInfoAssignment) {
+                            console.log('\n\n\n===========',msg.sessionInfo,"\n\n\n\n\n");
+                            
+                        }
                         if (sessionInfoAssignment.assignedAttendants.indexOf(msg.attendantInfo.id) === -1) {
                             sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo.id)                                                
                         }

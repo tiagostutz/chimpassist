@@ -4,6 +4,11 @@ import manuh from 'manuh'
 
 import instructions from './services/instructions'
 import topics from './services/topics'
+import status from './services/status'
+
+import i18n from "i18next";
+import 'moment/locale/pt-br';
+i18n.changeLanguage("ptBR")
 
 const uuidv1 = require('uuid/v1');
 
@@ -14,8 +19,9 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         this.keepAliveIntervalHandler = null
         this.keepAliveTTL = 0
         this.mqttClient = null
-        this.backendEndpoint = backendEndpoint
         this.retryHandler = null
+        
+        globalState.backendEndpoint = backendEndpoint
 
         if (!globalState.userData && window.localStorage.userData) {
             globalState.userData = JSON.parse(window.localStorage.userData)
@@ -42,17 +48,22 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         }
 
         // resolve last session
-        const sessionReq = await fetch(`${this.backendEndpoint}/customer/${globalState.userData.id}/sessions/last`)                            
+        const sessionReq = await fetch(`${globalState.backendEndpoint}/customer/${globalState.userData.id}/sessions/last`)                            
         const arrSessions = await sessionReq.json()
         
-        if (arrSessions > 0) {
+        if (arrSessions.length > 0) {
             globalState.session = arrSessions[0]
+            globalState.session.status = status.session.online
+            const req = await fetch(`${globalState.backendEndpoint}/customer/${globalState.userData.id}/messages?limit=50`)
+            const messages = await req.json()        
+            globalState.session.lastMessages = messages.map(m => m.message)
         }
 
         let sessionTopic = null
         if (!globalState.session) { //if the session was not found or didn't existed
-            delete window.localStorage.lastSessionInfo
-            const req = await fetch(`${this.backendEndpoint}/session`, { method: "POST" })
+
+            //Create a NEW Session - get server params
+            const req = await fetch(`${globalState.backendEndpoint}/session`, { method: "POST" })
 
             // if there were a problem fetching session setup config
             if (req.status !== 200) {
@@ -84,22 +95,24 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             }, 10000)
             
         }else{ //if the session is still active, retrieve to resume it
+            sessionTopic = globalState.session.sessionTopic
+            this.keepAliveTTL = globalState.session.keepAliveTTL            
             if (this.retryHandler) {
                 clearInterval(this.retryHandler)
             }
-            sessionTopic = globalState.session.sessionTopic
-            this.keepAliveTTL = globalState.session.keepAliveTTL            
             this.startKeepAliveCron()
             manuh.publish(topics.sessions.updates, globalState.session) //update locally
         } 
         
         // receive commands and updates from session (not included messages)
-        this.mqttClient.subscribe(`${sessionTopic}/client/control`, msg => {                            
+        this.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {                            
             
             // check whether is just a keep-alive or there are actual changes to the session, like the new session accepted
-            if ( !globalState.session || (JSON.stringify(globalState.session) !== JSON.stringify(msg.sessionInfo)) ) {
+            if ( !globalState.session || globalState.session.sessionId !== msg.sessionInfo.sessionId) {
                 globalState.session = msg.sessionInfo
-                window.localStorage.lastSessionInfo = JSON.stringify(globalState.session) //update persistent session
+                const req = await fetch(`${globalState.backendEndpoint}/customer/${globalState.userData.id}/messages?limit=50`)
+                const messages = await req.json()        
+                globalState.session.lastMessages = messages.map(m => m.message)
                 manuh.publish(topics.sessions.updates, globalState.session)
             }
 
@@ -138,7 +151,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
 
         let clonedSession = JSON.parse(JSON.stringify(globalState.session))
         clonedSession.lastMessages.push(message)
-        const startIndex = clonedSession.lastMessages.length-1 > 5 ? clonedSession.lastMessages.length-5 : 0
+        const startIndex = 0
         clonedSession.lastMessages = clonedSession.lastMessages.slice(startIndex, clonedSession.lastMessages.length)
         this.mqttClient.publish(`${globalState.session.sessionTopic}/messages`, {
             sessionInfo: clonedSession,

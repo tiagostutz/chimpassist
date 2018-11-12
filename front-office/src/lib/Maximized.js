@@ -60,19 +60,18 @@ export default ({
         title={title}
       />
 
+        { false &&   
       <AgentBar>
         <Row flexFill>
-          
+
           <Column>
             <Avatar imgUrl={attendantAvatarURL} />
           </Column>
-
           <Column flexFill>
             <Title>{attendantTitle}</Title>
             <Subtitle>{attendantSubtitle}</Subtitle>
           </Column>
-
-          <Column flexFit>            
+        <Column flexFit>            
             <Row>
               <IconButton>
                 <RateGoodIcon onClick={ onRateGoodClick } style={{
@@ -89,6 +88,7 @@ export default ({
 
         </Row>
       </AgentBar>   
+        }
       
       <Messages sessionTopic={sessionTopic} />
       

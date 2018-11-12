@@ -125,7 +125,7 @@ let chatServices = {
         //send just the last 5 messages
         let clonedSession = JSON.parse(JSON.stringify(session))
         clonedSession.lastMessages.push(message)
-        const startIndex = clonedSession.lastMessages.length-1 > 5 ? clonedSession.lastMessages.length-5 : 0
+        const startIndex = 0
         clonedSession.lastMessages = clonedSession.lastMessages.slice(startIndex, clonedSession.lastMessages.length)
         this.mqttClient.publish(`${session.sessionTopic}/messages`, {
             sessionInfo: clonedSession,

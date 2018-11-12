@@ -177,7 +177,7 @@ module.exports = {
         this.mongoCollection.aggregate([ 
             { $match: { "sessionInfo.assignedAttendants": attendantId} },
             { $group : { _id : "$sessionInfo.customer.id", sessionInfo: { $last: "$sessionInfo" } } }, 
-            { $project: {"_id": 0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0} },
+            { $project: {"_id": 0, "sessionInfo.sessionTemplate": 0} },
             { $addFields: { "sessionInfo.lastMessages": [] } }
         ])
         .skip(parseInt(offset))

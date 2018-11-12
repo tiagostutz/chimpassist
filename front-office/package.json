@@ -24,8 +24,10 @@
     "@livechat/ui-kit": "0.1.0",
     "charol": "^0.2.0",
     "debug": "^4.1.0",
+    "i18next": "^11.9.0",
     "manuh": "^1.4.0",
     "moment": "^2.22.2",
+    "react-i18next": "^8.0.7",
     "rhelena": "^1.2.4",
     "simple-mqtt-client": "^0.3.6",
     "uuid": "^3.3.2"

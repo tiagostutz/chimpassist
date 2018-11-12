@@ -8,21 +8,24 @@ import {
     Fit,
     SendButton
 } from '@livechat/ui-kit'
-  
+import { withI18n } from "react-i18next";
+import './i18n.js'
+
 import MessageInputTextModel from './MessageInputText.model'
 
-export default class MessageInputText extends Component {
+class MessageInputText extends Component {
 
     componentWillMount() {
         attachModelToView(new MessageInputTextModel(), this)
     }
 
     render() {
+        const { t } = this.props        
         return (            
             <TextComposer onSend={message => this.viewModel.sendMessage(message)}>
                 <Row align="center">
                     <Fill>
-                        <TextInput />
+                        <TextInput placeholder={t("Write a message") + "..."} />
                     </Fill>
                     <Fit>
                         <SendButton />
@@ -32,3 +35,4 @@ export default class MessageInputText extends Component {
         )
     }
 }
+export default withI18n()(MessageInputText)

@@ -14,9 +14,9 @@ import {
 import ChimpMessageList from './chimp/ChimpMessageList'
   
 import { withI18n } from "react-i18next";
+import '../i18n.js'
 
 import status from '../status'
-import '../i18n.js'
 import './Chat.css'
 
 class Chat extends Component {

@@ -7,9 +7,10 @@ import {
 } from '@livechat/ui-kit'
 
 import moment from 'moment'
+import { withI18n } from "react-i18next";
+import './i18n.js'
 
-
-export default ({session, userId}) => {
+const component = ({session, userId, t}) => {
 
     let messages = []
     
@@ -39,7 +40,7 @@ export default ({session, userId}) => {
                     {
                         g.messages.map((m, ix) => {
                             return (
-                                <Message key={"gr_" + ix} date={moment(new Date(m.timestamp)).fromNow()} isOwn={m.from.id === userId} authorName={m.from.name}>
+                                <Message key={"gr_" + ix} date={moment(new Date(m.timestamp)).fromNow()} isOwn={m.from.id === userId} authorName={m.from.id === userId ? t("You") : m.from.name}>
                                     <MessageText>
                                         {m.content}
                                     </MessageText>
@@ -54,3 +55,5 @@ export default ({session, userId}) => {
         </MessageList>
     )
 }
+
+export default withI18n()(component)

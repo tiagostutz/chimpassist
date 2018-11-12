@@ -11,6 +11,8 @@ export default class MessagesModel extends RhelenaPresentationModel {
         
         manuh.unsubscribe(topics.sessions.updates, "MessagesModel")
         manuh.subscribe(topics.sessions.updates, "MessagesModel", session => {
+            console.log(' U P D A T E S   O N   T H E');
+            
             session.lastMessages = this.session.lastMessages
             this.session = session            
         })        

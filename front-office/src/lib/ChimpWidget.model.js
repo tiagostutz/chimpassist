@@ -27,6 +27,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             }
             window.localStorage.userData = JSON.stringify(globalState.userData)
         }
+        this.userData = globalState.userData
 
         mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
             this.mqttClient = mqttClient
@@ -101,7 +102,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
                 window.localStorage.lastSessionInfo = JSON.stringify(globalState.session) //update persistent session
                 manuh.publish(topics.sessions.updates, globalState.session)
             }
-            
+
             if (msg.instruction === instructions.session.ready) { //when the session is ready, send a final message telling that the communication is "online"
                 if (this.retryHandler) {
                     clearInterval(this.retryHandler)

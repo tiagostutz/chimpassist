@@ -1,29 +1,20 @@
 const logger = require('console-server')
 const uuidv1 = require('uuid/v1');
-const MongoClient = require('mongodb').MongoClient;
 const manuh = require('manuh')
 
-const DatabaseProvider = require('./lib/database-provider');
 const topics = require('./lib/topics')
-const databaseCatalog = require('./lib/database-catalog')
 const status = require('./lib/status')
 const attendantTypes = require('./lib/attendant-types')
 const instructions = require('./lib/instructions')
+const sessionRepo = require('./session-repo')
 const attendatScheduler = require('./attendant-scheduler')
 
-const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
-const dbName = 'chimpassist';
-const client = new MongoClient(url);
 
 let lastSessionOnlineMessage = null
 module.exports = {
 
     status: 0,
-    db: null,
-    dbPrefix: "/" + topics.server.sessions._path,
-    mongoCollection: null,
-    mqttClient: null,
-    sessionKeepAliveTime: process.env.SESSION_KEEP_ALIVE_TIME || 10*60*1000,
+    mqttClient: null,    
 
     start: function(mqttClient, ready) {
 
@@ -35,38 +26,33 @@ module.exports = {
             _self.mqttClient = mqttClient
 
             logger.debug("MQTT client details:", mqttClient)
-        
-            _self.db = new DatabaseProvider(databaseCatalog.sessionDatabase);
-            _self.db.insert(_self.dbPrefix, {})
-            logger.info("Session database initialized. Details: databaseFile:", databaseCatalog.sessionDatabase)
+                            
+            sessionRepo.init()
+            logger.info("Session database initialized")
         
             // listens for chat requests
             mqttClient.subscribe(topics.server.sessions.online, sessionInfoMsg => {
                                 
                 //prevent duplicate messages crash
-                if (lastSessionOnlineMessage && JSON.stringify(sessionInfoMsg) === lastSessionOnlineMessage.content && (new Date().getTime()-lastSessionOnlineMessage.timestamp)<100) {
+                if (lastSessionOnlineMessage && sessionInfoMsg.customer.id === lastSessionOnlineMessage.content.customer.id && (new Date().getTime()-lastSessionOnlineMessage.timestamp)<1000) {
                     return;
                 }
                 
-                lastSessionOnlineMessage = { content: JSON.stringify(sessionInfoMsg), timestamp: new Date().getTime() }
-                logger.debug("Received client session.online event.")
+                lastSessionOnlineMessage = { content: sessionInfoMsg, timestamp: new Date().getTime() }
+                logger.debug("Received client session.online event. Details:", sessionInfoMsg)
                 
-                const existingSession = _self.db.get("/" + sessionInfoMsg.sessionTopic)
-                
+                const existingSession = sessionRepo.getSession(sessionInfoMsg.sessionId)                
                 if (existingSession && existingSession.status === status.session.online) {
 
                     // just update the session status if it already exists                        
                     // check whether the attendants assigned are still online
-                    let attendantCount = 0
-                    if (!existingSession.assignedAttendants)
-                        console.log('=======>>>>>>',existingSession);
-                    
+                    let attendantCount = 0                    
                     existingSession.assignedAttendants.forEach(attId => {
                         if(attendatScheduler.isAttendantAssignedToSession(attId, existingSession)) {
                             attendantCount++
                         }
                     })
-                    
+
                     if (attendantCount > 0) { //if there are at least one more attendant available, just update the session
                         existingSession.status = sessionInfoMsg.status
                         logger.debug("Received client keep alive. Just broadcasting to attendants. Details:", existingSession)
@@ -76,9 +62,11 @@ module.exports = {
                         existingSession.status = status.session.aborted
                         mqttClient.publish(`${existingSession.sessionTopic}/client/control`, { instruction: instructions.session.aborted.unavailableAttendants, sessionInfo: existingSession })
                     }
-                    _self.db.insert("/" + existingSession.sessionTopic, existingSession, true, _self.sessionKeepAliveTime)
+                    sessionRepo.upsert(existingSession.sessionTopic, existingSession)
                     return
-                }else if (!sessionInfoMsg.sessionTopic) {
+                }
+                
+                if (!sessionInfoMsg.sessionTopic) {
                     logger.debug('Expired session attempt to refresh. Sending abort control message. Details:', sessionInfoMsg);
                     // notify the clients of the session expiration
                     _self.expireSession(sessionInfoMsg)
@@ -93,11 +81,11 @@ module.exports = {
                 sessionInfo.sessionTemplate = _self.resolveChatTemplate() //could be customized to have more than one attendant
                 sessionInfo.assignedAttendants = []
                                 
-                _self.db.insert("/" + sessionInfoMsg.sessionTopic, sessionInfo, true, _self.sessionKeepAliveTime)
+                sessionRepo.upsert(sessionInfoMsg.sessionTopic, sessionInfo)
                 
                 // subscribe for the item expiration, which will be the also the session expiration
-                manuh.unsubscribe(_self.db.deletionTopicNotification, "SessionCoordinator")
-                manuh.subscribe(_self.db.deletionTopicNotification, "SessionCoordinator", msg => {
+                manuh.unsubscribe(sessionRepo.getDeletionNotificationTopic(), "SessionCoordinator")
+                manuh.subscribe(sessionRepo.getDeletionNotificationTopic(), "SessionCoordinator", msg => {
                     // notify the clients of the session expiration
                     _self.expireSession(msg.value)
                 })
@@ -110,7 +98,7 @@ module.exports = {
                         logger.info("No attendants available for this session. Aborting.")
                         msg.sessionInfo.status = status.session.aborted
 
-                        _self.db.insert("/" + msg.sessionInfo.sessionTopic, msg.sessionInfo, true, _self.sessionKeepAliveTime)
+                        sessionRepo.upsert(msg.sessionInfo.sessionTopic, msg.sessionInfo)
                         
                         //notify the customer that the session cannot be started due to lack of available attendant
                         mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.unavailableAttendants, sessionInfo: msg.sessionInfo })
@@ -118,24 +106,17 @@ module.exports = {
                     // ATTENDANT ASSIGNED
                     }else if (msg.instruction === instructions.attendant.assigned) {
                         logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
-                        let sessionInfoAssignment = _self.db.get("/" + msg.sessionInfo.sessionTopic)
-                        sessionInfoAssignment.assignedAttendants = attendatScheduler.getAttendantsBySession(sessionInfoAssignment)
-                        
-                        _self.db.insert("/" + msg.sessionInfo.sessionTopic, sessionInfoAssignment, true, _self.sessionKeepAliveTime)
-
+                        let sessionInfoAssignment = sessionRepo.getSession(msg.sessionInfo.sessionId)
+                        if (sessionInfoAssignment.assignedAttendants.indexOf(msg.attendantInfo.id) === -1) {
+                            sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo.id)                                                
+                        }
+                        sessionRepo.upsert(msg.sessionInfo.sessionTopic, sessionInfoAssignment)
 
                         if (_self.isSessionSetupReady(sessionInfoAssignment)) {
                             sessionInfoAssignment.status = status.session.online
-                            this.db.insert("/" + sessionInfoAssignment.sessionTopic, sessionInfoAssignment, true, this.sessionKeepAliveTime)
+                            sessionRepo.upsert(sessionInfoAssignment.sessionTopic, sessionInfoAssignment)
                             // notify all the interested parts in client that the session is ready and they can start to chat around
                             mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
-                            // notify all the interested parts that in server the session is ready and they can start to chat around
-                            mqttClient.publish(`${sessionInfo.sessionTopic}/server/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
-                            
-                            // Client Handshake listener
-                            mqttClient.subscribe(`${sessionInfo.sessionTopic}/status`, sessionInfo => {
-                                _self.db.insert("/" + msg.sessionTopic,sessionInfo, true, _self.sessionKeepAliveTime)                                    
-                            })
                         }
 
                     }
@@ -147,16 +128,7 @@ module.exports = {
             })
 
             _self.status = 2            
-            client.connect((err) => {
-
-                if (err) {
-                    return ready(err)
-                }
-                const db = client.db(dbName);
-                this.mongoCollection = db.collection('chat-messages')
-    
-                ready()      
-            })
+            ready()      
 
         }else{
             logger.debug("Sessions Coordinator already started. Ignoring start request...")
@@ -191,108 +163,8 @@ module.exports = {
         logger.debug(`Session expiration sent to ${sessionInfo.sessionTopic}/client/control and ${sessionInfo.sessionTopic}/server/control. Message:`, expirationInstructionMsg)
     },
 
-    getOnlineSessions: function() {
-        return this.getSessionsByStatus(status.session.online)
-    },
-
-    getPendingSessions: function() {
-        return this.getSessionsByStatus(status.session.waitingAttendantsAssignment)
-    },
-
-    getSessionsByStatus: function(statusParam) {
-         try {       
-            let filteredSessions = []
-            const sessionsData = this.db.get(this.dbPrefix)                        
-            if (Object.keys(sessionsData).length > 0) {
-                
-                const customers = Object.keys(sessionsData).map(customerId => sessionsData[customerId])
-                customers.forEach(customer => {
-                    Object.keys(customer).filter(sessionId =>  {
-                        if (customer[sessionId].status === statusParam) {
-                            filteredSessions.push(customer[sessionId])
-                        }
-                    })
-                })
-            }
-
-            return filteredSessions;
-                
-            
-        } catch (error) {
-            logger.error("Error accessing database. Details:", error)
-            throw "Error accessing session database"
-        }
-    },
-
-    getSession: function(id) {
-        try {       
-            let resp = null
-            const sessionsData = this.db.get(this.dbPrefix) 
-            if (Object.keys(sessionsData).length > 0) {
-                
-                const customers = Object.keys(sessionsData).map(customerId => sessionsData[customerId])
-                customers.forEach(customer => {
-                    Object.keys(customer).forEach(sessionId =>  {
-                        if (sessionId === id) {                            
-                            resp = customer[sessionId]
-                        }
-                    })
-                })
-            }
-
-            return resp;
-                
-            
-        } catch (error) {
-            logger.error("Error accessing database. Details:", error)
-            throw "Error accessing session database"
-        }
-    },
-
     isSessionSetupReady: function(sessionInfo) {
         return true
     },
 
-
-    getSessionsByCustomer: function(customerId, offset, limit, receive) {
-  
-        this.mongoCollection.aggregate([ 
-            { $match: { "sessionInfo.customer.id": customerId} },
-            { $group : { _id : "$sessionInfo.customer.id", sessionInfo: { $last: "$sessionInfo" } } }, 
-            { $project: {"_id": 0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0} },
-            { $addFields: { "sessionInfo.lastMessages": [] } }
-        ])
-                    .skip(parseInt(offset))
-                    .limit(parseInt(limit))
-                    .sort({"sessionInfo.createdAt": -1, "message.timestamp": -1})
-        .toArray((err, docs) => {
-            if (err) {
-                return receive(null, err)
-            }
-            docs.map(d => {
-                d.sessionInfo.status = status.session.aborted //put offline by default
-                return d
-            })    
-
-            //mix with online sessions that may or may not have receive messages
-            let onlineSessions = docs.map(s => s.sessionInfo)            
-            const customerData = this.db.get(this.dbPrefix)             
-            if (customerData) {
-                const session = customerData[customerId]
-                if (session) {
-                    const present = docs.filter(s => s.sessionId === session.sessionId)
-                    if (present.length === 0) { // if the session hasnt already added
-                        onlineSessions.push(session)
-                    }        
-                }
-            }
-            onlineSessions = onlineSessions.sort((a,b) => b.createdAt > a.createdAt).map(s => {
-                delete s.sessionTemplate
-                s.assignedAttendants = []
-                return s
-            })
-               
-            receive(onlineSessions)
-        });
-    }
 }

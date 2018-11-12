@@ -7,7 +7,7 @@ export default class MessagesModel extends RhelenaPresentationModel {
         super();
 
         this.session = globalState.session
-        this.userData = global.userData
+        this.userData = globalState.userData
         
         manuh.unsubscribe(topics.sessions.updates, "MessagesModel")
         manuh.subscribe(topics.sessions.updates, "MessagesModel", session => {

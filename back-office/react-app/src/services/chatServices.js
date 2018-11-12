@@ -137,7 +137,7 @@ let chatServices = {
         const req = await fetch(`${config.backendEndpoint}/attendant/${attendantId}/sessions`)
         const sessions = await req.json()
 
-        return sessions.map(s => s.sessionInfo)        
+        return sessions
     },
 
     async getCustomerLastMessages(customerId) {

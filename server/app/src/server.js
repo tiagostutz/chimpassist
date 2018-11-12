@@ -3,6 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const mqttProvider = require('simple-mqtt-client')
 const sessionCoordinator = require('./session-coordinator')
+const sessionRepo = require('./session-repo')
 const attendantScheduler = require('./attendant-scheduler')
 const chatLogger = require('./chat-logger')
 
@@ -41,7 +42,7 @@ app.use(cors())
 const port = 3000
 
 app.get('/session/:id', (req, res) => {
-    let resp = sessionCoordinator.getSession(req.params.id)
+    let resp = sessionRepo.getSession(req.params.id)
     res.json(resp)
 })
 
@@ -62,7 +63,7 @@ app.get('/session/:sessionId/messages', (req, res) => {
 app.post('/session', (req, res) => {
     res.json({ 
         sessionId: sessionCoordinator.generateSessionID(),
-        keepAliveTTL: sessionCoordinator.sessionKeepAliveTime
+        keepAliveTTL: sessionRepo.sessionKeepAliveTime
     })
 })
 
@@ -84,7 +85,7 @@ app.get('/config/attendant', (req, res) => {
 
 
 app.get('/customer/:customerId/sessions/last', (req, res) => {
-    sessionCoordinator.getSessionsByCustomer(req.params.customerId, 0, 10, (sessions, err) => {
+    sessionRepo.getSessionsByCustomer(req.params.customerId, 0, 10, (sessions, err) => {
         if (err) {
             console.error(err)
             return res.status(500).send("Error retrieving attendant sessions")
@@ -101,7 +102,6 @@ app.get('/customer/:customerId/messages', (req, res) => {
         messages = messages.map(message => {
             delete message._id
             delete message.sessionInfo.sessionTemplate
-            delete message.sessionInfo.assignedAttendants
             message.sessionInfo.lastMessages = []
             return message
         })

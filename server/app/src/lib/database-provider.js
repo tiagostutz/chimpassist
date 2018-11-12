@@ -8,7 +8,7 @@ module.exports = class DatabaseProvider {
     constructor(databaseName) {
         this.databaseName = databaseName
         this.db = new JsonDB(databaseName, true, false);
-        this.deletionTopicNotification = `${topics.server.infra.database.delete}/${this.databaseName}`
+        this.deletionNotificationTopic = `${topics.server.infra.database.delete}/${this.databaseName}`
         this.timers = {}
     }
     insert(key, value, override=true, ttl=0) {
@@ -26,8 +26,8 @@ module.exports = class DatabaseProvider {
                 let deletedItem = { key: key, value: JSON.parse(JSON.stringify(this.get(key))) } //clone deleted object
                 this.delete(key)
                 debug("Item deleted. Key=",key)
-                manuh.publish(this.deletionTopicNotification, deletedItem)
-                debug("delete notification sent to",this.deletionTopicNotification)
+                manuh.publish(this.deletionNotificationTopic, deletedItem)
+                debug("delete notification sent to",this.deletionNotificationTopic)
             }, ttl)
         }
     }

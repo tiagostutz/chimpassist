@@ -8,6 +8,8 @@ const status = require('./lib/status')
 const databaseCatalog = require('./lib/database-catalog')
 const instructions = require('./lib/instructions')
 
+const sessionRepo = require('./session-repo')
+
 const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
 const dbName = 'chimpassist';
 const client = new MongoClient(url);
@@ -44,7 +46,7 @@ module.exports = {
                 //check whether the attendant is already registered and updates its status or register it for the first time                    
                 if (!attendant) { // register the attendant for the first time
                     attendant = attendantInfo
-                    attendantInfo.activeSessions = [] //initialize
+                    attendantInfo.tempActiveSessions = [] //initialize
                     
                     logger.debug("New attendant registered:", attendantInfo, JSON.stringify(attendantInfo,_self.db.get("/")))
                 }
@@ -75,7 +77,7 @@ module.exports = {
                         // is twice or more times requested
                         const possibleAttendantClone = JSON.parse(JSON.stringify(possibleAttendants[0]));
                         // temporary update current active sessions to avoid assign request duplication
-                        possibleAttendantClone.activeSessions.push(sessionInfoRequest)
+                        possibleAttendantClone.tempActiveSessions.push(sessionInfoRequest.sessionTopic)
                         
                         // send assign message to attendant to this session
                         mqttClient.publish(`${topics.client.attendants.assign}/${possibleAttendantClone.id}`, sessionInfoRequest)
@@ -102,12 +104,10 @@ module.exports = {
                 }
 
                 //check whether that session has already been assigned to the attendant
-                const currentSession = attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.filter(a => a.sessionTopic === attendantAssignment.sessionInfo.sessionTopic)
+                const currentSession = this.resolveActiveSessions(attendantAssignment.attendantInfo.id).filter(a => a.sessionTopic === attendantAssignment.sessionInfo.sessionTopic)
                 if (currentSession.length  === 0) {
                     // update attendant active sessions
-                    
-                    
-                    attendantsRegistry[attendantAssignment.attendantInfo.id].activeSessions.push(attendantAssignment.sessionInfo)
+                    attendantsRegistry[attendantAssignment.attendantInfo.id].tempActiveSessions.push(attendantAssignment.sessionInfo.sessionTopic)
                     _self.db.insert(`${_self.dbPrefix}/${attendantAssignment.attendantInfo.id}`, attendantsRegistry[attendantAssignment.attendantInfo.id], true, _self.attendantKeepAliveTime)
                     mqttClient.publish(`${attendantAssignment.sessionInfo.sessionTopic}/server/control`, { instruction: instructions.attendant.assigned, attendantInfo: attendantAssignment.attendantInfo, sessionInfo: attendantAssignment.sessionInfo })
                     
@@ -118,8 +118,6 @@ module.exports = {
                         logger.debug(`Server session control message received. Instruction: ${msg.instruction}. Message: ${JSON.stringify(msg)}`)
                         if (msg.instruction === instructions.session.aborted.expired) {
                             this.expireSessionAssignment(msg.sessionInfo.sessionTopic)
-                        }else if (msg.instruction === instructions.session.ready) {
-                            this.updateActiveSession(msg.sessionInfo)
                         }
                     }, "attendant-scheduler")
 
@@ -148,32 +146,31 @@ module.exports = {
     },
 
     isAttendantAssignedToSession: function(attendantId, sessionInfo) {
-        const attendant = this.db.get(`${this.dbPrefix}/${attendantId}`)
-        if (!attendant || !attendant.activeSessions) {
-            return false
-        }
-        const activeSessionsTopics = attendant.activeSessions.map(s => s.sessionTopic)
-        return activeSessionsTopics.indexOf(sessionInfo.sessionTopic) !== -1
+        const attendantsRegistry = this.db.get(this.dbPrefix)
+
+        const activeSessionsTopics = this.resolveActiveSessions(attendantId).map(s => s.sessionTopic)
+        const assigningTopics = attendantsRegistry[attendantId].tempActiveSessions.map(s => s.sessionTopic)        
+        return activeSessionsTopics.indexOf(sessionInfo.sessionTopic) !== -1 || assigningTopics.indexOf(sessionInfo.sessionTopic) !== -1
     },
 
     getAttendantsBySession: function(sessionInfo) {
         const attendantsRegistry = this.db.get(this.dbPrefix)
-        if (!attendantsRegistry || Object.keys(attendantsRegistry) === 0) {
+        if (!attendantsRegistry || Object.keys(attendantsRegistry).length === 0) {
             return []
         }
-        return Object.keys(attendantsRegistry).filter(att => attendantsRegistry[att].activeSessions.filter(as => as.sessionId === sessionInfo.sessionId).length>0 )
+        return Object.keys(attendantsRegistry).filter(att => this.resolveActiveSessions(att.id).filter(as => as.sessionId === sessionInfo.sessionId).length>0 )
     },
 
     getOrderedOnlineAttendants: function() {
         const attendantsRegistry = this.db.get(this.dbPrefix)
-        if (!attendantsRegistry || Object.keys(attendantsRegistry) === 0) {
+        if (!attendantsRegistry || Object.keys(attendantsRegistry).length === 0) {
             return []
         }
 
-        const onlineattendantsList = Object.keys(attendantsRegistry).map(att => attendantsRegistry[att]).filter(att => att.status === status.attendant.connection.online)
-        return onlineattendantsList.sort((a,b)  => a.activeSessions.length < b.activeSessions.length)
+        const onlineAttendantsList = Object.keys(attendantsRegistry).map(att => attendantsRegistry[att]).filter(att => att.status === status.attendant.connection.online)
+        onlineAttendantsList.sort((a,b)  => this.resolveActiveSessions(a.id).length < this.resolveActiveSessions(b.id).length)
+        return onlineAttendantsList
     },
-
 
     getSessionsByAttendant: function(attendantId, offset=0, limit=50, receive) {
         
@@ -194,7 +191,19 @@ module.exports = {
                 d.sessionInfo.status = status.session.aborted //put offline by default
                 return d
             })    
-            receive(docs)
+
+            // retrieve current sessions
+            let allSessions = docs.map(s => s.sessionInfo)            
+            const attendantsRegistry = this.db.get(this.dbPrefix)
+            if (attendantsRegistry) {
+                allSessions = allSessions.concat(this.resolveActiveSessions(attendantId))
+            }
+            allSessions = allSessions.sort((a,b) => b.createdAt > a.createdAt).map(s => {
+                delete s.sessionTemplate
+                return s
+            })
+
+            receive(allSessions)
         });
     },
 
@@ -209,27 +218,16 @@ module.exports = {
         allAttendants = Object.keys(allAttendants).map(k => allAttendants[k])
         
         // remove the session from the attendants
-        allAttendants.forEach(a => { 
-            a.activeSessions = a.activeSessions.filter(s => s.sessionTopic != sessionTopic)
-            const registerKey = `${this.dbPrefix}/${a.id}`
-            this.db.insert(registerKey, a, true, this.attendantKeepAliveTime)
+        allAttendants.forEach(attendant => { 
+            attendant.tempActiveSessions = attendant.tempActiveSessions.filter(st => st != sessionTopic)
+            const registerKey = `${this.dbPrefix}/${attendant.id}`
+            this.db.insert(registerKey, attendant, true, this.attendantKeepAliveTime)
         })
         logger.debug('Session Assignment Expired. Attendants: ', JSON.stringify(allAttendants))
     },
 
-    updateActiveSession: function(session) {
-        logger.debug("Session updated; updating the registry. Details: ", session)
-        let  allAttendants = this.db.get(this.dbPrefix)
-        allAttendants = Object.keys(allAttendants).map(k => allAttendants[k])
-        
-        // update the session on the attendants active sessions
-        allAttendants.forEach(a => a.activeSessions = a.activeSessions.map(s => {
-            if (s.sessionTopic == session.sessionTopic) { //replace the session instance
-                return session
-            }else{
-                return s
-            }
-        }))
-        
+    resolveActiveSessions: function(attendantId) {
+        const currentSessions = sessionRepo.getOnlineSessions()
+        return currentSessions.filter(s => s.assignedAttendants.indexOf(attendantId) != -1)
     }
 }

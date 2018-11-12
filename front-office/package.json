@@ -1,6 +1,6 @@
 {
   "name": "chimpassist-widget",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
@@ -22,13 +22,13 @@
   },
   "dependencies": {
     "@livechat/ui-kit": "0.1.0",
-    "charol": "^0.2.0",
+    "charol": "^0.3.0",
     "debug": "^4.1.0",
     "i18next": "^11.9.0",
     "manuh": "^1.4.0",
     "moment": "^2.22.2",
     "react-i18next": "^8.0.7",
-    "rhelena": "^1.2.4",
+    "rhelena": "^1.2.5",
     "simple-mqtt-client": "^0.3.6",
     "uuid": "^3.3.2"
   },

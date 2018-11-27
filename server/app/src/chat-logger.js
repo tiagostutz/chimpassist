@@ -76,7 +76,7 @@ module.exports = {
     },
 
 
-    getCustomerMessages: (customerId, offset=0, limit, receive) => {
+    getCustomerMessages: (customerId, offset=0, limit=50, receive) => {
         client.connect((err) => {
 
             if (err) {
@@ -85,13 +85,19 @@ module.exports = {
 
             const db = client.db(dbName);
             const collection = db.collection('chat-messages')
-
-            collection.find({"sessionInfo.customer.id": customerId}, {"_id":0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0})
+            
+            let customerIdParsed = customerId
+            if (!isNaN(customerIdParsed)) {
+                customerIdParsed = parseInt(customerId)
+            }
+            
+            collection.find({"sessionInfo.customer.id": customerIdParsed}, {"_id":0, "sessionInfo.sessionTemplate": 0, "sessionInfo.assignedAttendants":0})
                         .skip(parseInt(offset))
                         .limit(parseInt(limit))
                         .sort({"message.timestamp": 1})
             .toArray((err, docs) => {
                 if (err) {
+                    
                     return receive(null, err)
                 }
                 receive(docs)

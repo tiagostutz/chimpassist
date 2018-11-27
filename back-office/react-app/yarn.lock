@@ -1414,9 +1414,9 @@ chardet@^0.4.0:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
 
-charol@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/charol/-/charol-0.2.0.tgz#e54931b11c1c95225a6cffcb2c46d846534402db"
+charol@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/charol/-/charol-0.3.0.tgz#0169db235da261b87adb78b774c1ec3bcc2c5d8f"
   dependencies:
     mocha "^3.4.2"
 
@@ -1956,12 +1956,6 @@ debug@=3.1.0:
 debug@^3.0.1, debug@^3.1.0:
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
-  dependencies:
-    ms "^2.1.1"
-
-debug@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.0.tgz#373687bffa678b38b1cd91f861b63850035ddc87"
   dependencies:
     ms "^2.1.1"
 
@@ -4576,13 +4570,7 @@ manuh-bridge@^0.0.2:
     manuh "^1.3.0"
     mqtt "^2.18.1"
 
-manuh@^1.3.0, manuh@^1.3.4:
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/manuh/-/manuh-1.3.4.tgz#dbe7f0ec610d1f462bc89eeae20b8712c8104518"
-  dependencies:
-    debug "^3.1.0"
-
-manuh@^1.4.0:
+manuh@^1.3.0, manuh@^1.3.4, manuh@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/manuh/-/manuh-1.4.0.tgz#091b3c30ffaec254d7f45fb3b63b1281a576ff3d"
   dependencies:
@@ -6334,9 +6322,9 @@ ret@~0.1.10:
   version "0.1.15"
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
 
-rhelena@^1.2.0:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/rhelena/-/rhelena-1.2.4.tgz#62fffb27800b3ee4ed5c3ce11fcc38d86f41d697"
+rhelena@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/rhelena/-/rhelena-1.2.5.tgz#099aef906de628942b2b9a03216ba4c30b34f5be"
 
 right-align@^0.1.1:
   version "0.1.3"
@@ -6542,11 +6530,10 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-simple-mqtt-client@^0.3.6:
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/simple-mqtt-client/-/simple-mqtt-client-0.3.6.tgz#065246044c14e9d3e79459db62afa39116f49610"
+simple-mqtt-client@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/simple-mqtt-client/-/simple-mqtt-client-0.4.1.tgz#95b8bacd87a2a0e21d7c692dd84c7f2724101464"
   dependencies:
-    debug "^4.1.0"
     manuh "^1.3.4"
     manuh-bridge "^0.0.2"
     mqtt "^2.18.8"

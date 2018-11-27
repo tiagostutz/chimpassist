@@ -31,7 +31,6 @@ class Chat extends Component {
             return <div className="chatView"></div>
         }    
 
-        const { t } = this.props        
         const lastSeenAtMoment = moment(this.state.session.customer.lastSeenAt)
 
         return (                        
@@ -65,12 +64,7 @@ class Chat extends Component {
                         </TextComposer>
                     </div>              
                     <div className={`customerDetails ${this.state.showCustomerDetails ? "showCustomerDetails" : ""}`}>
-                        <header>
-                            <h1>{ t("About") }</h1>
-                        </header>
-                        <div className="body">
-                            <CustomerDetails details={this.state.session.customer.details} />
-                        </div>
+                        <CustomerDetails session={this.state.session} />
                     </div>
                 </div>
             </div>

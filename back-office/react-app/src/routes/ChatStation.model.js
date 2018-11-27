@@ -16,8 +16,11 @@ export default class ChatStationModel extends RhelenaPresentationModel {
             id: "10",
             email: "john@smiht.com",
             name: "John Smith",
-            avatarURL: "https://st2.depositphotos.com/3369547/11899/v/950/depositphotos_118998210-stock-illustration-woman-glasses-female-avatar-person.jpg",
+            avatarURL: null,
             type: attendantTypes.support.firstLevel
+        }
+        if (!globalState.loggedUser.avatarURL) {
+            globalState.loggedUser.avatarURL = process.env.REACT_APP_DEFAULT_ATTENDANT_AVATAR_URL || "https://st2.depositphotos.com/3369547/11899/v/950/depositphotos_118998210-stock-illustration-woman-glasses-female-avatar-person.jpg"
         }
 
         globalState.sessions = [] //initialize variable
@@ -63,7 +66,7 @@ export default class ChatStationModel extends RhelenaPresentationModel {
                 globalState.sessionsRefresh.forEach(sessionRefresh => {
                     //if the customer stop sending refresh for more than 60 seconds, it will considered offline
                     
-                    if(new Date().getTime() - sessionRefresh.lastRefresh > 20000) {
+                    if(new Date().getTime() - sessionRefresh.lastRefresh > 60000) {
                         let sessionExpiredArr = globalState.sessions.filter(s => s.sessionTopic === sessionRefresh.sessionTopic)
                         if (sessionExpiredArr.length > 0) {
                             let sessionExpired = sessionExpiredArr[0]

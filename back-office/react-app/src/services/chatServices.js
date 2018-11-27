@@ -53,6 +53,7 @@ let chatServices = {
         if (!chatServices._ready) {
 
             debug('Starting chatServices...')
+            
             mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClientParam) => {    
                 
                 chatServices.mqttClient = mqttClientParam

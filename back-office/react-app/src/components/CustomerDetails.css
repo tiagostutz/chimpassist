@@ -1,0 +1,62 @@
+
+.chatView .customerDetails header {
+    background: #f9f9fa;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    border: 1px solid #f4f4f4;
+}
+.chatView .customerDetails header .tab {
+    padding: 1rem;
+    flex: 1;
+    text-align: center;
+    margin: 0% 5%;
+    font-size: .9rem;
+    color: #BBB;
+    font-weight: bold;
+}
+.chatView .customerDetails header .tab:hover {
+    color: #333;
+    cursor: pointer;
+}
+.chatView .customerDetails header .tab.selected{
+    border-bottom: 2px solid #999;
+    color: #555;
+}
+
+.chatView .customerDetails .body {
+    border-left: 2px solid var(--primary-bright);
+    flex: 1;
+    background: #FDFDFD;
+    padding: 1rem;
+}
+
+.chatView .customerDetails .body h3 {
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: .7rem;
+    color: #999;
+    margin: 0rem;
+    margin-bottom: 1rem;
+}
+.chatView .customerDetails .body ul li {
+    list-style: none;
+    font-size: .8rem;
+    color: #777;
+    line-height: 250%;
+    font-weight: 700;
+    display: flex;
+    flex-direction: row;
+}
+.chatView .customerDetails .body ul li img{
+    width: 16px;
+}
+.chatView .customerDetails .body ul li .copyPasteButton {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.chatView .customerDetails .activity ul {
+    padding: 0px;
+}

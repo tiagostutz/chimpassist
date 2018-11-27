@@ -87,6 +87,7 @@ module.exports = {
                 manuh.unsubscribe(sessionRepo.getDeletionNotificationTopic(), "SessionCoordinator")
                 manuh.subscribe(sessionRepo.getDeletionNotificationTopic(), "SessionCoordinator", msg => {
                     // notify the clients of the session expiration
+                    logger.debug("TTL of session register reached. Expiring session...")
                     _self.expireSession(msg.value)
                 })
 
@@ -108,8 +109,7 @@ module.exports = {
                         logger.debug("Attendant successfully assigned. Details:", msg.attendantInfo)                            
                         let sessionInfoAssignment = sessionRepo.getSession(msg.sessionInfo.sessionId)
                         if (!sessionInfoAssignment) {
-                            console.log('\n\n\n===========',msg.sessionInfo,"\n\n\n\n\n");
-                            
+                            return console.log('\n\n\n=========== NOT FOUND:::: ',msg.sessionInfo,"\n\n\n\n\n");                            
                         }
                         if (sessionInfoAssignment.assignedAttendants.indexOf(msg.attendantInfo.id) === -1) {
                             sessionInfoAssignment.assignedAttendants.push(msg.attendantInfo.id)                                                

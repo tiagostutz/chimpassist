@@ -10,10 +10,12 @@ class App extends Component {
 
   render() {
 
+    const logoURL = process.env.REACT_APP_LOGO_SMALL_URL || "/images/edidatico.png"
+
     return (
       <div className="wrapper">
         <div className="sideMenu">
-          <img src="/images/logo-demo.png" alt="Logo"/>
+          <img src={logoURL} alt="Logo"/>
         </div>
         <div className="chatArea">
           <ChatStation />  

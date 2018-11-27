@@ -7,18 +7,28 @@ i18n
     resources: {
       en: {
         translation: {
-          "Online customers": "Online customers",
-          "Offline customers": "Offline customers",
           "About": "About",
-          "Error connecting to MQTT interaction bus": "Error connecting to MQTT interaction bus"
+          "Activity": "Activity",
+          "Additional info": "Additional info",
+          "Contact": "Contact",
+          "Copy": "Copy",
+          "Error connecting to MQTT interaction bus": "Error connecting to MQTT interaction bus",
+          "Offline customers": "Offline customers",
+          "Online customers": "Online customers",
+          "User info": "User info",
         }
       },
       ptBR: {
         translation: {
-          "Online customers": "Clientes on-line",
-          "Offline customers": "Clientes off-line",
           "About": "Sobre",
-          "Error connecting to MQTT interaction bus": "Erro ao conectar-se ao barramento de interação MQTT"
+          "Activity": "Atividade",
+          "Additional info": "Informações adicionais",
+          "Contact": "Contato",
+          "Copy": "Copiar",
+          "Error connecting to MQTT interaction bus": "Erro ao conectar-se ao barramento de interação MQTT",
+          "Offline customers": "Estudantes off-line",
+          "Online customers": "Estudantes on-line",
+          "User info": "Informações",
         }
       }
     },

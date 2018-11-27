@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@livechat/ui-kit": "0.1.0",
-    "charol": "^0.2.0",
+    "charol": "^0.3.0",
     "i18next": "^11.9.0",
     "manuh": "^1.4.0",
     "manuh-bridge-mqtt": "^0.0.6",
@@ -14,8 +14,8 @@
     "react-dom": "^16.5.2",
     "react-i18next": "^8.0.7",
     "react-scripts": "1.1.5",
-    "rhelena": "^1.2.0",
-    "simple-mqtt-client": "^0.3.6",
+    "rhelena": "^1.2.5",
+    "simple-mqtt-client": "^0.4.1",
     "uuid": "^3.3.2"
   },
   "scripts": {

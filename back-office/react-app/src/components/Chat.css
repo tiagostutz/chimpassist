@@ -90,19 +90,6 @@
     right: 0%;
 }
 
-.chatView .customerDetails header {
-    padding: 1rem;
-    background: #F0F0F0;
-}
-.chatView .customerDetails header h1{
-    font-size: 1.2rem;
-    margin: 0px;
-}
-.chatView .customerDetails .body {
-    border-left: 2px solid var(--primary-bright);
-    flex: 1;
-}
-
 
 /* Livechat-ui-kit override */
 .chatView .chatHeader .css-em1vxk {

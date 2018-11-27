@@ -29,6 +29,9 @@ export default class ChatModel extends RhelenaPresentationModel {
     }
 
     plugSession(session) {
+        if (!session) {
+            return;
+        }
         // check whether this ViewModel was used for this customerId. If not, initialize and persist the data for this customer
         // this is done so you don't have to instantiate the Chat Component for each selected customer, you just load a different model for the same view 
         // you must keep the state because the interaction state for each customer must be tracked and kept individually. For example, if you open the 

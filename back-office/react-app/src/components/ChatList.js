@@ -23,6 +23,9 @@ class ChatList extends Component {
     render() {
         const { t } = this.props
 
+        const onlineCustomersLabel = process.env.REACT_APP_ONLINE_CUSTOMERS_LABEL || "Online customers"
+        const offlineCustomersLabel = process.env.REACT_APP_OFFLINE_CUSTOMERS_LABEL || "Offline customers"
+
         const offlineCustomers = this.state.offlineSessions.map(s => <ChatListItem session={s} key={"offline-"+s.sessionId} />)
         const onlineCustomers = this.state.onlineSessions.map(s => <ChatListItem session={s} key={"online-"+s.sessionId} />)
         
@@ -30,14 +33,14 @@ class ChatList extends Component {
             <div className="sessionList">
 
                 <div className="onlineSessions">
-                    <h1>{t("Online customers")}</h1>
+                    <h1>{t(onlineCustomersLabel)}</h1>
                     <UIChatList>
                         { onlineCustomers }
                     </UIChatList>
                 </div>
 
                 <div className="offlineSessions">
-                    <h1>{t("Offline customers")}</h1>
+                    <h1>{t(offlineCustomersLabel)}</h1>
                     <UIChatList>
                         { offlineCustomers }
                     </UIChatList>

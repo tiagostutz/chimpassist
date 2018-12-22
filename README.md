@@ -33,7 +33,7 @@ The backoffice application invokes a set of REST endpoints that you should imple
 }]
 ```
 
-- `/chimpassist/:customerId/statistics?start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns an filtered array of statistics by datetimes and can have 3 different format those returns:
+- `/chimpassist/:customerId/statistics?start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
 ```JSON
 [{
   "label": "Unresolved tickets",

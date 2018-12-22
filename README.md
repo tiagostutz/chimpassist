@@ -65,6 +65,7 @@ The backoffice application invokes a set of REST endpoints that you should imple
     "y": 7
   }]
 }]
+```
 
 ### Some examples
 

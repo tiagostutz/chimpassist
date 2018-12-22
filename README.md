@@ -17,7 +17,17 @@ The backoffice application has a set of REST endpoints that you may implement fo
 Some examples:
 
 - last 24h: `/chimpassist/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
-- last 7 days `/chimpassist/298301/statistics?start_date_time=20181214-12:33:09`&end_date_time=20181221-12:33:09``
+- last 7 days `/chimpassist/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
+
+### `/statistics` JSON return
+
+The JSON returned by the `/statistics` **must be an array** in the following format:
+```JSON
+[{
+  "label": "Unresolved tickets",
+  "value": ""
+}]
+```
 
 
 ## Server

@@ -8,6 +8,17 @@ Open source customer service chat plataform
 
 Backoffice and Frontoffice chat platform made with React for a typical customer service or support
 
+## Statistics endpoints
+
+The backoffice application has a set of REST endpoints that you may implement following a JSON format that will enrich the customer panel information. So, you have just to implement your own endpoint and pass the base endpoint - **without** the `/chimpassist` part - to the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following endpoints:
+
+- `/chimpassist/:customerId/statistics?start_date_time=<start_date>&end_date_time=<end_datetime>`: will retrieve the statistics using the datetimes to filter the statistics by time.
+
+Some examples:
+
+`/chimpassist/298301/statistics?start_date_time=<start_date>&end_date_time=<end_datetime>`
+
+
 ## Server
 
 ### Enviroment Variables

@@ -10,9 +10,10 @@ Backoffice and Frontoffice chat platform made with React for a typical customer 
 
 ## Statistics endpoints
 
-The backoffice application invokes a set of REST endpoints that you should implement following a JSON format that will enrich the customer panel information. So, you will implement your own logic and pass the base endpoint - **without** the **/chimpassist** part - to the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following:
+The backoffice application invokes a set of REST endpoints implemented by you following some JSON formats that will enrich the customer panel information. All the requests sends the `attendant_id`. 
+So, you will implement your own logic and pass the base endpoint - **without** the **/chimpassist** part - to the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following:
 
-- `/chimpassist/:customerId/contactInfo` - returns customer contact info:
+- `/chimpassist/:customerId/contactInfo?attendant=<attendant_id>` - returns customer contact info:
 ```JSON
 {
   "e-mail": "user@email.com",
@@ -21,7 +22,7 @@ The backoffice application invokes a set of REST endpoints that you should imple
 }
 ```
 
-- `/chimpassist/:customerId/additionalInfo` - returns customer additional info, specific to your domain
+- `/chimpassist/:customerId/additionalInfo?attendant=<attendant_id>` - returns customer additional info, specific to your domain
 ```JSON
 [{
   "label": "customer since",
@@ -33,7 +34,7 @@ The backoffice application invokes a set of REST endpoints that you should imple
 }]
 ```
 
-- `/chimpassist/:customerId/statistics?start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
+- `/chimpassist/:customerId/statistics?attendant=<attendant_id>&start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
 ```JSON
 [{
   "label": "Unresolved tickets",

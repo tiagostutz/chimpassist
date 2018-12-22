@@ -10,25 +10,66 @@ Backoffice and Frontoffice chat platform made with React for a typical customer 
 
 ## Statistics endpoints
 
-The backoffice application has a set of REST endpoints that you may implement following a JSON format that will enrich the customer panel information. So, you have just to implement your own endpoint and pass the base endpoint - **without** the `/chimpassist` part - to the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following endpoints:
+The backoffice application invokes a set of REST endpoints that you should implement following a JSON format that will enrich the customer panel information. So, you will implement your own logic and pass the base endpoint - **without** the **/chimpassist** part - to the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following:
 
-- `/chimpassist/:customerId/statistics?start_date_time=<start_date_time>&end_date_time=<end_date)time>`: will retrieve the statistics using the datetimes to filter the statistics by time.
+- `/chimpassist/:customerId/contactInfo` - returns customer contact info:
+```JSON
+{
+  "e-mail": "user@email.com",
+  "phone1": "+1 222 999 999 999",
+  "phone2": "+55 61 99676 8989"
+}
+```
 
-Some examples:
-
-- last 24h: `/chimpassist/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
-- last 7 days `/chimpassist/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
-
-### `/statistics` JSON return
-
-The JSON returned by the `/statistics` **must be an array** in the following format:
+- `/chimpassist/:customerId/additionalInfo` - returns customer additional info, specific to your domain
 ```JSON
 [{
-  "label": "Unresolved tickets",
-  "value": ""
+  "label": "customer since",
+  "value": "14/09/2014"
+},
+{
+  "label": "favorite shopping category",
+  "value": "clothing"
 }]
 ```
 
+- `/chimpassist/:customerId/statistics?start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns an filtered array of statistics by datetimes and can have 3 different format those returns:
+```JSON
+[{
+  "label": "Unresolved tickets",
+  "value": [
+    {"url": "https://mytickets.desksupport.io/tickets/123", "label": "Error closing the cart (14/10/2018)"},
+    {"url": "https://mytickets.desksupport.io/tickets/321", "label": "Credit card not accepted (24/11/2018)"}
+  ]
+},
+{
+  "label": "Total items bought",
+  "value": "7"
+},
+{
+  "label": "Shopping activity",
+  "value": [{
+    "x": "15/12/2018-10:00:00",
+    "y": 3
+  },
+  {
+    "x": "15/12/2018-10:10:00",
+    "y": 63
+  },
+  {
+    "x": "15/12/2018-10:20:00",
+    "y": 99
+  },
+  {
+    "x": "15/12/2018-10:30:00",
+    "y": 7
+  }]
+}]
+
+### Some examples
+
+- last 24h: `curl -X GET $STATISTICS_BASE_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
+- last 7 days: `curl -X GET $STATISTICS_BASE_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
 
 ## Server
 

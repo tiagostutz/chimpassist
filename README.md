@@ -8,16 +8,83 @@ Open source customer service chat plataform
 
 Backoffice and Frontoffice chat platform made with React for a typical customer service or support
 
-## REST Endpoints and MQTT topics
 
-REST:
+## Getting Started
 
-- `/customer/:idCustomer/additional`
-- `/customer/:idCustomer/contact`
+Chimp assist deployment consists basically on on 4 resources:
+1) [MQTT broker for chat and chat control messages](https://hub.docker.com/r/erlio/docker-vernemq)
+2) [MongoDB to persist the chat messages](https://hub.docker.com/_/mongo)
+3) [Chimpasssist Chat Backend App](https://github.com/tiagostutz/chimpassist/tree/master/server)
+4) [Chimpassist Back Office web App](https://github.com/tiagostutz/chimpassist/tree/master/back-office/react-app)
 
-MQTT:
+The preferred order to bring the platform up is: 1, 2, 3 and 4
 
-- `accounts`
+Once everthing is up, you can now put the ChimpAssistWidget at your site to enable chat costumer service. The only configuration you will need is to set the widget property `backendEndpoint` to the **Chat Backend App** address and the `mqttBrokerHost` to the same **MQTT Broker** your solution is connecting to
+
+## Statistics endpoints
+
+The backoffice application invokes a set of REST endpoints implemented by you following some JSON formats that will enrich the customer panel information. All the requests sends the `attendant_id`. 
+So, you will implement your own logic and pass the base endpoint - **without** the **/chimpassist** part - to the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following:
+
+- `/chimpassist/:customerId/contactInfo?attendant=<attendant_id>` - returns customer contact info:
+```JSON
+{
+  "e-mail": "user@email.com",
+  "phone1": "+1 222 999 999 999",
+  "phone2": "+55 61 99676 8989"
+}
+```
+
+- `/chimpassist/:customerId/additionalInfo?attendant=<attendant_id>` - returns customer additional info, specific to your domain
+```JSON
+[{
+  "label": "customer since",
+  "value": "14/09/2014"
+},
+{
+  "label": "favorite shopping category",
+  "value": "clothing"
+}]
+```
+
+- `/chimpassist/:customerId/statistics?attendant=<attendant_id>&start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
+```JSON
+[{
+  "label": "Unresolved tickets",
+  "value": [
+    {"url": "https://mytickets.desksupport.io/tickets/123", "label": "Error closing the cart (14/10/2018)"},
+    {"url": "https://mytickets.desksupport.io/tickets/321", "label": "Credit card not accepted (24/11/2018)"}
+  ]
+},
+{
+  "label": "Total items bought",
+  "value": "7"
+},
+{
+  "label": "Shopping activity",
+  "value": [{
+    "x": "15/12/2018-10:00:00",
+    "y": 3
+  },
+  {
+    "x": "15/12/2018-10:10:00",
+    "y": 63
+  },
+  {
+    "x": "15/12/2018-10:20:00",
+    "y": 99
+  },
+  {
+    "x": "15/12/2018-10:30:00",
+    "y": 7
+  }]
+}]
+```
+
+### Some examples
+
+- last 24h: `curl -X GET $STATISTICS_BASE_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
+- last 7 days: `curl -X GET $STATISTICS_BASE_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
 
 ## Server
 

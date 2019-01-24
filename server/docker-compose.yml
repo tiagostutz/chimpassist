@@ -15,7 +15,7 @@ services:
   mongo:
     image: mongo
     ports:
-      - 27017:27017
+      - 27027:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=n4oehf4c1l!

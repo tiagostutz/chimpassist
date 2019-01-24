@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+  back-office:
+    image: tiagostutz/chimpassist:0.1.5-alpine
+    build: 
+      context: .
+      args:
+        NODE_ENV: production
+        DEBUG: none

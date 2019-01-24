@@ -31,7 +31,7 @@ let chatServices = {
         const mqttBrokerHost = process.env.REACT_APP_MQTT_BROKER_HOST || "http://localhost:8081/mqtt"
         const mqttBrokerUsername = process.env.REACT_APP_MQTT_USERNAME || ""
         const mqttBrokerPassword = process.env.REACT_APP_MQTT_PASSWORD || ""
-        const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
+        const mqttBaseTopic = process.env.REACT_APP_MQTT_BASE_TOPIC || "chimpassist/demo"
         
         const sessionControlSubscribe = (sessionTopic) => {
             // start listening for serssion instructions and notify that this attendant is available

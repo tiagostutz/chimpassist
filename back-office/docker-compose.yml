@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  back-office:
+    image: tiagostutz/chimpassist:0.1.5-alpine
+    ports:
+      - 3210:80
+    environment:  
+      - NODE_ENV=production
+      - DEBUG=none
+      - LOGO_SMALL_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/c_crop,h_326/c_scale,h_176/v1539906576/noun_Cabin_Monkey_774328_yxidcr.png
+      - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
+      - BACKEND_ENDPOINT=http://192.168.0.12:3000
+      - MQTT_BROKER_HOST=http://192.168.0.12:8080/mqtt

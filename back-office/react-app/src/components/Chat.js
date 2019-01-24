@@ -73,4 +73,5 @@ class Chat extends Component {
     }
 }
 
+
 export default withI18n()(Chat)

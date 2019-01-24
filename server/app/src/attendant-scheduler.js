@@ -10,7 +10,7 @@ const instructions = require('./lib/instructions')
 
 const sessionRepo = require('./session-repo')
 
-const url = process.env.MONGO_URL;
+const url = process.env.MONGO_CONNECTION_URL;
 const dbName = 'chimpassist';
 const client = new MongoClient(url);
 

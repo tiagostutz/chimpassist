@@ -5,7 +5,7 @@ export default class CustomerDetailsModel extends RhelenaPresentationModel {
     constructor(session) {
         super();
 
-        const mqttBrokerHost = process.env.REACT_APP_MQTT_BROKER_HOST || "http://localhost:8081/mqtt"
+        const mqttBrokerHost = process.env.REACT_APP_MQTT_BROKER_HOST || "http://localhost:8080/mqtt"
 
         this.session = session
         this.currentAtividadeTitulo = null

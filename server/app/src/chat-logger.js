@@ -4,7 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 
 let bufferedMessage = []
 
-const url = process.env.MONGO_URL;
+const url = process.env.MONGO_CONNECTION_URL;
 const dbName = 'chimpassist';
 const client = new MongoClient(url);
 

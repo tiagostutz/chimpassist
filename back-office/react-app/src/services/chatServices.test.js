@@ -5,7 +5,7 @@ import status from '../status'
 import attendantTypes from '../attendant-types'
 import moment from 'moment'
 
-const mqttBrokerHost = process.env.REACT_APP_MQTT_BROKER_HOST || "http://localhost:8081/mqtt"
+const mqttBrokerHost = process.env.REACT_APP_MQTT_BROKER_HOST || "http://localhost:8080/mqtt"
 const mqttBrokerUsername = process.env.REACT_APP_MQTT_USERNAME || ""
 const mqttBrokerPassword = process.env.REACT_APP_MQTT_PASSWORD || ""
 const baseTopic = process.env.REACT_APP_MQTT_BASE_TOPIC

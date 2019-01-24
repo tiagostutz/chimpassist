@@ -1,3 +1,10 @@
+# Chimp Assist Chat Server
+
+## Getting Started
+
+Just run `docker-compose up`:
+
+```yaml
 version: '3.7'
 
 services:
@@ -14,7 +21,7 @@ services:
       - OFFLINE_CUSTOMERS_LABEL=Offline Costumers
     networks:
       - chimpassist-demo
-    
+
   mqtt:
     image: erlio/docker-vernemq
     restart: always
@@ -25,7 +32,7 @@ services:
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
       - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=info
     networks:
-      - chimpassist-demo        
+      - chimpassist-demo
 
   mongo:
     image: mongo
@@ -35,8 +42,21 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
     networks:
-      - chimpassist-demo        
+      - chimpassist-demo
 
 networks:
   chimpassist-demo:
     name: chimpassist-demo
+```
+
+## Environment Variables
+
+| Variable | Description|
+| --- | --- |
+| MONGO_CONNECTION_URL | TO-DO|
+| ATTENDANT_KEEP_ALIVE_TIME | TO-DO |
+| JSON_DATABASE_FOLDER | TO-DO |
+| MQTT_BASE_TOPIC | TO-DO |
+| MQTT_BROKER_HOST | TO-DO |
+| MQTT_USERNAME | TO-DO |
+| MQTT_PASSWORD | TO-DO |

@@ -1,3 +1,12 @@
+# Chimp Assist Back Office
+
+This is the web app used by the attendants
+
+## Getting Started
+
+Just run `docker-compose up`:
+
+```yaml
 version: '3.7'
 
 services:
@@ -40,3 +49,17 @@ services:
 networks:
   chimpassist-demo:
     name: chimpassist-demo
+```
+
+-----------
+
+## Didn't use but may be useful
+
+### Trying to get IP from another container
+
+Idea: you pass the container name in brackets `<container_name>` and this expression replaces it
+
+```sh
+cat dummy | grep -E -o "<.*>" | sed "s|[<|>]||g" | awk '{system("getent hosts " $0)}' | awk '{system(
+"sed \"s|<.*>|"$1"|g\" -i dummy")}' | awk '{print $1}'
+```

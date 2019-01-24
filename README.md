@@ -15,7 +15,7 @@ Chimp assist deployment consists basically on on 4 resources:
 1) [MQTT broker for chat and chat control messages](https://hub.docker.com/r/erlio/docker-vernemq)
 2) [MongoDB to persist the chat messages](https://hub.docker.com/_/mongo)
 3) [Chimpasssist Chat Backend App](https://github.com/tiagostutz/chimpassist/tree/master/server)
-4) [Chimpassist Back Office web App](https://github.com/tiagostutz/chimpassist/tree/master/back-office/react-app)
+4) [Chimpassist Back Office web App](https://github.com/tiagostutz/chimpassist/tree/master/back-office)
 
 The preferred order to bring the platform up is: 1, 2, 3 and 4
 

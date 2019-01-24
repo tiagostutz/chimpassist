@@ -4,7 +4,7 @@
   "description": "chimp assist server components",
   "main": "server.js",
   "scripts": {
-    "dev": "MQTT_BROKER_HOST=mqtt://localhost:1884 node src/server.js",
+    "dev": "MQTT_BROKER_HOST=mqtt://localhost:1883 MQTT_USERNAME=edidatico MQTT_PASSWORD=n@oeh!n4d4fac1l MONGO_URL=mongodb://root:n4oehf4c1l!@localhost:27027/?authMechanism=SCRAM-SHA-1 node src/server.js",
     "test": "LOGGER_LEVEL=error MQTT_BROKER_HOST=mqtt://localhost:1884 mocha --recursive"
   },
   "repository": {

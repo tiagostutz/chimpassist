@@ -11,6 +11,8 @@ export default class CustomerDetailsModel extends RhelenaPresentationModel {
         this.currentAtividadeTitulo = null
         this.currentURL = null
         this.lastSpeedY = null
+        this.lastSpeedYTimer = null
+        this.currentPositionY = null
         var client  = mqtt.connect(mqttBrokerHost)
 
         client.on('connect', () => {
@@ -19,14 +21,20 @@ export default class CustomerDetailsModel extends RhelenaPresentationModel {
                     client.on('message', (topic, message) => {
                         const msg = JSON.parse(message.toString())
                         if (msg.atividade_academica) {
-                            this.currentAtividadeTitulo = msg.atividade_academica
+                            this.currentAtividadeTitulo = msg.atividade_academica.replace(/\(\d+\)$/g, '')
                         }
                         if (msg["$url"]) {
                             this.currentURL = msg["$url"]
                         }
                         if (topic.match("speedY")) {
-                            this.lastSpeedY = msg.value
+                            this.lastSpeedY = Math.round(Math.abs(msg["$documentHeight"]/(msg.value*60)))
+                            // clearTimeout(this.lastSpeedYTimer)
+                            // this.lastSpeedYTimer = setTimeout(() => this.lastSpeedY = 0, 10000) // if the customer stays more than 10 seconds idle, resets to zero the speed
                         }
+                        if (topic.match("positionY")) {
+                            this.currentPositionY = parseFloat( (msg.value/msg["$documentHeight"])*100).toFixed(2);
+                        }
+                        
                     })
                 }
             })

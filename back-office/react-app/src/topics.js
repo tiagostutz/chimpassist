@@ -4,6 +4,11 @@ let topics = {
     chatStation: {
         sessionList: {
             selected: null
+        },
+        user: {
+            login: null,
+            logout: null,
+            block: null
         }
     },
     sessions: {
@@ -24,7 +29,8 @@ let topics = {
     },
     client: {
         attendants: {
-            assign: null
+            assign: null,
+            control: null
         },
         sessions: {
             online: null

@@ -2,7 +2,6 @@ import { RhelenaPresentationModel, globalState } from 'rhelena';
 import manuh from 'manuh'
 import topics from '../topics'
 import chatServices from '../services/chatServices'
-import attendantTypes from '../attendant-types'
 import status from '../status'
 
 import debugLib from 'debug'
@@ -11,17 +10,6 @@ const debug = debugLib('debug-model-chatStation')
 export default class ChatStationModel extends RhelenaPresentationModel {
     constructor() {
         super();
-
-        globalState.loggedUser = {
-            id: "10",
-            email: "john@smiht.com",
-            name: "John Smith",
-            avatarURL: null,
-            type: attendantTypes.support.firstLevel
-        }
-        if (!globalState.loggedUser.avatarURL) {
-            globalState.loggedUser.avatarURL = process.env.REACT_APP_DEFAULT_ATTENDANT_AVATAR_URL || "https://st2.depositphotos.com/3369547/11899/v/950/depositphotos_118998210-stock-illustration-woman-glasses-female-avatar-person.jpg"
-        }
 
         globalState.sessions = [] //initialize variable
         globalState.sessionsRefresh = [] //initialize variable

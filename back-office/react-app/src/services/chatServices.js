@@ -15,11 +15,19 @@ if (window.localStorage && process.env.REACT_APP_DEBUG)  {
     console.log('window.localStorage.debug', window.localStorage.debug);    
 } 
 
+manuh.subscribe(topics.chatStation.user.logout, "chatServices", _ => chatServices._ready = false)
+
 let chatServices = {
     _ready: false,
     keepAliveIntervalHandler: null,
     mqttClient: null,
-    startService: async (attendantInfo, onServiceStarted) => {
+    startService: async (attendantInfo, onServiceStarted, onError) => {
+
+        if (!attendantInfo) {
+            debug("User not logged. Skipping ChatStation initialization...")
+            return onError({ msg: "User not logged. Skipping ChatStation initialization..."})
+        }
+
         const mqttBrokerHost = process.env.REACT_APP_MQTT_BROKER_HOST || "http://localhost:8081/mqtt"
         const mqttBrokerUsername = process.env.REACT_APP_MQTT_USERNAME || ""
         const mqttBrokerPassword = process.env.REACT_APP_MQTT_PASSWORD || ""
@@ -73,6 +81,13 @@ let chatServices = {
                     debug('Attendant assignment response. Details:', attendantAssignment)
                 })                
                 
+                // subscribe to remote commands
+                chatServices.mqttClient.subscribe(`${topics.client.attendants.control}/${attendantInfo.id}`, (msg) => {
+                    if (msg.instruction == instructions.attendant.control.terminate.activity_monitor_offline) {
+                        manuh.publish(topics.chatStation.user.block, { info: "Por favor abra o monitor de atividade na sua estação de trabalho para continuar ativo"})
+                    }
+                })
+
                 // start the keep alive cycle to inform that this attendant is available
                 const post = await fetch(`${config.backendEndpoint}/config/attendant`)
                 const attendantConfig = await post.json()                   

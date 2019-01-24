@@ -19,8 +19,8 @@
     "uuid": "^3.3.2"
   },
   "scripts": {
-    "dev": "DEBUG=debug-chatServices,mqtt-provider-debug,mqttClient,debug-model-chatStation MQTT_BROKER_HOST=http://localhost:8081/mqtt yarn start",
-    "start": "REACT_APP_DEBUG=$DEBUG REACT_APP_MQTT_BROKER_HOST=$MQTT_BROKER_HOST REACT_APP_MQTT_BASE_TOPIC=chimpassist/servicedesk react-scripts start",
+    "dev": "DEBUG=debug-chatServices,mqtt-provider-debug,mqttClient,debug-model-chatStation BACKEND_ENDPOINT=http://172.20.10.2:3000 MQTT_BROKER_HOST=http://172.20.10.2:8080/mqtt MQTT_USERNAME=edidatico MQTT_PASSWORD=n@oeh!n4d4fac1l yarn start",
+    "start": "REACT_APP_DEBUG=$DEBUG REACT_APP_BACKEND_ENDPOINT=$BACKEND_ENDPOINT REACT_APP_MQTT_BROKER_HOST=$MQTT_BROKER_HOST REACT_APP_MQTT_USERNAME=$MQTT_USERNAME REACT_APP_MQTT_USERNAME=$MQTT_USERNAME REACT_APP_MQTT_BASE_TOPIC=chimpassist/servicedesk react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

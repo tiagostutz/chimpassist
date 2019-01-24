@@ -8,6 +8,17 @@ Open source customer service chat plataform
 
 Backoffice and Frontoffice chat platform made with React for a typical customer service or support
 
+## REST Endpoints and MQTT topics
+
+REST:
+
+- `/customer/:idCustomer/additional`
+- `/customer/:idCustomer/contact`
+
+MQTT:
+
+- `accounts`
+
 ## Server
 
 ### Enviroment Variables

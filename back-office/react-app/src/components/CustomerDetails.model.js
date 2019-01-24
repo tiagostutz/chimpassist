@@ -18,7 +18,7 @@ export default class CustomerDetailsModel extends RhelenaPresentationModel {
             this.plugSession(lastActiveSession)
         })
 
-        manuh.unsubscribe(topics.sessions.updates)
+        manuh.unsubscribe(topics.sessions.updates, "CustomerDetailsModel")
         manuh.subscribe(topics.sessions.updates, "CustomerDetailsModel", updatedSession => {
             if (this.session 
                 && this.session.sessionTopic === updatedSession.sessionTopic

@@ -7,7 +7,7 @@ const databaseCatalog = require('./lib/database-catalog')
 const dbPrefix = "/" + topics.server.sessions._path
 
 const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
+const url = process.env.MONGO_URL;
 const dbName = 'chimpassist';
 const client = new MongoClient(url);
 

@@ -10,7 +10,7 @@ const instructions = require('./lib/instructions')
 
 const sessionRepo = require('./session-repo')
 
-const url = 'mongodb://root:n4oehf4c1l!@localhost:27017/?authMechanism=SCRAM-SHA-1';
+const url = process.env.MONGO_URL;
 const dbName = 'chimpassist';
 const client = new MongoClient(url);
 
@@ -105,7 +105,7 @@ module.exports = {
 
                 //check whether that session has already been assigned to the attendant
                 const currentSession = this.resolveActiveSessions(attendantAssignment.attendantInfo.id).filter(a => a.sessionTopic === attendantAssignment.sessionInfo.sessionTopic)
-                if (currentSession.length  === 0) {
+                if (currentSession.length  === 0 && attendantsRegistry[attendantAssignment.attendantInfo.id]) {
                     // update attendant active sessions
                     attendantsRegistry[attendantAssignment.attendantInfo.id].tempActiveSessions.push(attendantAssignment.sessionInfo.sessionTopic)
                     _self.db.insert(`${_self.dbPrefix}/${attendantAssignment.attendantInfo.id}`, attendantsRegistry[attendantAssignment.attendantInfo.id], true, _self.attendantKeepAliveTime)
@@ -147,6 +147,10 @@ module.exports = {
 
     isAttendantAssignedToSession: function(attendantId, sessionInfo) {
         const attendantsRegistry = this.db.get(this.dbPrefix)
+        
+        if(!attendantsRegistry[attendantId]) {
+            return false
+        }
 
         const activeSessionsTopics = this.resolveActiveSessions(attendantId).map(s => s.sessionTopic)
         const assigningTopics = attendantsRegistry[attendantId].tempActiveSessions.map(s => s.sessionTopic)        

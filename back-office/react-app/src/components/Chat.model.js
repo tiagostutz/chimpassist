@@ -16,7 +16,7 @@ export default class ChatModel extends RhelenaPresentationModel {
             this.plugSession(lastActiveSession)
         })
 
-        manuh.unsubscribe(topics.sessions.updates)
+        manuh.unsubscribe(topics.sessions.updates, "ChatModel")
         manuh.subscribe(topics.sessions.updates, "ChatModel", updatedSession => {
             if (this.session 
                 && this.session.sessionTopic === updatedSession.sessionTopic

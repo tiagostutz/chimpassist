@@ -23,15 +23,17 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         
         globalState.backendEndpoint = backendEndpoint
 
-        if (!globalState.userData && window.localStorage.userData) {
-            globalState.userData = JSON.parse(window.localStorage.userData)
-        }else{
-            globalState.userData = {
-                "name": "Guest " +  Math.floor(100000 * Math.random()),
-                "id": uuidv1(),
-                "avatarURL": "https://camo.githubusercontent.com/0742cd827f51572237a28b94922e84b5294f98e2/68747470733a2f2f7265732e636c6f7564696e6172792e636f6d2f737475747a736f6c75636f65732f696d6167652f75706c6f61642f635f63726f702c685f3330382f76313533393930363537362f6e6f756e5f436162696e5f4d6f6e6b65795f3737343332385f7978696463722e706e67"
+        if (!globalState.userData ) {
+            if (window.localStorage.userData) {
+                globalState.userData = JSON.parse(window.localStorage.userData)
+            }else{
+                globalState.userData = {
+                    "name": "Guest " +  Math.floor(100000 * Math.random()),
+                    "id": uuidv1(),
+                    "avatarURL": "https://camo.githubusercontent.com/0742cd827f51572237a28b94922e84b5294f98e2/68747470733a2f2f7265732e636c6f7564696e6172792e636f6d2f737475747a736f6c75636f65732f696d6167652f75706c6f61642f635f63726f702c685f3330382f76313533393930363537362f6e6f756e5f436162696e5f4d6f6e6b65795f3737343332385f7978696463722e706e67"
+                }
+                window.localStorage.userData = JSON.stringify(globalState.userData)
             }
-            window.localStorage.userData = JSON.stringify(globalState.userData)
         }
         this.userData = globalState.userData
 

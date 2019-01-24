@@ -4,7 +4,19 @@
 }
 .sideMenu {
     padding: .5rem;
-    background: var(--secondary-bright)
+    background: var(--secondary-bright);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.sideMenu button,
+.sideMenu input[type=button]{
+    border: 0px;
+    background: transparent;
+    text-transform: uppercase;
+    font-size: .75rem;    
+    cursor: pointer;
 }
 .sideMenu img{
     max-width: 60px;

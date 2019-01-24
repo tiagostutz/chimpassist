@@ -22,7 +22,8 @@ class CustomerDetailsActivity extends Component {
                     <h3>{t("Agora")}</h3>
                     <ul>
                         <li>{this.state.currentAtividadeTitulo}</li>
-                        <li>{this.state.lastSpeedY}</li>
+                        <li>Velocidade Leitura: {this.state.lastSpeedY ? this.state.lastSpeedY : 0} mins</li>
+                        <li>Posição texto: {this.state.currentPositionY}%</li>
                     </ul>
                 </div>
                 <div className="detailsRow">

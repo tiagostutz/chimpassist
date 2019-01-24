@@ -19,7 +19,8 @@ let topics = {
     },
     client: {
         attendants: {
-            assign: null
+            assign: null,
+            control: null
         },
         sessions: {
             online: null

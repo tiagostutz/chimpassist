@@ -1,6 +1,6 @@
 {
   "name": "chimpassist-widget",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@livechat/ui-kit": "0.1.0",
+    "@babel/runtime": "^7.0.0-beta.56",
     "charol": "^0.3.0",
     "debug": "^4.1.0",
     "i18next": "^11.9.0",

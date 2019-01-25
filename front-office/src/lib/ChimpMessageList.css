@@ -7,6 +7,7 @@
 .readTimeContainer img {
     height: 11px;
     filter: brightness(2);
+    opacity: .6;
 }
 
 .readTimeContainer .readAtInfo {

@@ -66,7 +66,18 @@ export default class ChatModel extends RhelenaPresentationModel {
                 if (globalState.windowFocused) {
                     chatServices.markAllMessagesAsRead(this.session, globalState.loggedUser)
                 }
-        })
+            },
+            messagesViewed => {
+                messagesViewed.readMessages.forEach(m => {
+                    let msgIndex = this.session.lastMessages.findIndex(lm => lm.timestamp === m.timestamp && lm.from.id === m.from.id)
+                    if(msgIndex !== -1) {
+                        this.session.lastMessages[msgIndex] = m
+                    }
+                }, "MessagesModel")
+                
+                this.session = this.session
+            }
+        )
         
     }
 

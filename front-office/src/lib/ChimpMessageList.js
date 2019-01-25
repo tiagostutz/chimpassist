@@ -52,8 +52,16 @@ const component = ({session, userId, t}) => {
                                             { m.from.id === userId &&
                                                 <div className="readTimeContainer">
                                                     <div className="readAtInfo">
-                                                        {!m.readAt && <div className="readAtInfo"><span className="timestamp">{moment(new Date(m.timestamp)).format("HH:mm")}</span><img src={singleTick} /></div>}
-                                                        {m.readAt && <div className="readAtInfo" style={{marginLeft: ".5rem"}}><span className="timestamp">{moment(new Date(m.readAt)).format("HH:mm")}</span><img src={doubleTick} /></div>}
+                                                        {<div className="readAtInfo">
+                                                            <span className="timestamp">{moment(new Date(m.timestamp)).format("LT")}</span>
+                                                            <img src={singleTick} />
+                                                        </div>}
+                                                        {m.readAt && 
+                                                            <div className="readAtInfo" style={{marginLeft: ".5rem"}}>
+                                                                <span className="timestamp">{moment(new Date(m.readAt)).format("LT")}</span>
+                                                                <img src={singleTick} style={{marginRight: "-10px"}} />
+                                                                <img src={singleTick} style={{opacity: 1}} />
+                                                            </div>}
                                                     </div>
                                                 </div>
                                             }

@@ -125,7 +125,7 @@ let chatServices = {
         }                
     },
 
-    async connectToChatSession(sessionInfo, source, onConnect, onMessageReceived) {
+    async connectToChatSession(sessionInfo, source, onConnect, onMessageReceived, onViewedMessageReceived) {
         // associate this source to this chat session
         this.mqttClient.unsubscribe(`${sessionInfo.sessionTopic}/messages`, source)
         this.mqttClient.subscribe(`${sessionInfo.sessionTopic}/messages`, onMessageReceived, source)
@@ -134,6 +134,7 @@ let chatServices = {
             sessionInfo.lastMessages = lastCustomerMessages
             onConnect(sessionInfo)
         }
+        this.mqttClient.subscribe(`${sessionInfo.sessionTopic}/messages/viewed`, onViewedMessageReceived) //update messages viewed by the attendant            
     },
 
     //update customer to all those listening to changes on it

@@ -11,6 +11,7 @@ import { withI18n } from "react-i18next";
 import './i18n.js'
 
 import doubleTick from './double-tick.png'
+import singleTick from './single-tick.png'
 import './ChimpMessageList.css'
 
 const component = ({session, userId, t}) => {
@@ -50,7 +51,10 @@ const component = ({session, userId, t}) => {
                                             </div>
                                             { m.from.id === userId &&
                                                 <div className="readTimeContainer">
-                                                    {m.readAt && <div className="readAtInfo"><span className="timestamp">{moment(new Date(m.readAt)).format("HH:mm")}</span><img src={doubleTick} /></div>}
+                                                    <div className="readAtInfo">
+                                                        {!m.readAt && <div className="readAtInfo"><span className="timestamp">{moment(new Date(m.timestamp)).format("HH:mm")}</span><img src={singleTick} /></div>}
+                                                        {m.readAt && <div className="readAtInfo" style={{marginLeft: ".5rem"}}><span className="timestamp">{moment(new Date(m.readAt)).format("HH:mm")}</span><img src={doubleTick} /></div>}
+                                                    </div>
                                                 </div>
                                             }
                                         </MessageText>

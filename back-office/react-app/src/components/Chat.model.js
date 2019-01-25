@@ -26,6 +26,13 @@ export default class ChatModel extends RhelenaPresentationModel {
             }
         })
 
+        manuh.unsubscribe(topics.chatStation.window.visibility, "MessagesModel")
+        manuh.subscribe(topics.chatStation.window.visibility, "MessagesModel", msg => {
+            if (this.session && this.session.lastMessages && msg.status === "visible") {
+                chatServices.markAllMessagesAsRead(this.session, globalState.loggedUser)
+            }
+        })
+
     }
 
     plugSession(session) {
@@ -50,10 +57,17 @@ export default class ChatModel extends RhelenaPresentationModel {
             updatedSession => {
                 this.session = updatedSession            
                 globalState.lastActiveSession = this.session                
+                if (globalState.windowFocused) {
+                    chatServices.markAllMessagesAsRead(this.session, globalState.loggedUser)
+                }
             }, 
             payload => {   
                 this.session = payload.sessionInfo //receive messages (with bundled session)
+                if (globalState.windowFocused) {
+                    chatServices.markAllMessagesAsRead(this.session, globalState.loggedUser)
+                }
         })
+        
     }
 
     initializeAttributes() {
@@ -65,9 +79,10 @@ export default class ChatModel extends RhelenaPresentationModel {
     sendMessage(data) {
         //update customer to all those listening to changes on it
         chatServices.sendMessage(this.session, {
-            from: globalState.loggedUser,
-            timestamp: new Date().getTime(),
-            content: data
+            "from": globalState.loggedUser,
+            "timestamp": new Date().getTime(),
+            "content": data,
+            "readAt": null
         })
     }
 

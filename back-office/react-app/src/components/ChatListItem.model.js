@@ -16,9 +16,19 @@ export default class ChatListItemModel extends RhelenaPresentationModel {
             this.active = (msg.sessionTopic === this.session.sessionTopic)
         })
 
+        manuh.unsubscribe(`${this.session.sessionTopic}/updates`, `ChatListItemModel_${this.session.sessionTopic}`)
+        manuh.subscribe(`${this.session.sessionTopic}/updates`, `ChatListItemModel_${this.session.sessionTopic}`, msg =>  {
+            this.session = msg.session
+        })
+
         // plug into session chat
         this.plugSession(session)
 
+    }
+
+    cleanup() {
+        manuh.unsubscribe(topics.chatStation.sessionList.selected, `ChatListItemModel_${this.session.sessionTopic}`)
+        manuh.unsubscribe(`${this.session.sessionTopic}/updates`, `ChatListItemModel_${this.session.sessionTopic}`)
     }
 
     plugSession(session) {        

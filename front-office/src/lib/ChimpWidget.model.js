@@ -18,8 +18,8 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
 
         this.keepAliveIntervalHandler = null
         this.keepAliveTTL = 0
-        this.mqttClient = null
         this.retryHandler = null
+        globalState.mqttClient = null
         
         globalState.backendEndpoint = backendEndpoint
 
@@ -38,7 +38,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         this.userData = globalState.userData
 
         mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
-            this.mqttClient = mqttClient
+            globalState.mqttClient = mqttClient
             this.startSession()
         })
     }
@@ -81,7 +81,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             this.keepAliveTTL = sessionConfig.keepAliveTTL
 
             // send start new session event
-            this.mqttClient.publish(topics.server.sessions.online, 
+            globalState.mqttClient.publish(topics.server.sessions.online, 
             {
                 "sessionTopic": sessionTopic,
                 "sessionId": sessionConfig.sessionId,
@@ -107,7 +107,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         } 
         
         // receive commands and updates from session (not included messages)
-        this.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {                            
+        globalState.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {                            
             
             // check whether is just a keep-alive or there are actual changes to the session, like the new session accepted
             if ( !globalState.session || globalState.session.sessionId !== msg.sessionInfo.sessionId) {
@@ -131,7 +131,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
 
         }, "ChimpWidgetModel")
 
-        this.mqttClient.subscribe(`${sessionTopic}/messages`, payload => {
+        globalState.mqttClient.subscribe(`${sessionTopic}/messages`, payload => {
             const sessionWithMessages = payload.sessionInfo
             globalState.session = sessionWithMessages
             manuh.publish(`${sessionTopic}/messages`, payload)
@@ -148,14 +148,15 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         const message = {
             "from" : globalState.userData, 
             "timestamp" : new Date().getTime(), 
-            "content" : messageContent
+            "content" : messageContent,
+            "readAt": null
         }
 
         let clonedSession = JSON.parse(JSON.stringify(globalState.session))
         clonedSession.lastMessages.push(message)
         const startIndex = 0
         clonedSession.lastMessages = clonedSession.lastMessages.slice(startIndex, clonedSession.lastMessages.length)
-        this.mqttClient.publish(`${globalState.session.sessionTopic}/messages`, {
+        globalState.mqttClient.publish(`${globalState.session.sessionTopic}/messages`, {
             sessionInfo: clonedSession,
             message: message
         })
@@ -165,7 +166,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
     startKeepAliveCron() {
 
         // immediately send a keepAlive
-        this.mqttClient.publish(topics.server.sessions.online, globalState.session)                    
+        globalState.mqttClient.publish(topics.server.sessions.online, globalState.session)                    
         
         // Schedule keep alives
         if (this.keepAliveIntervalHandler) {
@@ -173,7 +174,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         }
         const refreshInterval = this.keepAliveTTL>10000 ? 10000 : this.keepAliveTTL/2
         this.keepAliveIntervalHandler = setInterval(() => {
-            this.mqttClient.publish(topics.server.sessions.online, globalState.session)
+            globalState.mqttClient.publish(topics.server.sessions.online, globalState.session)
         }, refreshInterval)
     }
 }

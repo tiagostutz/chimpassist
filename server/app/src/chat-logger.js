@@ -21,10 +21,7 @@ module.exports = {
                 throw err
             }
             
-            logger.debug("chat-logger connected successfully to MongoDB");
-            const db = client.db(dbName);
-            const collection = db.collection('chat-messages')
-            
+            logger.debug("chat-logger connected successfully to MongoDB");            
             mqttClient.subscribe(`${topics.server.sessions._path}/#`, msg => {
         
                 if (msg.message) {
@@ -33,30 +30,35 @@ module.exports = {
                     const key = "message.timestamp" + msg.message.timestamp + "message.from.id" + msg.message.from.id
                     if (bufferedMessage.length === 0 || bufferedMessage[0] !== key) {
                         
-                        collection.insertOne(msg)                        
+                        this.mongoCollection.insertOne(msg)                        
                         if (bufferedMessage[0] !== key) {                            
                             bufferedMessage = []
                             bufferedMessage.push(key)
                         }
                         
                     }
+                }else if (msg.readMessages) {
+                    msg.readMessages.forEach(m => {
+                        this.mongoCollection.find({"sessionInfo.sessionId": msg.session.sessionId, "message.from.id": m.from.id, "message.timestamp": m.timestamp})
+                        .toArray((err, docs) => {
+                            if (err) {
+                                return receive(null, err)
+                            }
+                            if (docs.length === 1) {
+                                docs[0].message.readAt = m.readAt
+                                this.mongoCollection.update({ _id: docs[0]._id}, docs[0], (err, count) => err && console.error('Error marking the message as read. Details:', err, count))                                
+                            }
+                        })
+                    })                
                 }
                 
             }, "chatLogger")
-
-            logger.debug("Chat logger succesfully initialized.")
-            client.connect((err) => {
-                if (err) {
-                    return ready(err)
-                }
     
-                const db = client.db(dbName);
-                this.mongoCollection = db.collection('chat-messages')
-    
-                return ready()
-            })
+            const db = client.db(dbName);
+            this.mongoCollection = db.collection('chat-messages')
 
-        });
+            return ready()
+        })
 
     },
 
@@ -71,7 +73,6 @@ module.exports = {
                 return receive(null, err)
             }
             receive(docs)
-            client.close();
         })
     },
 

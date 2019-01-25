@@ -38,24 +38,22 @@ let chatServices = {
             chatServices.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {                
                 if (msg.instruction === instructions.session.ready) {
                     debug("Session started. Details:", msg.sessionInfo)
-    
-                    // publish to the App components that this session is online
-                    manuh.publish(topics.sessions.updates, msg.sessionInfo)
-    
+                    
                 }else if (msg.instruction === instructions.session.update) {
                     debug("Session update received. Details:", msg.sessionInfo)
-    
-                    // publish to the App components the session update
-                    manuh.publish(topics.sessions.updates, msg.sessionInfo)
-                
+                    
                 }else if (msg.instruction === instructions.session.aborted.expired) {
                     debug("Session expired. Details:", msg.sessionInfo)
-    
+                    
                     // publish to the App components that this session is offline
                     msg.sessionInfo.status = status.session.aborted
-                    manuh.publish(topics.sessions.updates, msg.sessionInfo)
                 }
-            }, "sessionControlSubscribe")  
+                // publish the session update to everyone
+                manuh.publish(topics.sessions.updates, msg.sessionInfo)
+                // publish the session update to the components attached to it
+                manuh.publish(`${msg.sessionInfo.sessionTopic}/updates`, { session: msg.sessionInfo })
+            }, "sessionControlSubscribe")
+            
         }
 
         if (!chatServices._ready) {
@@ -106,12 +104,14 @@ let chatServices = {
                 // active sessions means: only the users that had chatted recently
                 const activeSessions = await chatServices.getAttendantDistinctSessions(attendantInfo.id)
                 
+                debug("Active sessions sessions fetched:", activeSessions.length)
                 for(let count=0; count < activeSessions.length; count++) {
                     const session = activeSessions[count]
                     // retrieve the last sessions messages for the same user if the last session has few messages
                     if (session.lastMessages.length < 50) {
                         session.lastMessages = await chatServices.getCustomerLastMessages(session.customer.id)
                     }
+                    debug("Session", session.sessionTopic, "last messages count:", session.lastMessages.length)
                     sessionControlSubscribe(session.sessionTopic)
                 }
                 
@@ -147,6 +147,22 @@ let chatServices = {
             sessionInfo: clonedSession,
             message: message
         }) //session with updated message list
+    },
+
+
+    markAllMessagesAsRead(session, attendantInfo) {
+        
+        let unreadMessages = []
+        
+        session.lastMessages.forEach(m => {
+            if (!m.readAt && m.from.id != attendantInfo.id) {
+                m.readAt = new Date().getTime()
+                unreadMessages.push(m)
+            }
+        })
+        if (unreadMessages.length > 0) {
+            this.mqttClient.publish(`${session.sessionTopic}/messages/viewed`, { session: session, readMessages: unreadMessages})            
+        }
     },
 
     async getAttendantDistinctSessions(attendantId) {

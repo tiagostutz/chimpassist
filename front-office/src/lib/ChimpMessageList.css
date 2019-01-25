@@ -1,0 +1,21 @@
+.readTimeContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding-top: .5rem;
+}
+.readTimeContainer img {
+    height: 11px;
+    filter: brightness(2);
+}
+
+.readTimeContainer .readAtInfo {
+    font-size: 8px;
+    opacity: .5;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;   
+}
+.readTimeContainer .readAtInfo .timestamp {
+    margin-right: .25rem
+}

@@ -13,8 +13,10 @@ i18n
           "Contact": "Contact",
           "Copy": "Copy",
           "Error connecting to MQTT interaction bus": "Error connecting to MQTT interaction bus",
+          "Forgot password?":"Esqueceu a senha?",
           "Offline customers": "Offline customers",
           "Online customers": "Online customers",
+          "Sign in": "Entrar",
           "User info": "User info",
         }
       },
@@ -26,8 +28,10 @@ i18n
           "Contact": "Contato",
           "Copy": "Copiar",
           "Error connecting to MQTT interaction bus": "Erro ao conectar-se ao barramento de interação MQTT",
+          "Forgot password?":"Forgot password?",
           "Offline customers": "Estudantes off-line",
           "Online customers": "Estudantes on-line",
+          "Sign in":"Sign in",
           "User info": "Informações",
         }
       }

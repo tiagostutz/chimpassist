@@ -26,7 +26,7 @@ services:
       - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
       - MQTT_BROKER_HOST=mqtt://mqtt:1883
     networks:
-      - chimpassist-demo
+      - chimpassist-demo        
 
   back-office:
     image: tiagostutz/chimpassist-back-office-ui:0.1.5-alpine
@@ -37,6 +37,8 @@ services:
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
       - BACKEND_ENDPOINT=http://localhost:3000
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
+      - ONLINE_CUSTOMERS_LABEL=Online Costumers
+      - OFFLINE_CUSTOMERS_LABEL=Offline Costumers
     networks:
       - chimpassist-demo
 
@@ -67,7 +69,9 @@ networks:
     name: chimpassist-demo      
 ```
 
-Then, to install the chat widget on your React Application:
+Then open `http://localhost:3210/`, type `admin/admin` for user and password, click on "SIGN IN" (Ou ENTRAR se estiver em português) and you are at the Attendant screen.
+
+Now, to install the chat widget on your React Application:
 1) `npm install --save chimpassist-widget`
 2) On your main faile (aka `App.js`) put the widget component with the endpoint configuration like this:
 ```JSX

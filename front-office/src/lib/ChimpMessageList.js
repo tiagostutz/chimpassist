@@ -10,6 +10,9 @@ import moment from 'moment'
 import { withI18n } from "react-i18next";
 import './i18n.js'
 
+import doubleTick from './double-tick.png'
+import './ChimpMessageList.css'
+
 const component = ({session, userId, t}) => {
 
     let messages = []
@@ -41,9 +44,16 @@ const component = ({session, userId, t}) => {
                         g.messages.map((m, ix) => {
                             return (
                                 <Message key={"gr_" + ix} date={moment(new Date(m.timestamp)).fromNow()} isOwn={m.from.id === userId} authorName={m.from.id === userId ? t("You") : m.from.name}>
-                                    <MessageText>
-                                        {m.content}
-                                    </MessageText>
+                                        <MessageText>
+                                            <div>
+                                                {m.content}                                        
+                                            </div>
+                                            { m.from.id === userId &&
+                                                <div className="readTimeContainer">
+                                                    {m.readAt && <div className="readAtInfo"><span className="timestamp">{moment(new Date(m.readAt)).format("HH:mm")}</span><img src={doubleTick} /></div>}
+                                                </div>
+                                            }
+                                        </MessageText>
                                 </Message>
                             )
                         })

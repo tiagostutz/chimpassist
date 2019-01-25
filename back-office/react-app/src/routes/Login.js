@@ -2,16 +2,21 @@ import React, { Component } from 'react'
 import { attachModelToView } from 'rhelena'
 import LoginModel from './Login.model'
 
+
+import { withI18n } from "react-i18next";
+import '../i18n.js'
+
 import './Login.css'
 
-export default class Login extends Component {
+class Login extends Component {
 
     componentWillMount() {
         attachModelToView(new LoginModel(), this)
     }
 
     render() {
-        const logoURL = process.env.REACT_APP_LOGO_SMALL_URL || "/images/edidatico.png"
+        const { t } = this.props
+        const logoURL = process.env.REACT_APP_LOGO_SMALL_URL || "/images/avatar-demo.png"
 
         return (
             <div className="loginForm">
@@ -25,13 +30,15 @@ export default class Login extends Component {
                     <input placeholder="senha" />
                 </div>                
                 <div className="row">
-                    <button onClick={() => this.viewModel.login()}>Entrar</button>
+                    <button onClick={() => this.viewModel.login()}>{t("Sign in")}</button>
                 </div>
                 <div className="forgotPass">
-                    <a>Esqueceu a senha?</a>
+                    <a>{t("Forgot password?")}</a>
                 </div>
 
             </div>
         )
     }
 }
+
+export default withI18n()(Login)

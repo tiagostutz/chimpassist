@@ -20,6 +20,10 @@ export default class ChatListItem extends Component {
     componentWillMount() {
         attachModelToView(new ChatListItemModel(this.props.session), this)
     }
+
+    componentWillUnmount() {
+        this.viewModel.cleanup()
+    }
     
     render() {
         

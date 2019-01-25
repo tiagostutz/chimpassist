@@ -8,9 +8,9 @@ import AppModel from './App.model'
 
 import './App.css';
 
-import i18n from "i18next";
-import 'moment/locale/pt-br';
-i18n.changeLanguage("ptBR")
+// import i18n from "i18next";
+// import 'moment/locale/pt-br';
+// i18n.changeLanguage("ptBR")
 class App extends Component {
 
   componentWillMount() {
@@ -19,7 +19,7 @@ class App extends Component {
 
   render() {
 
-    const logoURL = process.env.REACT_APP_LOGO_SMALL_URL || "/images/edidatico.png"
+    const logoURL = process.env.REACT_APP_LOGO_SMALL_URL || "/images/avatar-demo.png"
 
     let main = (
       <div className="wrapper">

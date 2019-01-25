@@ -9,6 +9,9 @@ let topics = {
             login: null,
             logout: null,
             block: null
+        },
+        window: {
+            visibility: null
         }
     },
     sessions: {

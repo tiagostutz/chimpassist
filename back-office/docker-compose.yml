@@ -21,6 +21,8 @@ services:
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
       - BACKEND_ENDPOINT=http://localhost:3000
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
+      - ONLINE_CUSTOMERS_LABEL=Online Costumers
+      - OFFLINE_CUSTOMERS_LABEL=Offline Costumers
     networks:
       - chimpassist-demo
 

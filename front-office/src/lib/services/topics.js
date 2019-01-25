@@ -7,6 +7,9 @@ let topics = {
         },
         messagePane: {
             send: null
+        },
+        window: {
+            visibility: null
         }
     },
     sessions: {

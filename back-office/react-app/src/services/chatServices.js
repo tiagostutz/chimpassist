@@ -83,7 +83,7 @@ let chatServices = {
                 
                 // subscribe to remote commands
                 chatServices.mqttClient.subscribe(`${topics.client.attendants.control}/${attendantInfo.id}`, (msg) => {
-                    if (msg.instruction == instructions.attendant.control.terminate.activity_monitor_offline) {
+                    if (msg.instruction === instructions.attendant.control.terminate.activity_monitor_offline) {
                         manuh.publish(topics.chatStation.user.block, { info: "Por favor abra o monitor de atividade na sua estação de trabalho para continuar ativo"})
                     }
                 })

@@ -13,7 +13,7 @@ i18n.changeLanguage("ptBR")
 const uuidv1 = require('uuid/v1');
 
 export default class ChimpWidgetModel extends RhelenaPresentationModel {
-    constructor(backendEndpoint, mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic) {
+    constructor({backendEndpoint, mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic}) {
         super();
 
         this.keepAliveIntervalHandler = null

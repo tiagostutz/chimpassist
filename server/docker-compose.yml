@@ -7,7 +7,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - MONGO_CONNECTION_URL=
+      - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
       - MQTT_BROKER_HOST=mqtt://mqtt:1883
     networks:
       - chimpassist-demo        

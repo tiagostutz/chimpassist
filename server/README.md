@@ -8,6 +8,17 @@ Just run `docker-compose up`:
 version: '3.7'
 
 services:
+
+  backend:
+    image: tiagostutz/chimpassist-server:0.1.5-alpine
+    ports:
+      - 3000:3000
+    environment:
+      - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
+      - MQTT_BROKER_HOST=mqtt://mqtt:1883
+    networks:
+      - chimpassist-demo        
+
   back-office:
     image: tiagostutz/chimpassist-back-office-ui:0.1.5-alpine
     ports:
@@ -17,8 +28,6 @@ services:
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
       - BACKEND_ENDPOINT=http://localhost:3000
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
-      - ONLINE_CUSTOMERS_LABEL=Online Costumers
-      - OFFLINE_CUSTOMERS_LABEL=Offline Costumers
     networks:
       - chimpassist-demo
 
@@ -32,7 +41,7 @@ services:
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
       - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=info
     networks:
-      - chimpassist-demo
+      - chimpassist-demo        
 
   mongo:
     image: mongo
@@ -42,11 +51,11 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
     networks:
-      - chimpassist-demo
+      - chimpassist-demo        
 
 networks:
   chimpassist-demo:
-    name: chimpassist-demo
+    name: chimpassist-demo      
 ```
 
 ## Environment Variables

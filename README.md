@@ -11,13 +11,23 @@ Backoffice and Frontoffice chat platform made with React for a typical customer 
 
 ## Getting Started
 
-
-Just run `docker-compose up`:
+To bring the Back Office online, just run `docker-compose up`:
 
 ```yaml
 version: '3.7'
 
 services:
+
+  backend:
+    image: tiagostutz/chimpassist-server:0.1.5-alpine
+    ports:
+      - 3000:3000
+    environment:
+      - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
+      - MQTT_BROKER_HOST=mqtt://mqtt:1883
+    networks:
+      - chimpassist-demo
+
   back-office:
     image: tiagostutz/chimpassist-back-office-ui:0.1.5-alpine
     ports:
@@ -27,8 +37,6 @@ services:
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
       - BACKEND_ENDPOINT=http://localhost:3000
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
-      - ONLINE_CUSTOMERS_LABEL=Online Costumers
-      - OFFLINE_CUSTOMERS_LABEL=Offline Costumers
     networks:
       - chimpassist-demo
 
@@ -42,7 +50,7 @@ services:
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
       - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=info
     networks:
-      - chimpassist-demo
+      - chimpassist-demo        
 
   mongo:
     image: mongo
@@ -52,11 +60,23 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
     networks:
-      - chimpassist-demo
+      - chimpassist-demo        
 
 networks:
   chimpassist-demo:
-    name: chimpassist-demo
+    name: chimpassist-demo      
+```
+
+Then, to install the chat widget on your React Application:
+1) `npm install --save chimpassist-widget`
+2) On your main faile (aka `App.js`) put the widget component with the endpoint configuration like this:
+```JSX
+    <ChimpWidget
+      backendEndpoint="http://localhost:3000"
+      mqttBrokerHost="http://localhost:8080/mqtt"
+      mqttBaseTopic="chimpassist/demo"
+      title="Chimp Assist Demo"
+     />
 ```
 
 Chimp assist deployment consists basically on on 4 resources:

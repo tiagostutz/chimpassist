@@ -14,7 +14,7 @@ import ChimpWidgetModel from './ChimpWidget.model'
 export default class ChimpWidget extends Component {
 
   componentWillMount() {
-    attachModelToView(new ChimpWidgetModel(this.props.backendEndpoint, this.props.mqttBrokerHost, this.props.mqttBrokerUsername, this.props.mqttBrokerPassword, this.props.mqttBaseTopic), this)
+    attachModelToView(new ChimpWidgetModel(this.props), this)
   }
 
   render() {

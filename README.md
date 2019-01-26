@@ -78,6 +78,9 @@ Now, to install the chat widget on your React Application:
 1) `npm install --save chimpassist-widget`
 2) On your main faile (aka `App.js`) put the widget component with the endpoint configuration like this:
 ```JSX
+
+    import { ChimpWidget } from 'chimpassist-widget'
+
     <ChimpWidget
       backendEndpoint="http://localhost:3000"
       mqttBrokerHost="http://localhost:8080/mqtt"

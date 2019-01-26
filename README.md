@@ -4,13 +4,7 @@
   <img height="250" src="https://res.cloudinary.com/stutzsolucoes/image/upload/c_crop,h_308/v1539906576/noun_Cabin_Monkey_774328_yxidcr.png">
 </p>
 
-Open source customer service chat plataform
-
-Backoffice and Frontoffice made with React for a typical customer service or support
-
-<p align="left">
-<img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo_HJJq7hYXN.gif">
-  </p>
+Open Source customer service live chat support.
 
 ## Getting Started
 
@@ -100,6 +94,10 @@ let userData = {
 }
 window.localStorage.userData = JSON.stringify(userData)
 ```
+
+<p align="left">
+  <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo_HJJq7hYXN.gif">
+</p>
 
 Chimp assist deployment consists basically on on 4 resources:
 1) [MQTT broker for chat and chat control messages](https://hub.docker.com/r/erlio/docker-vernemq)

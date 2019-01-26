@@ -6,8 +6,11 @@
 
 Open source customer service chat plataform
 
-Backoffice and Frontoffice chat platform made with React for a typical customer service or support
+Backoffice and Frontoffice made with React for a typical customer service or support
 
+<p align="left">
+<img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo_HJJq7hYXN.gif">
+  </p>
 
 ## Getting Started
 

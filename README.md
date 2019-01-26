@@ -95,11 +95,23 @@ let userData = {
 window.localStorage.userData = JSON.stringify(userData)
 ```
 
+### Quick demo
+
 <p align="left">
+  <div><strong>Brazilian customer chatting in Portuguese</strong></div>
   <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo-2_SJLWdTFmN.gif">
+</p>  
+<p>
+  <div><strong>Canadian customer chatting in English</strong></div>
   <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo-3_Sy_W_aK7E.gif">
+</p>
+<p>  
+  <div><strong>Brazilian attendant chatting with both customers</strong></div>
   <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo-1_S1JNupYm4.gif">
 </p>
+
+
+### Deployment overview
 
 Chimp assist deployment consists basically on on 4 resources:
 1) [MQTT broker for chat and chat control messages](https://hub.docker.com/r/erlio/docker-vernemq)

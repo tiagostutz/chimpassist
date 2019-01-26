@@ -1,7 +1,9 @@
 import i18n from "i18next";
+import LanguageDetector from 'i18next-browser-languagedetector';
 import { reactI18nextModule } from "react-i18next";
 
 i18n
+  .use(LanguageDetector)
   .use(reactI18nextModule)
   .init({
     resources: {
@@ -13,10 +15,13 @@ i18n
           "Contact": "Contact",
           "Copy": "Copy",
           "Error connecting to MQTT interaction bus": "Error connecting to MQTT interaction bus",
-          "Forgot password?":"Esqueceu a senha?",
+          "Forgot password?":"Forgot password?",
+          "logout": "logout",
           "Offline customers": "Offline customers",
+          "Offline students": "Offline students",
           "Online customers": "Online customers",
-          "Sign in": "Entrar",
+          "Online students": "Online students",
+          "Sign in": "Sign in",
           "User info": "User info",
         }
       },
@@ -28,17 +33,25 @@ i18n
           "Contact": "Contato",
           "Copy": "Copiar",
           "Error connecting to MQTT interaction bus": "Erro ao conectar-se ao barramento de interação MQTT",
-          "Forgot password?":"Forgot password?",
-          "Offline customers": "Estudantes off-line",
-          "Online customers": "Estudantes on-line",
-          "Sign in":"Sign in",
+          "Forgot password?":"Esqueceu a senha?",
+          "logout": "sair",
+          "Offline customers": "Clientes off-line",
+          "Offline students": "Estudantes off-line",
+          "Online customers": "Clientes on-line",
+          "Online students": "Estudantes on-line",
+          "Sign in":"Entrar",
           "User info": "Informações",
         }
+      },
+      fallbackLng: 'en',
+      debug: true,
+      interpolation: {
+        escapeValue: false
+      },
+      react: {
+        wait: true,
       }
     },
-    lng: "en",
-    fallbackLng: "en",
-    interpolation: {
-      escapeValue: false
-    }
-  });
+  })
+
+  export default i18n

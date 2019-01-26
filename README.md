@@ -89,6 +89,18 @@ Now, to install the chat widget on your React Application:
      />
 ```
 
+If you are using ChimpAssist widget on a website that has a Logged area, you can use your customer info to automatically fill `name`, `id` and `avatar` of the chat. ChimpAssist widget looks for and sotres this info at `window.localStorage.userData`. So, if you have a logged application and wants the widget to use your logged customer information, just put the following object at localStorage before adding `<ChimpWidget>`:
+
+```JS
+
+let userData = {
+    "name": LOGGED_USER_NAME_FROM_YOUR_SITE,
+    "id": LOGGED_USER_ID_FROM_YOUR_SITE,
+    "avatarURL": LOGGED_USER_AVATAR_FROM_YOUR_SITE
+}
+window.localStorage.userData = JSON.stringify(userData)
+```
+
 Chimp assist deployment consists basically on on 4 resources:
 1) [MQTT broker for chat and chat control messages](https://hub.docker.com/r/erlio/docker-vernemq)
 2) [MongoDB to persist the chat messages](https://hub.docker.com/_/mongo)

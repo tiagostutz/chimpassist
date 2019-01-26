@@ -7,7 +7,7 @@ import { ChimpWidget } from "./lib";
 
 const App = () => (
   <div style={{ width: 640, margin: "15px auto" }}>
-    <h1>Hello React</h1>
+    <h1>Chimp Assist Widget Demo</h1>
     <ChimpWidget     
       backendEndpoint="http://localhost:3000"
       mqttBrokerHost="http://localhost:8080/mqtt"

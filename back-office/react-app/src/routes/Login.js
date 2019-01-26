@@ -4,7 +4,6 @@ import LoginModel from './Login.model'
 
 
 import { withI18n } from "react-i18next";
-import '../i18n.js'
 
 import './Login.css'
 

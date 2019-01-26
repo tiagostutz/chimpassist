@@ -156,7 +156,7 @@ let chatServices = {
         let unreadMessages = []
         
         session.lastMessages.forEach(m => {
-            if (!m.readAt && m.from.id != attendantInfo.id) {
+            if (!m.readAt && m.from.id !== attendantInfo.id) {
                 m.readAt = new Date().getTime()
                 unreadMessages.push(m)
             }

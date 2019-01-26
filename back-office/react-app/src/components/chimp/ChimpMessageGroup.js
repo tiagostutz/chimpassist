@@ -3,7 +3,6 @@ import ChimpMessageBubble from './ChimpMessageBubble'
 import ChimpMessageText from './ChimpMessageText'
 
 import singleTick from './single-tick.png' 
-import doubleTick from './double-tick.png' 
 import moment from 'moment'
 
 export default ({groupedMessage, userId}) => {
@@ -25,13 +24,13 @@ export default ({groupedMessage, userId}) => {
                                     <div className="readAtInfo">
                                         <div className="readAtInfo">
                                             <span className="timestamp">{moment(new Date(m.timestamp)).format("LT")}</span>
-                                            { isOwn && <img src={singleTick} /> }
+                                            { isOwn && <img src={singleTick} alt="V" /> }
                                         </div>
                                         { isOwn && m.readAt && 
                                         <div className="readAtInfo" style={{marginLeft: ".4rem"}}>
                                             <span className="timestamp">{moment(new Date(m.readAt)).format("LT")}</span>
-                                            <img src={singleTick} style={{marginRight: "-10px"}} />
-                                            <img src={singleTick} style={{opacity: 1}} />
+                                            <img src={singleTick} style={{marginRight: "-10px"}} alt="V" />
+                                            <img src={singleTick} style={{opacity: 1}} alt="V" />
                                         </div>
                                         }
                                     </div>

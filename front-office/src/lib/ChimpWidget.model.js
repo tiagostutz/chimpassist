@@ -6,10 +6,6 @@ import instructions from './services/instructions'
 import topics from './services/topics'
 import status from './services/status'
 
-import i18n from "i18next";
-// import 'moment/locale/pt-br';
-// i18n.changeLanguage("ptBR")
-
 const uuidv1 = require('uuid/v1');
 
 export default class ChimpWidgetModel extends RhelenaPresentationModel {

@@ -8,7 +8,6 @@ import {
 
 import moment from 'moment'
 import { withI18n } from "react-i18next";
-import './i18n.js'
 
 import singleTick from './single-tick.png'
 import './ChimpMessageList.css'

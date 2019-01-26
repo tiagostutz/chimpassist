@@ -9,7 +9,6 @@ import {
     SendButton
 } from '@livechat/ui-kit'
 import { withI18n } from "react-i18next";
-import './i18n.js'
 
 import MessageInputTextModel from './MessageInputText.model'
 

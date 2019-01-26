@@ -21,11 +21,12 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "@livechat/ui-kit": "0.1.0",
     "@babel/runtime": "^7.0.0-beta.56",
+    "@livechat/ui-kit": "0.1.0",
     "charol": "^0.3.0",
     "debug": "^4.1.0",
     "i18next": "^11.9.0",
+    "i18next-browser-languagedetector": "^2.2.4",
     "manuh": "^1.4.0",
     "moment": "^2.22.2",
     "react-i18next": "^8.0.7",

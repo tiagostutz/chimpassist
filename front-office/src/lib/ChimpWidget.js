@@ -5,11 +5,16 @@ import {
   FixedWrapper
 } from '@livechat/ui-kit'
 
+import './i18n.js'
 import Minimized from './Minimized'
 import Maximized from './Maximized'
 
-
 import ChimpWidgetModel from './ChimpWidget.model'
+import 'moment/locale/pt-br';
+
+import moment from 'moment'
+var locale = window.navigator.userLanguage || window.navigator.language;
+moment.locale(locale)
 
 export default class ChimpWidget extends Component {
 

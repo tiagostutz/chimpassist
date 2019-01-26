@@ -53,7 +53,7 @@ export default class MessagesModel extends RhelenaPresentationModel {
     markAllMessagesAsRead() {
         let unreadMessages = []
         this.session.lastMessages.forEach(m => {
-            if (!m.readAt && m.from.id != this.userData.id) {
+            if (!m.readAt && m.from.id !== this.userData.id) {
                 m.readAt = new Date().getTime()
                 unreadMessages.push(m)
             }

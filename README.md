@@ -96,7 +96,9 @@ window.localStorage.userData = JSON.stringify(userData)
 ```
 
 <p align="left">
-  <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo_HJJq7hYXN.gif">
+  <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo-2_SJLWdTFmN.gif">
+  <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo-3_Sy_W_aK7E.gif">
+  <img src="https://ik.imagekit.io/stutzsolucoes/chimpassist-short-demo-1_S1JNupYm4.gif">
 </p>
 
 Chimp assist deployment consists basically on on 4 resources:

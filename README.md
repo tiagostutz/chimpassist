@@ -123,12 +123,55 @@ The preferred order to bring the platform up is: 1, 2, 3 and 4
 
 Once everthing is up, you can now put the ChimpAssistWidget at your site to enable chat costumer service. The only configuration you will need is to set the widget property `backendEndpoint` to the **Chat Backend App** address and the `mqttBrokerHost` to the same **MQTT Broker** your solution is connecting to
 
-## Statistics endpoints
+## Backend Hook Endpoints
 
-The backoffice application invokes a set of REST endpoints implemented by you following some JSON formats that will enrich the customer panel information. All the requests sends the `attendant_id`. 
-So, you will implement your own logic and pass the base endpoint - **without** the **/chimpassist** part - to the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following:
+The backoffice application invokes a set of REST endpoints that must be implemented by you following some JSON formats. There are two endpoint groups: `authentication` and `statistics`.
 
-- `/chimpassist/:customerId/contactInfo?attendant=<attendant_id>` - returns customer contact info:
+### Authentication endpoint
+
+This endpoint is used to authenticate the attendants.
+You should implement your own logic and pass the base endpoint by setting the environment variable `AUTHENTICATION_BASE_ENDPOINT` and implement the following:
+
+- **POST** `/chimpassist/auth`
+
+Request body that Chimp Assist will send to your endpoint:
+
+```JSON
+{
+  "email": <ATTENDANT_EMAIL>,
+  "password": <ATTENDANT_PASSWORD>
+}
+```
+
+And the endpoint must return:
+
+- HTTP **404** status in case of an e-mail that doesn't exist
+- HTTP **401** status in case of an incorrect e-mail and password combination
+- HTTP **200** status with the following response body:
+
+```JSON
+{
+  "id": <ATTENDANT_ID>,
+  "name": <ATTENDANT_NAME>,
+  "e-mail": <ATTENDANT_EMAIL>,
+  "avatarURL": <ATTENDANT_AVATAR>,
+  "type": <ATTENDANT_TYPE> (see above)
+}
+```
+
+Currently you can return one of the following **Attendant types:**
+
+- "support/firstLevel"
+- "support/secondLevel"
+- "support/supervisor"
+
+### Statistics endpoints
+
+Those endpoints are used to enrich the customer panel information. All the requests sends the `attendant_id`.
+You should implement your own logic and pass the base endpoint by setting the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following:
+
+- **GET** `/chimpassist/:customerId/contactInfo?attendant=<attendant_id>` - returns customer contact info:
+
 ```JSON
 {
   "e-mail": "user@email.com",
@@ -137,7 +180,8 @@ So, you will implement your own logic and pass the base endpoint - **without** t
 }
 ```
 
-- `/chimpassist/:customerId/additionalInfo?attendant=<attendant_id>` - returns customer additional info, specific to your domain
+- **GET** `/chimpassist/:customerId/additionalInfo?attendant=<attendant_id>` - returns customer additional info, specific to your domain
+
 ```JSON
 [{
   "label": "customer since",
@@ -149,7 +193,8 @@ So, you will implement your own logic and pass the base endpoint - **without** t
 }]
 ```
 
-- `/chimpassist/:customerId/statistics?attendant=<attendant_id>&start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
+- **GET** `/chimpassist/:customerId/statistics?attendant=<attendant_id>&start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
+
 ```JSON
 [{
   "label": "Unresolved tickets",

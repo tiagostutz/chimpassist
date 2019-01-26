@@ -18,6 +18,7 @@
     background: var(--primary-contrast-color);
     color: var(--primary-bright);
     border: 0px;
+    min-width: 30px;
 }
 .sessionList  .css-brl83k {
     margin-right: 4rem;

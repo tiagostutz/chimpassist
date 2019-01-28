@@ -26,13 +26,16 @@ services:
       - chimpassist-demo        
 
   back-office:
-    image: tiagostutz/chimpassist-back-office-ui:0.1.5-alpine
+    image: tiagostutz/chimpassist-back-office-ui:0.1.6-alpine
     ports:
       - 3210:80
     environment:  
       - LOGO_SMALL_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/c_crop,h_326/c_scale,h_176/v1539906576/noun_Cabin_Monkey_774328_yxidcr.png
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
       - BACKEND_ENDPOINT=http://localhost:3000
+      - FORCE_i18n_LANGUAGE=en
+      - AUTHENTICATION_ENDPOINT=http://localhost:3333
+      - FORCE_i18n_LANGUAGE=en
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
       - ONLINE_CUSTOMERS_LABEL=Online Costumers
       - OFFLINE_CUSTOMERS_LABEL=Offline Costumers
@@ -88,8 +91,8 @@ If you are using ChimpAssist widget on a website that has a Logged area, you can
 ```JS
 
 let userData = {
-    "name": LOGGED_USER_NAME_FROM_YOUR_SITE,
     "id": LOGGED_USER_ID_FROM_YOUR_SITE,
+    "name": LOGGED_USER_NAME_FROM_YOUR_SITE,
     "avatarURL": LOGGED_USER_AVATAR_FROM_YOUR_SITE
 }
 window.localStorage.userData = JSON.stringify(userData)
@@ -153,7 +156,7 @@ And the endpoint must return:
 {
   "id": <ATTENDANT_ID>,
   "name": <ATTENDANT_NAME>,
-  "e-mail": <ATTENDANT_EMAIL>,
+  "email": <ATTENDANT_EMAIL>,
   "avatarURL": <ATTENDANT_AVATAR>,
   "type": <ATTENDANT_TYPE> (see above)
 }

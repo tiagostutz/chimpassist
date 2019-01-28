@@ -10,6 +10,13 @@ import App from './App';
 // import registerServiceWorker from './registerServiceWorker';
 
 import './i18n.js'
+import 'moment/locale/pt-br';
+import i18n from "i18next";
+const language = process.env.REACT_APP_FORCE_i18n_LANGUAGE
+if (language) {
+  i18n.changeLanguage(language)
+}
+
 
 ReactDOM.render(<App />, document.getElementById('root'));
 // registerServiceWorker();

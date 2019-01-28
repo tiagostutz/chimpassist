@@ -6,15 +6,11 @@ import Login from './routes/Login'
 
 
 import { withI18n } from "react-i18next";
-  
-import './i18n.js'
+
 import AppModel from './App.model'
 
 import './App.css';
 
-// import i18n from "i18next";
-import 'moment/locale/pt-br';
-// i18n.changeLanguage("ptBR")
 class App extends Component {
 
   componentWillMount() {

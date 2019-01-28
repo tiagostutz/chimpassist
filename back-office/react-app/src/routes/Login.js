@@ -19,27 +19,29 @@ class Login extends Component {
 
         return (
             <div className="loginForm">
-                <div className="row">
-                    <img src={logoURL} alt="Logo"/>
-                </div>
-                {this.state.errorMessage && 
-                    <div className="row errorMessageArea">
-                        {t(this.state.errorMessage)}
+                <form onSubmit={e => e.preventDefault()}>
+                    <div className="row">
+                        <img src={logoURL} alt="Logo"/>
                     </div>
-                }
-                <div className="row">
-                    <input placeholder="e-mail" type="email" autoFocus onChange={e => this.viewModel.email=e.target.value} />
-                </div>
-                <div className="row">
-                    <input placeholder="senha" type="password" onChange={e => this.viewModel.password=e.target.value} />
-                </div>                
-                <div className="row">
-                    <button disabled={!this.state.email || !this.state.password} onClick={() => this.viewModel.login()}>{t("Sign in")}</button>
-                </div>
-                <div className="forgotPass">
-                    <a>{t("Forgot password?")}</a>
-                </div>
+                    {this.state.errorMessage && 
+                        <div className="row errorMessageArea">
+                            {t(this.state.errorMessage)}
+                        </div>
+                    }
+                    <div className="row">
+                        <input placeholder="e-mail" type="email" autoFocus onChange={e => this.viewModel.email=e.target.value} />
+                    </div>
+                    <div className="row">
+                        <input placeholder="senha" type="password" onChange={e => this.viewModel.password=e.target.value} />
+                    </div>                
+                    <div className="row">
+                        <button disabled={!this.state.email || !this.state.password} onClick={() => this.viewModel.login()}>{t("Sign in")}</button>
+                    </div>
+                    <div className="forgotPass">
+                        <a>{t("Forgot password?")}</a>
+                    </div>
 
+                </form>
             </div>
         )
     }

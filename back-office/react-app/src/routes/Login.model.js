@@ -45,7 +45,7 @@ export default class LoginModel extends RhelenaPresentationModel {
                 return
             }
     
-            const loggedUser = await authResp.json()
+            const loggedUser = await authResp.json()            
             manuh.publish(topics.chatStation.user.login, loggedUser)
         } catch (error) {
             this.errorMessage = "Unexpected error authenticating the user. Check your server logs for more details."

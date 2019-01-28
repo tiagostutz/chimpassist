@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   back-office:
-    image: tiagostutz/chimpassist-back-office-ui:0.1.5-alpine
+    image: tiagostutz/chimpassist-back-office-ui:0.1.6-alpine
     build: 
       context: .
       args:

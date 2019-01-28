@@ -29,10 +29,10 @@ class App extends Component {
     let main = (
       <div className="wrapper">
         <div className="sideMenu">
-          <div>
+          <div style={{flex:1}}>
             <img src={logoURL} alt="Logo"/>
           </div>
-          <div>
+          <div  style={{flex:1}}>
             <button onClick={() => this.viewModel.logout()}>{t("logout")}</button>
           </div>
         </div>

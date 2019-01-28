@@ -22,14 +22,19 @@ class Login extends Component {
                 <div className="row">
                     <img src={logoURL} alt="Logo"/>
                 </div>
+                {this.state.errorMessage && 
+                    <div className="row errorMessageArea">
+                        {t(this.state.errorMessage)}
+                    </div>
+                }
                 <div className="row">
-                    <input placeholder="e-mail" autoFocus />
+                    <input placeholder="e-mail" type="email" autoFocus onChange={e => this.viewModel.email=e.target.value} />
                 </div>
                 <div className="row">
-                    <input placeholder="senha" />
+                    <input placeholder="senha" type="password" onChange={e => this.viewModel.password=e.target.value} />
                 </div>                
                 <div className="row">
-                    <button onClick={() => this.viewModel.login()}>{t("Sign in")}</button>
+                    <button disabled={!this.state.email || !this.state.password} onClick={() => this.viewModel.login()}>{t("Sign in")}</button>
                 </div>
                 <div className="forgotPass">
                     <a>{t("Forgot password?")}</a>

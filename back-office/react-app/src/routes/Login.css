@@ -55,3 +55,14 @@
 .loginForm .forgotPass a:hover {
     text-decoration: underline;
 }
+
+.loginForm .errorMessageArea {
+    background: red;
+    color: #FAFAFA;
+    padding: 1rem;
+}
+
+.loginForm button:disabled {
+    opacity: .4;
+    cursor: default;
+}

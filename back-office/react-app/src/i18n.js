@@ -17,12 +17,14 @@ i18n
           "Error connecting to MQTT interaction bus": "Error connecting to MQTT interaction bus",
           "Forgot password?":"Forgot password?",
           "logout": "logout",
+          "No user found with that e-mail":"No user found with that e-mail",
           "Offline customers": "Offline customers",
           "Offline students": "Offline students",
           "Online customers": "Online customers",
           "Online students": "Online students",
           "Sign in": "Sign in",
           "User info": "User info",
+          "Your password is incorrect":"Your password is incorrect"
         }
       },
       ptBR: {
@@ -35,12 +37,14 @@ i18n
           "Error connecting to MQTT interaction bus": "Erro ao conectar-se ao barramento de interação MQTT",
           "Forgot password?":"Esqueceu a senha?",
           "logout": "sair",
+          "No user found with that e-mail": "Nenhum usuário encontrado com esse e-mail",
           "Offline customers": "Clientes off-line",
           "Offline students": "Estudantes off-line",
           "Online customers": "Clientes on-line",
           "Online students": "Estudantes on-line",
           "Sign in":"Entrar",
           "User info": "Informações",
+          "Your password is incorrect":"A senha informada está incorreta"
         }
       },
       fallbackLng: 'en',

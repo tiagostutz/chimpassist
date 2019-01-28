@@ -6,8 +6,6 @@ import CustomerDetailsInfo from './CustomerDetailsInfo'
 
 import { withI18n } from "react-i18next";
   
-import '../i18n.js'
-
 import "./CustomerDetails.css"
 
 class CustomerDetails extends Component {

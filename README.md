@@ -66,7 +66,7 @@ networks:
     name: chimpassist-demo      
 ```
 
-Then open `http://localhost:3210/`, type `admin/admin` for user and password, click on "SIGN IN" (Ou ENTRAR se estiver em português) and you are at the Attendant screen.
+Then open `http://localhost:3210/`, type `user@chimpassist.com/chimpassist` for user and password, click on "SIGN IN" (Ou ENTRAR se estiver em português) and you are at the Attendant screen.
 
 Now, to install the chat widget on your React Application:
 1) `npm install --save chimpassist-widget`
@@ -130,7 +130,7 @@ The backoffice application invokes a set of REST endpoints that must be implemen
 ### Authentication endpoint
 
 This endpoint is used to authenticate the attendants.
-You should implement your own logic and pass the base endpoint by setting the environment variable `AUTHENTICATION_BASE_ENDPOINT` and implement the following:
+You should implement your own logic and pass the base endpoint by setting the environment variable `AUTHENTICATION_ENDPOINT` and implement the following:
 
 - **POST** `/chimpassist/auth`
 
@@ -168,7 +168,7 @@ Currently you can return one of the following **Attendant types:**
 ### Statistics endpoints
 
 Those endpoints are used to enrich the customer panel information. All the requests sends the `attendant_id`.
-You should implement your own logic and pass the base endpoint by setting the environment variable `STATISTICS_BASE_ENDPOINT` and implement the following:
+You should implement your own logic and pass the base endpoint by setting the environment variable `STATISTICS_ENDPOINT` and implement the following:
 
 - **GET** `/chimpassist/:customerId/contactInfo?attendant=<attendant_id>` - returns customer contact info:
 
@@ -230,8 +230,8 @@ You should implement your own logic and pass the base endpoint by setting the en
 
 ### Some examples
 
-- last 24h: `curl -X GET $STATISTICS_BASE_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
-- last 7 days: `curl -X GET $STATISTICS_BASE_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
+- last 24h: `curl -X GET $STATISTICS_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
+- last 7 days: `curl -X GET $STATISTICS_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
 
 ## Server
 

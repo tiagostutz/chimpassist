@@ -177,9 +177,8 @@ module.exports = {
     },
 
     getSessionsByAttendant: function(attendantId, offset=0, limit=50, receive) {
-        
         this.mongoCollection.aggregate([ 
-            { $match: { "sessionInfo.assignedAttendants": attendantId} },
+            { $match: { "sessionInfo.assignedAttendants": parseInt(attendantId)} },
             { $group : { _id : "$sessionInfo.customer.id", sessionInfo: { $last: "$sessionInfo" } } }, 
             { $project: {"_id": 0, "sessionInfo.sessionTemplate": 0} },
             { $addFields: { "sessionInfo.lastMessages": [] } }

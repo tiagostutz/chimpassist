@@ -52,13 +52,13 @@ const component = ({session, userId, t}) => {
                                                     <div className="readAtInfo">
                                                         {<div className="readAtInfo">
                                                             <span className="timestamp">{moment(new Date(m.timestamp)).format("LT")}</span>
-                                                            <img src={singleTick} />
+                                                            <img src={singleTick} alt="V"/>
                                                         </div>}
                                                         {m.readAt && 
                                                             <div className="readAtInfo" style={{marginLeft: ".5rem"}}>
                                                                 <span className="timestamp">{moment(new Date(m.readAt)).format("LT")}</span>
-                                                                <img src={singleTick} style={{marginRight: "-10px"}} />
-                                                                <img src={singleTick} style={{opacity: 1}} />
+                                                                <img src={singleTick} style={{marginRight: "-10px"}} alt="V" />
+                                                                <img src={singleTick} style={{opacity: 1}} alt="VV" />
                                                             </div>}
                                                     </div>
                                                 </div>

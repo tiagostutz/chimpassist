@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { attachModelToView } from 'rhelena'
+import { Helmet } from "react-helmet";
 
 import ChatStation from './routes/ChatStation'
 import Login from './routes/Login'
@@ -24,6 +25,9 @@ class App extends Component {
 
     let main = (
       <div className="wrapper">
+        <Helmet>
+          <title>{process.env.REACT_APP_MAIN_PAGE_TITLE}</title>
+        </Helmet>
         <div className="sideMenu">
           <div style={{flex:1}}>
             <img src={logoURL} alt="Logo"/>
@@ -41,6 +45,9 @@ class App extends Component {
     if (!this.state.loggedUser) {
       main = (
         <div className="wrapper">
+          <Helmet>
+            <title>{process.env.REACT_APP_LOGIN_PAGE_TITLE}</title>
+          </Helmet>
           <Login />
         </div>
       )

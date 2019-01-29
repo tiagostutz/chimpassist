@@ -60,3 +60,20 @@
 .chatView .customerDetails .activity ul {
     padding: 0px;
 }
+
+.chatView .customerDetails .additionalInfo .value {
+    padding-right: .5rem; 
+    margin-top: .5rem; 
+    padding-left: .5rem;
+    background: #404040;
+    border-radius: 2px; 
+    color: white;
+    margin-right: .25rem;
+    font-size: 1rem;
+}
+.chatView .customerDetails .additionalInfo .additionalInfoItem {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}

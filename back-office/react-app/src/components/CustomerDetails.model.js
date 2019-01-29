@@ -7,7 +7,7 @@ export default class CustomerDetailsModel extends RhelenaPresentationModel {
 
     constructor(session) {
         super();
-        globalState.customerDetailsService = "http://localhost:5000/api/v1/chimpassist/customer"
+        globalState.customerDetailsService = process.env.REACT_APP_STATISTICS_ENDPOINT
         this.session = session
         this.plugSession(this.session)
         this.currentTab = 1

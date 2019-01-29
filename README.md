@@ -173,17 +173,24 @@ Currently you can return one of the following **Attendant types:**
 Those endpoints are used to enrich the customer panel information. All the requests sends the `attendant_id`.
 You should implement your own logic and pass the base endpoint by setting the environment variable `STATISTICS_ENDPOINT` and implement the following:
 
-- **GET** `/chimpassist/:customerId/contactInfo?attendant=<attendant_id>` - returns customer contact info:
+- **GET** `/chimpassist/customer/:customerId/contactInfo?attendant=<attendant_id>` - returns customer contact info:
 
 ```JSON
+[{
+  "label": "name",
+  "value": "John User"
+},
 {
-  "e-mail": "user@email.com",
-  "phone1": "+1 222 999 999 999",
-  "phone2": "+55 61 99676 8989"
-}
+  "label": "e-mail",
+  "value": "user@email.com"
+},
+{
+  "label": "phone1",
+  "value": "+1 222 999 999 999"
+}]
 ```
 
-- **GET** `/chimpassist/:customerId/additionalInfo?attendant=<attendant_id>` - returns customer additional info, specific to your domain
+- **GET** `/chimpassist/customer/:customerId/additionalInfo?attendant=<attendant_id>` - returns customer additional info, specific to your domain
 
 ```JSON
 [{
@@ -196,7 +203,7 @@ You should implement your own logic and pass the base endpoint by setting the en
 }]
 ```
 
-- **GET** `/chimpassist/:customerId/statistics?attendant=<attendant_id>&start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
+- **GET** `/chimpassist/customer/:customerId/statistics?attendant=<attendant_id>&start_date_time=<start_date_time>&end_date_time=<end_date)time>` - returns a filtered array with the statistics filtered by datetimes having 3 possible formats:
 
 ```JSON
 [{
@@ -233,8 +240,8 @@ You should implement your own logic and pass the base endpoint by setting the en
 
 ### Some examples
 
-- last 24h: `curl -X GET $STATISTICS_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
-- last 7 days: `curl -X GET $STATISTICS_ENDPOINT/chimpassist/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
+- last 24h: `curl -X GET $STATISTICS_ENDPOINT/chimpassist/customer/298301/statistics?start_date_time=20181221-11:33:09&end_date_time=20181221-12:33:09`
+- last 7 days: `curl -X GET $STATISTICS_ENDPOINT/chimpassist/customer/298301/statistics?start_date_time=20181214-12:33:09&end_date_time=20181221-12:33:09`
 
 ## Server
 

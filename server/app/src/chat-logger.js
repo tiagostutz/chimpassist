@@ -39,7 +39,7 @@ module.exports = {
                     }
                 }else if (msg.readMessages) {
                     msg.readMessages.forEach(m => {
-                        this.mongoCollection.find({"sessionInfo.sessionId": msg.session.sessionId, "message.from.id": m.from.id, "message.timestamp": m.timestamp})
+                        this.mongoCollection.find({"sessionInfo.sessionId": msg.session.sessionId, "message.from.id": parseInt(m.from.id), "message.timestamp": m.timestamp})
                         .toArray((err, docs) => {
                             if (err) {
                                 return receive(null, err)

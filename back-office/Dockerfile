@@ -40,6 +40,10 @@ ARG BUILD_MQTT_PASSWORD
 ENV BUILD_MQTT_PASSWORD SED_MQTT_PASSWORD
 ARG BUILD_MQTT_BASE_TOPIC
 ENV BUILD_MQTT_BASE_TOPIC SED_MQTT_BASE_TOPIC
+ARG BUILD_MAIN_PAGE_TITLE
+ENV BUILD_MAIN_PAGE_TITLE SED_MAIN_PAGE_TITLE
+ARG BUILD_LOGIN_PAGE_TITLE
+ENV BUILD_LOGIN_PAGE_TITLE SED_LOGIN_PAGE_TITLE
 
 COPY ./react-app/public /usr/src/app/public
 COPY ./react-app/src /usr/src/app/src
@@ -83,6 +87,12 @@ RUN echo "sed \"s|SED_MQTT_PASSWORD|\$MQTT_PASSWORD|g\" -i static/js/$(ls static
 
 RUN echo "echo \"MQTT_BASE_TOPIC=\$MQTT_BASE_TOPIC\"" >> startup.sh
 RUN echo "sed \"s|SED_MQTT_BASE_TOPIC|\$MQTT_BASE_TOPIC|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh
+
+RUN echo "echo \"MAIN_PAGE_TITLE=\$MAIN_PAGE_TITLE\"" >> startup.sh
+RUN echo "sed \"s|SED_MAIN_PAGE_TITLE|\$MAIN_PAGE_TITLE|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh
+
+RUN echo "echo \"LOGIN_PAGE_TITLE=\$LOGIN_PAGE_TITLE\"" >> startup.sh
+RUN echo "sed \"s|SED_LOGIN_PAGE_TITLE|\$LOGIN_PAGE_TITLE|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh
 
 RUN echo "ws -p 80 --spa index.html" >> startup.sh
 RUN chmod +x startup.sh

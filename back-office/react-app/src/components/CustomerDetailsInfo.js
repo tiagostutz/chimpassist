@@ -8,7 +8,7 @@ import '../i18n.js'
 class CustomerDetailsInfo extends Component {
 
     componentWillMount() {
-        attachModelToView(new CustomerDetailsInfoModel(this.props.session), this)
+        attachModelToView(new CustomerDetailsInfoModel(this.props), this)
     }
 
     render() {
@@ -22,12 +22,13 @@ class CustomerDetailsInfo extends Component {
         const contactItems = this.state.customerDetailsContact && this.state.customerDetailsContact.map((c,ix) => (<li key={ix}>
             <span>{ c.iconURL && <img alt="i" src={c.iconURL}/> }</span>
             <span>{c.value}</span>
-            <span className="copyPasteButton" title={t("Copy")}><img alt="c" src="/images/copy-icon.png" widht="20px"/></span>
+            <span className="copyPasteButton" title={t("Copy")}><img alt="c" src="/images/copy-icon.png" width="20px"/></span>
         </li>))
 
-        const additionalInfoItems = this.state.customerDetailsAdditionalInfo && this.state.customerDetailsAdditionalInfo.map((c,ix) => (<li key={ix}>
+        const additionalInfoItems = this.state.customerDetailsAdditionalInfo && this.state.customerDetailsAdditionalInfo.map((c,ix) => (<li className="additionalInfoItem" key={ix}>
             <span>{ c.iconURL && <img alt="i" src={c.iconURL}/> }</span>
-            <span>{c.value}</span>            
+            <div className="value"> {c.value}</div>            
+            {c.label}
         </li>))
 
         return (
@@ -40,7 +41,7 @@ class CustomerDetailsInfo extends Component {
                 </div>
                 <div className="detailsRow">
                     <h3>{t("Additional info")}</h3>
-                    <ul>
+                    <ul className="additionalInfo">
                         { additionalInfoItems }
                     </ul>
                 </div>

@@ -98,7 +98,7 @@ sessionRepository.getSessionsByCustomer = (customerId, offset, limit, receive) =
         const mongoCollection = dbMongo.collection('chat-messages')
         
         mongoCollection.aggregate([ 
-            { $match: { "sessionInfo.customer.id": customerId} },
+            { $match: { "sessionInfo.customer.id": parseInt(customerId)} },
             { $group : { _id : "$sessionInfo.customer.id", sessionInfo: { $last: "$sessionInfo" } } }, 
             { $project: {"_id": 0, "sessionInfo.sessionTemplate": 0} },
             { $addFields: { "sessionInfo.lastMessages": [] } }

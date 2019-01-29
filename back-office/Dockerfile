@@ -64,8 +64,8 @@ RUN echo "sed \"s|SED_BACKEND_ENDPOINT|\$BACKEND_ENDPOINT|g\" -i static/js/$(ls 
 RUN echo "echo \"FORCE_i18n_LANGUAGE=\$FORCE_i18n_LANGUAGE\"" >> startup.sh
 RUN echo "sed \"s|SED_FORCE_i18n_LANGUAGE|\$FORCE_i18n_LANGUAGE|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh
 
-RUN echo "echo \"STATISTICS_ENDPOINT=\$STATISTICS_ENDPOINT\"" >> startup.sh
-RUN echo "sed \"s|SED_STATISTICS_ENDPOINT|\$STATISTICS_ENDPOINT|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh
+RUN echo "echo \"AUTHENTICATION_ENDPOINT=\$AUTHENTICATION_ENDPOINT\"" >> startup.sh
+RUN echo "sed \"s|SED_AUTHENTICATION_ENDPOINT|\$AUTHENTICATION_ENDPOINT|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh
 
 RUN echo "echo \"STATISTICS_ENDPOINT=\$STATISTICS_ENDPOINT\"" >> startup.sh
 RUN echo "sed \"s|SED_STATISTICS_ENDPOINT|\$STATISTICS_ENDPOINT|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh

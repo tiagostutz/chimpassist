@@ -26,16 +26,18 @@ services:
       - chimpassist-demo        
 
   back-office:
-    image: tiagostutz/chimpassist-back-office-ui:0.1.6-alpine
+    image: tiagostutz/chimpassist-back-office-ui:0.2.0-alpine
     ports:
       - 3210:80
     environment:  
       - LOGO_SMALL_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/c_crop,h_326/c_scale,h_176/v1539906576/noun_Cabin_Monkey_774328_yxidcr.png
+      - MAIN_PAGE_TITLE='Chimp Assist Dockerized Demo' 
+      - LOGIN_PAGE_TITLE='Login to Chimp Assist Dockerized Demo'
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
       - BACKEND_ENDPOINT=http://localhost:3000
       - FORCE_i18n_LANGUAGE=en
       - AUTHENTICATION_ENDPOINT=http://localhost:3333
-      - FORCE_i18n_LANGUAGE=en
+      - STATISTICS_ENDPOINT=http://localhost:8000
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
       - ONLINE_CUSTOMERS_LABEL=Online Costumers
       - OFFLINE_CUSTOMERS_LABEL=Offline Costumers

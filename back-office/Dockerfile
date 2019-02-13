@@ -12,6 +12,7 @@ RUN rm -rf build || true
 COPY ./react-app/package.json /usr/src/app
 RUN npm install
 
+# JS Replace
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
 ARG DEBUG
@@ -93,6 +94,11 @@ RUN echo "sed \"s|SED_MAIN_PAGE_TITLE|\$MAIN_PAGE_TITLE|g\" -i static/js/$(ls st
 
 RUN echo "echo \"LOGIN_PAGE_TITLE=\$LOGIN_PAGE_TITLE\"" >> startup.sh
 RUN echo "sed \"s|SED_LOGIN_PAGE_TITLE|\$LOGIN_PAGE_TITLE|g\" -i static/js/$(ls static/js | head -n 1)" >> startup.sh
+
+# HTML Replace
+RUN echo "echo \"FAV_ICON_URL=\$FAV_ICON_URL\"" >> startup.sh
+RUN echo "sed \"s|%FAV_ICON_URL%|\$FAV_ICON_URL|g\" -i index.html" >> startup.sh
+
 
 RUN echo "ws -p 80 --spa index.html" >> startup.sh
 RUN chmod +x startup.sh

@@ -17,17 +17,18 @@ services:
     ports:
       - 3210:80
     environment:  
-      - LOGO_SMALL_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/c_crop,h_326/c_scale,h_176/v1539906576/noun_Cabin_Monkey_774328_yxidcr.png
-      - MAIN_PAGE_TITLE='Chimp Assist Dockerized Demo' 
-      - LOGIN_PAGE_TITLE='Login to Chimp Assist Dockerized Demo'
-      - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
+      - LOGO_SMALL_URL=https://ik.imagekit.io/stutzsolucoes/small_logo_SJ0kUUTmV.png
+      - DEFAULT_ATTENDANT_AVATAR_URL=https://ik.imagekit.io/stutzsolucoes/jorge_BkNNIIpQE.png
+      - FAV_ICON_URL=https://ik.imagekit.io/stutzsolucoes/small_logo_SJ0kUUTmV.png
+      - MAIN_PAGE_TITLE=E-didático atendimento aos estudantes
+      - LOGIN_PAGE_TITLE=E-didático - Entre com seu e-mail e senha
       - BACKEND_ENDPOINT=http://localhost:3000
-      - FORCE_i18n_LANGUAGE=en
+      - FORCE_i18n_LANGUAGE=ptBR
       - AUTHENTICATION_ENDPOINT=http://localhost:3333
       - STATISTICS_ENDPOINT=http://localhost:8000
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
-      - ONLINE_CUSTOMERS_LABEL=Online Costumers
-      - OFFLINE_CUSTOMERS_LABEL=Offline Costumers
+      - ONLINE_CUSTOMERS_LABEL=Online students
+      - OFFLINE_CUSTOMERS_LABEL=Offline students
     networks:
       - chimpassist-demo
 

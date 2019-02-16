@@ -24,6 +24,10 @@ module.exports = {
             logger.debug("chat-logger connected successfully to MongoDB");            
             mqttClient.subscribe(`${topics.server.sessions._path}/#`, msg => {
         
+                if (!msg) {
+                    return;
+                }
+
                 if (msg.message) {
                     
                     // buffered insert to avoid duplicates

@@ -51,7 +51,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         
         if (arrSessions.length > 0) {
             globalState.session = arrSessions[0]
-            globalState.session.status = status.session.online
+            globalState.session.status = status.session.waitingAttendantsAssignment
             const req = await fetch(`${globalState.backendEndpoint}/customer/${globalState.userData.id}/messages?limit=50`)
             const messages = await req.json()        
             globalState.session.lastMessages = messages.map(m => m.message)
@@ -102,27 +102,35 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
             manuh.publish(topics.sessions.updates, globalState.session) //update locally
         } 
         
-        // receive commands and updates from session (not included messages)
+        // receive commands and updates from session (not included messages)        
         globalState.mqttClient.subscribe(`${sessionTopic}/client/control`, async msg => {                            
-            
+
             // check whether is just a keep-alive or there are actual changes to the session, like the new session accepted
-            if ( !globalState.session || globalState.session.sessionId !== msg.sessionInfo.sessionId) {
-                globalState.session = msg.sessionInfo
+            if ( globalState.session && globalState.session.sessionId !== msg.sessionInfo.sessionId) {
                 const req = await fetch(`${globalState.backendEndpoint}/customer/${globalState.userData.id}/messages?limit=50`)
-                const messages = await req.json()        
+                const messages = await req.json()                        
                 globalState.session.lastMessages = messages.map(m => m.message)
                 manuh.publish(topics.sessions.updates, globalState.session)
             }
 
-            if (msg.instruction === instructions.session.ready) { //when the session is ready, send a final message telling that the communication is "online"
+            if (msg.instruction === instructions.session.ready) { //when the session is ready, send a final message telling that the communication is "online"                
                 if (this.retryHandler) {
                     clearInterval(this.retryHandler)
                 }
+                globalState.session = msg.sessionInfo
+                globalState.session.expired = false
+                manuh.publish(topics.sessions.updates, globalState.session)
 
                 this.startKeepAliveCron()
                 
-            }else if (msg.instruction === instructions.session.aborted.expired) {
+            }else if (msg.instruction === instructions.session.aborted.expired) {      
+                globalState.session.expired = true          
                 this.startSession()                
+
+            }else if (globalState.session && msg.instruction === instructions.session.aborted.unavailableAttendants) {
+                // Expire session
+                globalState.session.expired = true
+                manuh.publish(topics.sessions.updates, JSON.parse(JSON.stringify(globalState.session)))
             }
 
         }, "ChimpWidgetModel")

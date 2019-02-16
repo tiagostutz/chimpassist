@@ -116,6 +116,7 @@ module.exports = {
                     logger.debug(`Subscribing to ${attendantAssignment.sessionInfo.sessionTopic}/server/control for expiration notification and other controls`)
                     mqttClient.subscribe(`${attendantAssignment.sessionInfo.sessionTopic}/server/control`, msg => {
                         logger.debug(`Server session control message received. Instruction: ${msg.instruction}. Message: ${JSON.stringify(msg)}`)
+                        
                         if (msg.instruction === instructions.session.aborted.expired) {
                             this.expireSessionAssignment(msg.sessionInfo.sessionTopic)
                         }

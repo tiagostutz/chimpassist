@@ -10,7 +10,12 @@ export default class MinimizedModel extends RhelenaPresentationModel {
         
         manuh.unsubscribe(topics.sessions.updates, "MinimizedModel")
         manuh.subscribe(topics.sessions.updates, "MinimizedModel", sessionWithMessages => {
-            this.session = sessionWithMessages
+            // if the session has the `expired` attribute, the session must be cleaned
+            if (sessionWithMessages.expired) {
+                this.session = null
+            }else{ //otherwise, updated
+                this.session = sessionWithMessages
+            }
         })
         
     }

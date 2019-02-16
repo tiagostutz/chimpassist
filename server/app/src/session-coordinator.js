@@ -32,7 +32,10 @@ module.exports = {
         
             // listens for chat requests
             mqttClient.subscribe(topics.server.sessions.online, sessionInfoMsg => {
-                                
+
+                if (!sessionInfoMsg || !sessionInfoMsg.customer) {
+                    return
+                }
                 //prevent duplicate messages crash
                 if (lastSessionOnlineMessage && sessionInfoMsg.customer.id === lastSessionOnlineMessage.content.customer.id && (new Date().getTime()-lastSessionOnlineMessage.timestamp)<1000) {
                     return;
@@ -102,6 +105,8 @@ module.exports = {
                         sessionRepo.upsert(msg.sessionInfo.sessionTopic, msg.sessionInfo)
                         
                         //notify the customer that the session cannot be started due to lack of available attendant
+                        console.log(`PUBLISHING TO ${sessionInfo.sessionTopic}/client/control abort`)
+                        
                         mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.unavailableAttendants, sessionInfo: msg.sessionInfo })
 
                     // ATTENDANT ASSIGNED
@@ -119,9 +124,18 @@ module.exports = {
                         if (_self.isSessionSetupReady(sessionInfoAssignment)) {
                             sessionInfoAssignment.status = status.session.online
                             sessionRepo.upsert(sessionInfoAssignment.sessionTopic, sessionInfoAssignment)
+                            
                             // notify all the interested parts in client that the session is ready and they can start to chat around
                             mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.ready, sessionInfo: sessionInfoAssignment })
                         }
+
+                    }else if (msg.instruction === instructions.session.aborted.expired) {
+                        logger.debug("Session expired for the Client. Details:", msg.attendantInfo)     
+                        sessionInfoAssignment.status = status.session.aborted
+                        sessionRepo.upsert(sessionInfoAssignment.sessionTopic, sessionInfoAssignment)
+
+                        // notify all the interested parts in client that the session has expired
+                        mqttClient.publish(`${sessionInfo.sessionTopic}/client/control`, { instruction: instructions.session.aborted.expired, sessionInfo: sessionInfoAssignment })
 
                     }
                 }, "session-coordinator")

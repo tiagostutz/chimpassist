@@ -4,7 +4,7 @@
   "description": "chimp assist server components",
   "main": "server.js",
   "scripts": {
-    "dev": "MQTT_BROKER_HOST=mqtt://localhost:1883 MQTT_USERNAME=root MQTT_PASSWORD=root MONGO_CONNECTION_URL=mongodb://root:root@localhost:27017/?authMechanism=SCRAM-SHA-1 node src/server.js",
+    "dev": "DEBUG=nope MQTT_BROKER_HOST=mqtt://localhost:1883 MQTT_USERNAME=root MQTT_PASSWORD=root MONGO_CONNECTION_URL=mongodb://root:root@localhost:27017/?authMechanism=SCRAM-SHA-1 ATTENDANT_PRESENCE_MQTT_BROKER_HOST=https://mqtt01.iot.stutz.com.br/mqtt ATTENDANT_PRESENCE_MQTT_USERNAME= ATTENDANT_PRESENCE_MQTT_PASSWORD= ATTENDANT_PRESENCE_TOPIC=4/# node src/server.js",
     "start": "node src/server.js",
     "test": "LOGGER_LEVEL=error MQTT_BROKER_HOST=mqtt://localhost:1883 mocha --recursive"
   },
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/tiagostutz/chimpassist#readme",
   "dependencies": {
+    "async-redis": "^1.1.7",
     "charol": "^0.2.0",
     "console-server": "^1.0.9",
     "cors": "^2.8.4",
@@ -35,7 +36,7 @@
     "mongodb": "^3.1.8",
     "mqtt": "^2.18.8",
     "node-json-db": "^0.9.1",
-    "simple-mqtt-client": "^0.3.9",
+    "simple-mqtt-client": "^1.0.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {}

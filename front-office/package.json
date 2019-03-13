@@ -27,11 +27,11 @@
     "debug": "^4.1.0",
     "i18next": "^11.9.0",
     "i18next-browser-languagedetector": "^2.2.4",
-    "manuh": "^1.4.0",
+    "manuh": "^1.4.3",
     "moment": "^2.22.2",
     "react-i18next": "^8.0.7",
     "rhelena": "^1.2.5",
-    "simple-mqtt-client": "^0.3.6",
+    "simple-mqtt-client": "^1.0.1",
     "uuid": "^3.3.2"
   },
   "browserslist": [

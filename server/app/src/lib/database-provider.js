@@ -39,5 +39,8 @@ module.exports = class DatabaseProvider {
     }
     delete(key) {
         this.db.delete(key)
+        debug("Item deleted. Key=",key)
+        manuh.publish(this.deletionNotificationTopic, deletedItem)
+        debug("delete notification sent to",this.deletionNotificationTopic)
     }
 }

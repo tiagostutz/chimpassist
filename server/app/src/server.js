@@ -5,6 +5,7 @@ const mqttProvider = require('simple-mqtt-client')
 const sessionCoordinator = require('./session-coordinator')
 const sessionRepo = require('./session-repo')
 const attendantScheduler = require('./attendant-scheduler')
+const attendantPresenceSensor = require('./attendant-presence-sensor')
 const chatLogger = require('./chat-logger')
 
 const mqttBaseTopic = process.env.MQTT_BASE_TOPIC || "chimpassist/demo"
@@ -16,7 +17,7 @@ MQTT_PASSWORD=${process.env.MQTT_PASSWORD}
 MQTT_BASE_TOPIC=${mqttBaseTopic}`)
 
 //init mqttProvider so all the components can connect to mqttBroker
-mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, mqttClient => {
+mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, mqttClient => {
     
     // start session coordinator
     sessionCoordinator.start(mqttClient, () => {
@@ -32,7 +33,28 @@ mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, proce
     chatLogger.start(mqttClient, () => {
         logger.info("Chat logger started.")
     })
+    
 
+    // if the attendant third party software presence control integration is enabled
+    if (process.env.ATTENDANT_PRESENCE_MQTT_BROKER_HOST && process.env.ATTENDANT_PRESENCE_TOPIC) {
+
+        logger.info(`PRESENCE MQTT Provider params: 
+        PRESENCE MQTT_BROKER_HOST=${process.env.ATTENDANT_PRESENCE_MQTT_BROKER_HOST} 
+        PRESENCE MQTT_USERNAME=${process.env.ATTENDANT_PRESENCE_MQTT_USERNAME} 
+        PRESENCE MQTT_PASSWORD=${process.env.ATTENDANT_PRESENCE_MQTT_PASSWORD}`)
+        
+        //init mqttProvider so all the components can connect to mqttBroker
+        mqttProvider.new().init(process.env.ATTENDANT_PRESENCE_MQTT_BROKER_HOST, process.env.ATTENDANT_PRESENCE_MQTT_USERNAME, process.env.ATTENDANT_PRESENCE_MQTT_PASSWORD, "accounts", mqttClientPresence => {
+        
+            logger.debug("Initializing presence-sensor...")            
+            //start attendant presence sensor
+            attendantPresenceSensor.start(mqttClientPresence, mqttClient, () => {
+                logger.info("Attendant presence sensor started.")
+            })
+        
+        })
+
+    }    
 })
 
 

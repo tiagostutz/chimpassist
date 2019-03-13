@@ -15,7 +15,10 @@ if (window.localStorage && process.env.REACT_APP_DEBUG)  {
     console.log('window.localStorage.debug', window.localStorage.debug);    
 } 
 
-manuh.subscribe(topics.chatStation.user.logout, "chatServices", _ => chatServices._ready = false)
+manuh.subscribe(topics.chatStation.user.logout, "chatServices", _ => { 
+    chatServices._ready = false
+    window.location.href = window.location.href
+})
 
 let chatServices = {
     _ready: false,
@@ -60,7 +63,7 @@ let chatServices = {
 
             debug('Starting chatServices...')
             
-            mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClientParam) => {    
+            mqttProvider.new().init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClientParam) => {    
                 
                 chatServices.mqttClient = mqttClientParam
                 

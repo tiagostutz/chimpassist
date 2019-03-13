@@ -33,7 +33,7 @@ export default class ChimpWidgetModel extends RhelenaPresentationModel {
         }
         this.userData = globalState.userData
 
-        mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
+        mqttProvider.new().init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, mqttBaseTopic, async (mqttClient) => {
             globalState.mqttClient = mqttClient
             this.startSession()
         })

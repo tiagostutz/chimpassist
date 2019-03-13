@@ -19,7 +19,7 @@ test('KeepAlive send frequency', done => {
         id: "at1@chimpassist.com",
         type: attendantTypes.support.firstLevel
     }
-    mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, baseTopic, (mqttClientParam) => {    
+    mqttProvider.new().init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, baseTopic, (mqttClientParam) => {    
         
         // with a keepAlive of 1000ms the heartbit send frequency will be 500ms ( = keepAliveTTL/2 )
         fetch.once(JSON.stringify({ "keepAliveTTL": "400" }))
@@ -60,7 +60,7 @@ test('Attendant assignment receive', done => {
         "status": status.session.waitingAttendantsAssignment
     }
     
-    mqttProvider.init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, baseTopic, (mqttClientParam) => {    
+    mqttProvider.new().init(mqttBrokerHost, mqttBrokerUsername, mqttBrokerPassword, baseTopic, (mqttClientParam) => {    
         
         // with a keepAlive of 1000ms the heartbit send frequency will be 500ms ( = keepAliveTTL/2 )
         chatServices.startService(attendantInfo, () => {            

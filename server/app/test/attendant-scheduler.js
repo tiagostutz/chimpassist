@@ -21,7 +21,7 @@ const cleanData = () => {
 
 describe("Attendant Scheduler simple scenarios", () => {
     it("Should return empty array of attendants on a recently initiated scheduler", (done) => {
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {        
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {        
             attendantScheduler.start(mqttClient, () => {
                 assert.equal(attendantScheduler.getOrderedOnlineAttendants().length, 0)
     
@@ -32,7 +32,7 @@ describe("Attendant Scheduler simple scenarios", () => {
     })
 
     it("Should return an array with 1 attendants ON-LINE", (done) => {
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {        
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {        
             attendantScheduler.start(mqttClient, () => {            
                 const attendantMock = {
                     id: 123,
@@ -49,7 +49,7 @@ describe("Attendant Scheduler simple scenarios", () => {
     })
 
     it("Should have 1 assistant ON-LINE registered by topic publish", (done) => {
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {        
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {        
             attendantScheduler.start(mqttClient, () => {            
                 const attendantMock = {
                     id: 123,
@@ -73,7 +73,7 @@ describe("Attendant Scheduler simple scenarios", () => {
 
 
     it("Should have 3 assistant ON-LINE registered by topic publish", (done) => {
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
             attendantScheduler.start(mqttClient, () => {            
                 const attendantMock1 = {
                     id: 1231,
@@ -110,7 +110,7 @@ describe("Attendant Scheduler simple scenarios", () => {
 
     it("Should expire the assistant after registering it by topic publish", (done) => {
         const keepAliveTTL = 100
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
             attendantScheduler.start(mqttClient, () => {            
                 const attendantMock = {
                     id: 1234,
@@ -138,7 +138,7 @@ describe("Attendant Scheduler simple scenarios", () => {
 
     it("Should expire one assistant and refresh another after registering it by topic publish", (done) => {
         const keepAliveTTL = 200
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
         attendantScheduler.start(mqttClient, () => {            
                 const attendantMock1 = {
                     id: 41,
@@ -174,7 +174,7 @@ describe("Attendant Scheduler simple scenarios", () => {
     }).timeout(2000)
 
     it("Should have 1 assistant ON-LINE assigned to a session that will expire and have this session removed from this activeSessions list", (done) => {
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, process.env.MQTT_BASE_TOPIC, (mqttClient) => {    
             attendantScheduler.start(mqttClient, () => {            
                 const attendantMock = {
                     id: 55,

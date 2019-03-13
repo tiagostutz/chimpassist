@@ -50,6 +50,13 @@ services:
     networks:
       - chimpassist-demo        
 
+  redis:
+    image: redis:5
+    ports:
+      - 6379:6379
+    networks:
+      - chimpassist-demo        
+
 networks:
   chimpassist-demo:
     name: chimpassist-demo      

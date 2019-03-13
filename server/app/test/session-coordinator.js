@@ -24,7 +24,7 @@ describe('Session Coordinator simple scenarios', () => {
     
     it("should return empty array on getOnlineSessions.", (done) => {
 
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
             sessionCoordinator.start(mqttClient, () => {
                 assert.equal(sessionCoordinator.getOnlineSessions().length, 0); 
                 
@@ -37,7 +37,7 @@ describe('Session Coordinator simple scenarios', () => {
 
     it(`should return array with 0 session on getOnlineSessions`, (done) => {
 
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
             sessionCoordinator.start(mqttClient, () => {
                 
                 //clean subscriptions from attendantScheduler that can change the behavior of session state
@@ -70,7 +70,7 @@ describe('Session Coordinator simple scenarios', () => {
 
 
     it(`should set the session as "aborted" due to no available attendants`, (done) => {
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
             sessionCoordinator.start(mqttClient, () => {
                 
                 //clean subscriptions from attendantScheduler that can change the behavior of session state
@@ -121,7 +121,7 @@ describe('Session Coordinator simple scenarios', () => {
 
     it(`should set the session as "ready" with one available attendant`, (done) => {
 
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
             sessionCoordinator.start(mqttClient, () => {
                 
                 //clean subscriptions from attendantScheduler that can change the behavior of session state
@@ -178,7 +178,7 @@ describe('Session Coordinator simple scenarios', () => {
 
     it(`should send the final chat handshake to sessionTopic`, (done) => {
 
-        mqttProvider.init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
+        mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME, process.env.MQTT_PASSWORD, mqttBaseTopic, (mqttClient) => {    
             sessionCoordinator.start(mqttClient, () => {
                 
                 //clean subscriptions from attendantScheduler that can change the behavior of session state

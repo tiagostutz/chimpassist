@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { attachModelToView } from 'rhelena'
+import { attachModelToView, globalState } from 'rhelena'
 import { Helmet } from "react-helmet";
 
 import ChatStation from './routes/ChatStation'
@@ -31,6 +31,7 @@ class App extends Component {
         <div className="sideMenu">
           <div style={{flex:1}}>
             <img src={logoURL} alt="Logo"/>
+            <div>{globalState.loggedUser && globalState.loggedUser.name.split(' ')[0]}</div>
           </div>
           <div  style={{flex:1}}>
             <button onClick={() => this.viewModel.logout()}>{t("logout")}</button>

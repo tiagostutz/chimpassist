@@ -4,7 +4,8 @@
   "description": "chimp assist server components",
   "main": "server.js",
   "scripts": {
-    "dev": "DEBUG=nope MQTT_BROKER_HOST=mqtt://localhost:1883 MQTT_USERNAME=root MQTT_PASSWORD=root MONGO_CONNECTION_URL=mongodb://root:root@localhost:27017/?authMechanism=SCRAM-SHA-1 ATTENDANT_PRESENCE_MQTT_BROKER_HOST=https://mqtt01.iot.stutz.com.br/mqtt ATTENDANT_PRESENCE_MQTT_USERNAME= ATTENDANT_PRESENCE_MQTT_PASSWORD= ATTENDANT_PRESENCE_TOPIC=4/# node src/server.js",
+    "dev": "DEBUG=nope MQTT_BROKER_HOST=mqtt://localhost:1883 MQTT_USERNAME=root MQTT_PASSWORD=root MONGO_CONNECTION_URL=mongodb://root:root@localhost:27017/?authMechanism=SCRAM-SHA-1 node src/server.js",
+    "dev-pres": "ATTENDANT_PRESENCE_MQTT_BROKER_HOST=https://mqtt01.iot.stutz.com.br/mqtt ATTENDANT_PRESENCE_MQTT_USERNAME= ATTENDANT_PRESENCE_MQTT_PASSWORD= ATTENDANT_PRESENCE_TOPIC=4/# npm run dev",
     "start": "node src/server.js",
     "test": "LOGGER_LEVEL=error MQTT_BROKER_HOST=mqtt://localhost:1883 mocha --recursive"
   },

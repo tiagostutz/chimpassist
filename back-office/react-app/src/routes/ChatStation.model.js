@@ -11,6 +11,7 @@ export default class ChatStationModel extends RhelenaPresentationModel {
     constructor() {
         super();
 
+        this.blockMessage = null
         globalState.sessions = [] //initialize variable
         globalState.sessionsRefresh = [] //initialize variable
 
@@ -48,6 +49,19 @@ export default class ChatStationModel extends RhelenaPresentationModel {
                 
             })
             // -- end of customers setup
+
+
+            // Receive remote commands
+            manuh.unsubscribe(topics.chatStation.user.block, "ChatStation")
+            manuh.subscribe(topics.chatStation.user.block, "ChatStation", msg => {
+                this.blockMessage = msg.info
+            })
+            manuh.unsubscribe(topics.chatStation.user.unblock, "ChatStation")
+            manuh.subscribe(topics.chatStation.user.unblock, "ChatStation", _ => {
+                console.log('========>>>>>>>!!! UNBLOCK!')
+                this.blockMessage = 0
+            })
+            // -- end of remote commands
             
             // check the session updates
             setInterval(() => {

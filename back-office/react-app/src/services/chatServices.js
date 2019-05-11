@@ -85,7 +85,10 @@ let chatServices = {
                 // subscribe to remote commands
                 chatServices.mqttClient.subscribe(`${topics.client.attendants.control}/${attendantInfo.id}`, (msg) => {
                     if (msg.instruction === instructions.attendant.control.terminate.activity_monitor_offline) {
-                        manuh.publish(topics.chatStation.user.block, { info: "Por favor abra o monitor de atividade na sua estação de trabalho para continuar ativo"})
+                        manuh.publish(topics.chatStation.user.block, { info: "Você não está com o monitor de atividades ligado. Para continuar atendento por favor inicie-o na sua estação de trabalho. Suas sessões estão salvas e serão retomadas assim que o monitor de atividades estiver online."})
+                    }else if (msg.instruction === instructions.attendant.control.resume.activity_monitor_online) {
+                        console.log('========>>>>>>> RESUME', msg.instruction)                        
+                        manuh.publish(topics.chatStation.user.unblock, { info: "Monitor de atividades ligado. Retomando sessões de atendimento."})
                     }
                 })
 

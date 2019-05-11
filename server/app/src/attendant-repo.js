@@ -4,7 +4,6 @@ const DatabaseProvider = require('./lib/redis-provider')
 const databaseCatalog = require('./lib/database-catalog')
 
 const topics = require('./lib/topics')
-const dbPrefix = "/" + topics.server.attendants._path
 
 logger.info("Attendant database initialized in Repo. Details: databaseFile:", databaseCatalog.attendantDatabase)
 

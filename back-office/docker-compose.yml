@@ -5,7 +5,7 @@ services:
   backend:
     image: tiagostutz/chimpassist-server:0.1.5-alpine
     ports:
-      - 3000:3000
+      - 3134:3134
     environment:
       - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
       - MQTT_BROKER_HOST=mqtt://mqtt:1883
@@ -22,7 +22,7 @@ services:
       - FAV_ICON_URL=https://ik.imagekit.io/stutzsolucoes/small_logo_SJ0kUUTmV.png
       - MAIN_PAGE_TITLE=E-didático atendimento aos estudantes
       - LOGIN_PAGE_TITLE=E-didático - Entre com seu e-mail e senha
-      - BACKEND_ENDPOINT=http://localhost:3000
+      - BACKEND_ENDPOINT=http://localhost:3134
       - FORCE_i18n_LANGUAGE=ptBR
       - AUTHENTICATION_ENDPOINT=http://localhost:3333
       - STATISTICS_ENDPOINT=http://localhost:8000

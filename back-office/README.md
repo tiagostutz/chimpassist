@@ -14,7 +14,7 @@ services:
   backend:
     image: tiagostutz/chimpassist-server:0.1.5-alpine
     ports:
-      - 3000:3000
+      - 3134:3134
     environment:
       - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
       - MQTT_BROKER_HOST=mqtt://mqtt:1883
@@ -30,7 +30,7 @@ services:
       - MAIN_PAGE_TITLE='Chimp Assist Dockerized Demo' 
       - LOGIN_PAGE_TITLE='Login to Chimp Assist Dockerized Demo'
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
-      - BACKEND_ENDPOINT=http://localhost:3000
+      - BACKEND_ENDPOINT=http://localhost:3134
       - FORCE_i18n_LANGUAGE=en
       - AUTHENTICATION_ENDPOINT=http://localhost:3333
       - STATISTICS_ENDPOINT=http://localhost:8000

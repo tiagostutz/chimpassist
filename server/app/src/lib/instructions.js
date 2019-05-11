@@ -6,6 +6,9 @@ let instructions = {
         control: {
             terminate: {
                 activity_monitor_offline: null
+            },
+            resume: {
+                activity_monitor_online: null
             }
         }
     },

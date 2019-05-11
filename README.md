@@ -18,7 +18,7 @@ services:
   backend:
     image: tiagostutz/chimpassist-server:0.1.5-alpine
     ports:
-      - 3000:3000
+      - 3134:3134
     environment:
       - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
       - MQTT_BROKER_HOST=mqtt://mqtt:1883
@@ -34,7 +34,7 @@ services:
       - MAIN_PAGE_TITLE='Chimp Assist Dockerized Demo' 
       - LOGIN_PAGE_TITLE='Login to Chimp Assist Dockerized Demo'
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
-      - BACKEND_ENDPOINT=http://localhost:3000
+      - BACKEND_ENDPOINT=http://localhost:3134
       - FORCE_i18n_LANGUAGE=en
       - AUTHENTICATION_ENDPOINT=http://localhost:3333
       - STATISTICS_ENDPOINT=http://localhost:8000
@@ -81,7 +81,7 @@ Now, to install the chat widget on your React Application:
     import { ChimpWidget } from 'chimpassist-widget'
 
     <ChimpWidget
-      backendEndpoint="http://localhost:3000"
+      backendEndpoint="http://localhost:3134"
       mqttBrokerHost="http://localhost:8080/mqtt"
       mqttBaseTopic="chimpassist/demo"
       title="Chimp Assist Demo"
@@ -270,7 +270,7 @@ To start a chat the client requests the **session coordinator** to allocate a pr
 
 To start a chat, the client will:
 
-1) Make a `POST` request to the backend at <API_URL>/session (like http://localhost:3000/session) to receive a generated **sessionId**
+1) Make a `POST` request to the backend at <API_URL>/session (like http://localhost:3134/session) to receive a generated **sessionId**
 2) With the received `sessionId` the client will **publish** a message to the topic `server/sessions/request` with the following payload:
 
 ```json

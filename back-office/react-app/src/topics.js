@@ -8,7 +8,8 @@ let topics = {
         user: {
             login: null,
             logout: null,
-            block: null
+            block: null,
+            unblock: null
         },
         window: {
             visibility: null

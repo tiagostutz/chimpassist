@@ -10,17 +10,17 @@ version: '3.7'
 services:
 
   backend:
-    image: tiagostutz/chimpassist-server:0.1.5-alpine
+    image: tiagostutz/chimpassist-server:0.2.1-alpine
     ports:
-      - 3000:3000
+      - 3134:3134
     environment:
       - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
       - MQTT_BROKER_HOST=mqtt://mqtt:1883
     networks:
-      - chimpassist-demo        
+      - chimpassist-demo
 
   back-office:
-    image: tiagostutz/chimpassist-back-office-ui:0.2.0-alpine
+    image: tiagostutz/chimpassist-back-office-ui:0.2.1-alpine
     ports:
       - 3210:80
     environment:  
@@ -28,7 +28,7 @@ services:
       - MAIN_PAGE_TITLE='Chimp Assist Dockerized Demo' 
       - LOGIN_PAGE_TITLE='Login to Chimp Assist Dockerized Demo'
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
-      - BACKEND_ENDPOINT=http://localhost:3000
+      - BACKEND_ENDPOINT=http://localhost:3134
       - FORCE_i18n_LANGUAGE=en
       - AUTHENTICATION_ENDPOINT=http://localhost:3333
       - STATISTICS_ENDPOINT=http://localhost:8000
@@ -64,6 +64,10 @@ networks:
   chimpassist-demo:
     name: chimpassist-demo        
 ```
+
+## Development
+
+If you want to run in development mode, bring MongoDB and MQTT up by running in this folder the command `docker-compose up mqtt mongo redis`. Then run `npm install` and finally `npm run dev` to bring up the server on the `3134` port.
 
 ## Environment Variables
 

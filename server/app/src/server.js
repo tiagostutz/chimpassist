@@ -61,7 +61,7 @@ mqttProvider.new().init(process.env.MQTT_BROKER_HOST, process.env.MQTT_USERNAME,
 // bring up the API server 
 const app = express()
 app.use(cors())
-const port = 3000
+const port = 3134
 
 app.get('/session/:id', (req, res) => {
     let resp = sessionRepo.getSession(req.params.id)

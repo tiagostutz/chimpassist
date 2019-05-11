@@ -3,9 +3,9 @@ version: '3.7'
 services:
 
   backend:
-    image: tiagostutz/chimpassist-server:0.2.0-alpine
+    image: tiagostutz/chimpassist-server:0.2.1-alpine
     ports:
-      - 3000:3000
+      - 3134:3134
     environment:
       - MONGO_CONNECTION_URL=mongodb://root:root@mongo:27017/?authMechanism=SCRAM-SHA-1
       - MQTT_BROKER_HOST=mqtt://mqtt:1883
@@ -13,13 +13,13 @@ services:
       - chimpassist-demo        
 
   back-office:
-    image: tiagostutz/chimpassist-back-office-ui:0.2.0-alpine
+    image: tiagostutz/chimpassist-back-office-ui:0.2.1-alpine
     ports:
       - 3210:80
     environment:  
       - LOGO_SMALL_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/c_crop,h_326/c_scale,h_176/v1539906576/noun_Cabin_Monkey_774328_yxidcr.png
       - DEFAULT_ATTENDANT_AVATAR_URL=https://res.cloudinary.com/stutzsolucoes/image/upload/v1530069234/pseudo-avatar_ghrnlu.jpg
-      - BACKEND_ENDPOINT=http://localhost:3000
+      - BACKEND_ENDPOINT=http://localhost:3134
       - FORCE_i18n_LANGUAGE=en
       - AUTHENTICATION_ENDPOINT=http://localhost:3333
       - MQTT_BROKER_HOST=http://localhost:8080/mqtt
@@ -41,7 +41,7 @@ services:
       - chimpassist-demo        
 
   mongo:
-    image: mongo
+    image: mongo:4
     ports:
       - 27017:27017
     environment:

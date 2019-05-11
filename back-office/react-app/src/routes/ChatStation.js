@@ -51,14 +51,24 @@ export default class ChatStation extends Component {
       <ThemeProvider theme={textComposeTheme}>
 
         <div className="mainArea">
+        
+          { !this.state.blockMessage &&
             <div className="chatListPane">
-            { this.state.status }
+              { this.state.status }
               <ChatList />
             </div>
+          }
 
-            <div className="inputMessagePane">
-              <Chat />
-            </div>
+          <div className="inputMessagePane">
+            { !this.state.blockMessage && <Chat /> }
+          </div>
+
+          { this.state.blockMessage && 
+            <div className="blockMessage">
+              { this.state.blockMessage }
+            </div> 
+          }
+
 
         </div>
 
